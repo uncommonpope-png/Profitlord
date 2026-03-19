@@ -7,7 +7,7 @@ Profitlord is an automated profit-tracking and business-intelligence platform co
 - **Static site** (GitHub Pages) generated into `docs/` by `deploy-seo.js`
 - **Backend API** (`server/`) — Node 20, no external framework, deployed on Render
 - **Worker** (`worker/`) — Cloudflare Worker (Wrangler), with a D1 SQLite schema
-- **Souls registry** (`docs/agents.json`) — 10 AI agents (souls) with roles and capabilities
+- **Souls registry** (`docs/agents.json`) — AI agents (souls) with roles and capabilities
 - **Live state** (`docs/state.json`) — updated by `scripts/update-state.js` on every CI run
 - **Command queue** (`docs/queue.jsonl`) — consumed by `scripts/consume-queue.js`
 - **Ledger** (`docs/ledger.jsonl`) — append-only event log
