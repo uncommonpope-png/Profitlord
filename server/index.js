@@ -4,33 +4,78 @@
 // Profitlord Command Center — Backend (Node 20, no external dependencies)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /chat/:soul    { message, session_id }
+//   GET  /auth/login     — redirect to GitHub OAuth authorization
+//   GET  /auth/callback  — exchange code for token, redirect to dashboard
+//   GET  /auth/me        — return authenticated user info (requires Bearer token)
+//   GET  /auth/logout    — invalidate session
+//   POST /execute        { command, source, ts }
+//   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   PORT       — (optional) listening port, defaults to 3000
+//   GH_TOKEN        — GitHub personal access token with repo write access
+//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO         — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_CLIENT_SECRET — GitHub OAuth App client secret
+//   PORT            — (optional) listening port, defaults to 3000
 // ---------------------------------------------------------------------------
 
 const http = require('http');
 const https = require('https');
+const crypto = require('crypto');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const GH_TOKEN = process.env.GH_TOKEN || '';
 const GH_OWNER = process.env.GH_OWNER || 'uncommonpope-png';
 const GH_REPO = process.env.GH_REPO || 'Profitlord';
 const GH_BRANCH = process.env.GH_BRANCH || 'main';
+const GH_CLIENT_ID = process.env.GH_CLIENT_ID || '';
+const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET || '';
 const ALLOWED_ORIGIN = 'https://uncommonpope-png.github.io';
+const DASHBOARD_URL = ALLOWED_ORIGIN + '/Profitlord/dashboard.html';
 
 if (!GH_TOKEN) {
   console.warn('[WARN] GH_TOKEN is not set — GitHub writeback will be disabled.');
 }
+if (!GH_CLIENT_ID || !GH_CLIENT_SECRET) {
+  console.warn('[WARN] GH_CLIENT_ID / GH_CLIENT_SECRET not set — GitHub OAuth login will be disabled.');
+}
+
+// ─── Session store ──────────────────────────────────────────────────────────
+// In-memory session store: token → { user, ghAccessToken, expiresAt }
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const sessions = new Map();
+
+// Pending OAuth state values: state → { createdAt }
+const oauthStates = new Map();
+
+function createSession(user, ghAccessToken) {
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions.set(token, { user, ghAccessToken, expiresAt: Date.now() + SESSION_TTL_MS });
+  return token;
+}
+
+function getSession(token) {
+  if (!token) return null;
+  const s = sessions.get(token);
+  if (!s) return null;
+  if (Date.now() > s.expiresAt) { sessions.delete(token); return null; }
+  return s;
+}
+
+function deleteSession(token) {
+  sessions.delete(token);
+}
+
+function extractBearerToken(req) {
+  const auth = req.headers['authorization'] || '';
+  if (auth.startsWith('Bearer ')) return auth.slice(7).trim();
+  return null;
+}
 
 // ─── GitHub REST helpers ────────────────────────────────────────────────────
 
-function ghRequest(method, path, body) {
+function ghRequest(method, path, body, token) {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
     const opts = {
@@ -40,7 +85,7 @@ function ghRequest(method, path, body) {
       headers: {
         'User-Agent': 'profitlord-server/1.0',
         'Accept': 'application/vnd.github+json',
-        'Authorization': 'Bearer ' + GH_TOKEN,
+        'Authorization': 'Bearer ' + (token || GH_TOKEN),
         'X-GitHub-Api-Version': '2022-11-28',
         ...(data ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } : {}),
       },
@@ -55,6 +100,35 @@ function ghRequest(method, path, body) {
     });
     req.on('error', reject);
     if (data) req.write(data);
+    req.end();
+  });
+}
+
+// Exchange a GitHub OAuth code for an access token
+function ghExchangeCode(code) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({ client_id: GH_CLIENT_ID, client_secret: GH_CLIENT_SECRET, code });
+    const opts = {
+      hostname: 'github.com',
+      path: '/login/oauth/access_token',
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+        'User-Agent': 'profitlord-server/1.0',
+      },
+    };
+    const req = https.request(opts, res => {
+      let raw = '';
+      res.on('data', c => { raw += c; });
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(raw) }); }
+        catch { resolve({ status: res.statusCode, body: raw }); }
+      });
+    });
+    req.on('error', reject);
+    req.write(data);
     req.end();
   });
 }
@@ -159,7 +233,7 @@ function setCors(req, res) {
   if (origin === ALLOWED_ORIGIN) {
     res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Vary', 'Origin');
   }
 }
@@ -168,6 +242,103 @@ function setCors(req, res) {
 
 async function handleHealth(req, res) {
   send(res, 200, { status: 'ok', ts: new Date().toISOString(), service: 'profitlord-server' });
+}
+
+// GET /auth/login — redirect to GitHub OAuth authorization
+async function handleAuthLogin(req, res) {
+  if (!GH_CLIENT_ID) {
+    return send(res, 503, { error: 'GitHub OAuth not configured (GH_CLIENT_ID missing)' });
+  }
+  const state = crypto.randomBytes(16).toString('hex');
+  oauthStates.set(state, { createdAt: Date.now() });
+
+  const params = new URLSearchParams({
+    client_id: GH_CLIENT_ID,
+    scope: 'read:user user:email',
+    state,
+  });
+  const url = `https://github.com/login/oauth/authorize?${params.toString()}`;
+  res.writeHead(302, { Location: url });
+  res.end();
+}
+
+// GET /auth/callback?code=...&state=... — exchange code for token
+async function handleAuthCallback(req, res) {
+  if (!GH_CLIENT_ID || !GH_CLIENT_SECRET) {
+    return send(res, 503, { error: 'GitHub OAuth not configured' });
+  }
+
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  const code = url.searchParams.get('code') || '';
+  const state = url.searchParams.get('state') || '';
+  const errorParam = url.searchParams.get('error') || '';
+
+  if (errorParam) {
+    const desc = url.searchParams.get('error_description') || errorParam;
+    res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=${encodeURIComponent(desc)}` });
+    return res.end();
+  }
+
+  // Validate CSRF state
+  if (!state || !oauthStates.has(state)) {
+    res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=invalid_state` });
+    return res.end();
+  }
+  oauthStates.delete(state);
+
+  if (!code) {
+    res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=missing_code` });
+    return res.end();
+  }
+
+  try {
+    const tokenRes = await ghExchangeCode(code);
+    if (tokenRes.status !== 200 || !tokenRes.body.access_token) {
+      const err = (tokenRes.body && tokenRes.body.error) || 'token_exchange_failed';
+      res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=${encodeURIComponent(err)}` });
+      return res.end();
+    }
+
+    const ghAccessToken = tokenRes.body.access_token;
+
+    // Fetch the authenticated user's profile
+    const userRes = await ghRequest('GET', '/user', null, ghAccessToken);
+    if (userRes.status !== 200) {
+      res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=user_fetch_failed` });
+      return res.end();
+    }
+
+    const user = {
+      login: userRes.body.login,
+      name: userRes.body.name || userRes.body.login,
+      avatar_url: userRes.body.avatar_url,
+    };
+
+    const sessionToken = createSession(user, ghAccessToken);
+    console.log(`[auth] logged in: ${user.login}`);
+
+    res.writeHead(302, { Location: `${DASHBOARD_URL}#token=${sessionToken}` });
+    res.end();
+  } catch (e) {
+    console.error('[auth] callback error:', e.message);
+    res.writeHead(302, { Location: `${DASHBOARD_URL}?auth_error=server_error` });
+    res.end();
+  }
+}
+
+// GET /auth/me — return current user info
+async function handleAuthMe(req, res) {
+  const token = extractBearerToken(req);
+  const session = getSession(token);
+  if (!session) return send(res, 401, { error: 'Unauthorized' });
+  send(res, 200, { user: session.user });
+}
+
+// GET /auth/logout — invalidate session
+async function handleAuthLogout(req, res) {
+  const token = extractBearerToken(req);
+  if (token) deleteSession(token);
+  send(res, 200, { ok: true });
 }
 
 async function handleExecute(req, res) {
