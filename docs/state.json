@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-19T10:30:47.816Z",
+  "updated_at": "2026-03-19T10:32:55.438Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
@@ -16,7 +16,7 @@
         "agent management"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T10:30:47.817Z",
+      "last_seen": "2026-03-19T10:32:55.440Z",
       "endpoint": "/chat/SoulCollector"
     },
     "Profit": {
@@ -30,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T10:30:47.817Z",
+      "last_seen": "2026-03-19T10:32:55.440Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -44,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T10:30:47.817Z",
+      "last_seen": "2026-03-19T10:32:55.440Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -76,29 +76,6 @@
       "endpoint": "/chat/Teacher"
     },
     "Architect": {
-      "status": "idle",
-      "last_seen": "2026-03-19T08:00:00.000Z",
-      "last_message": null
-    },
-    "Builder": {
-      "status": "idle",
-      "last_seen": "2026-03-19T08:00:00.000Z",
-      "last_message": null
-    },
-    "Auditor": {
-      "status": "idle",
-      "last_seen": "2026-03-19T08:00:00.000Z",
-      "last_message": null
-    },
-    "Scout": {
-      "status": "idle",
-      "last_seen": "2026-03-19T08:00:00.000Z",
-      "last_message": null
-    },
-    "Scribe": {
-      "status": "idle",
-      "last_seen": "2026-03-19T08:00:00.000Z",
-      "last_message": null
       "id": "architect",
       "name": "Architect",
       "role": "System Designer",
@@ -168,7 +145,5 @@
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Scribe"
     }
-  },
-  "last_queue_consumed": "2026-03-19T09:43:09.297Z",
-  "queue_consumed_count": 1
+  }
 }
