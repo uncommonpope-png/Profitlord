@@ -144,10 +144,6 @@
   /* ── 6. PLT MODULE RINGS ─────────────────────────────────────────────── */
   function _enhancePLTFormula() {
     /* Works on dashboard.html eco-formula and nreal NSV law element */
-    var selectors = [
-      '.eco-formula',
-      '[style*="Profit"]',        /* catch inline-styled spans */
-    ];
 
     /* Target the eco-formula spans directly */
     _qsa('.eco-formula span').forEach(function (span) {

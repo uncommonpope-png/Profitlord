@@ -407,7 +407,7 @@ footer {
   pointer-events: none;
   z-index: 0;
   background: conic-gradient(
-    from var(--plt-ring-angle, 0deg),
+    from 0deg,
     transparent 0deg,
     rgba(0,229,255,0.15) 45deg,
     rgba(255,0,255,0.1) 90deg,
@@ -421,8 +421,8 @@ footer {
   -webkit-mask-image: linear-gradient(rgba(0,0,0,0.6), transparent 70%);
 }
 @keyframes plt-holo-spin {
-  from { --plt-ring-angle: 0deg; }
-  to   { --plt-ring-angle: 360deg; }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* ── RESPONSIVE: disable heavy effects on small screens ─────────────────── */
