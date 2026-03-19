@@ -1,0 +1,38 @@
+name: nreal (Profitlord Master Build)
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate site into /docs
+        run: node deploy-seo.js
+        env:
+          SITE_URL: https://uncommonpope-png.github.io/Profitlord
+          OUTPUT_DIR: docs
+          SITE_NAME: Profitlord
+          SITE_DESCRIPTION: "Profitlord — profit tracking, business scoring, and the PLT mindset."
+
+      - name: Commit generated /docs (if changed)
+        run: |
+          git config user.name "nreal-bot"
+          git config user.email "nreal-bot@users.noreply.github.com"
+          git add docs/
+          git diff --cached --quiet && echo "No changes to commit" || \
+            (git commit -m "nreal: regenerate docs [skip ci]" && git push)
