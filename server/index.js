@@ -4,30 +4,27 @@
 // Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /delegate      { task, soul, source }
-//   POST /chat/:soul    { message, session_id }
+//   POST /execute        { command, source, ts }
+//   POST /delegate       { task, soul, source }
+//   POST /chat/:soul     { message, session_id }
 //   GET  /auth/login     — redirect to GitHub OAuth authorization
 //   GET  /auth/callback  — exchange code for token, redirect to dashboard
 //   GET  /auth/me        — return authenticated user info (requires Bearer token)
 //   GET  /auth/logout    — invalidate session
-//   POST /execute        { command, source, ts }
-//   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
-//   GH_TOKEN        — GitHub personal access token with repo write access
-//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO         — Repository name   (e.g. Profitlord)
-//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_TOKEN         — GitHub personal access token with repo write access
+//   GH_OWNER         — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO          — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID     — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
-//   PORT            — (optional) listening port, defaults to 3000
+//   REDIS_URL        — Redis connection URL (e.g. redis://host:6379)
+//   PORT             — (optional) listening port, defaults to 3000
+//
+// Proactive messaging (optional — set env vars to enable):
+//   TELEGRAM_BOT_TOKEN — Telegram Bot API token (from @BotFather)
+//   TELEGRAM_CHAT_ID   — Telegram chat/user ID to send messages to
 // ---------------------------------------------------------------------------
-
 const http = require('http');
 const https = require('https');
 const { createClient } = require('redis');
@@ -43,6 +40,124 @@ const GH_CLIENT_ID = process.env.GH_CLIENT_ID || '';
 const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET || '';
 const ALLOWED_ORIGIN = 'https://uncommonpope-png.github.io';
 const DASHBOARD_URL = ALLOWED_ORIGIN + '/Profitlord/dashboard.html';
+
+// ─── Telegram config (proactive outbound messaging) ─────────────────────────
+// Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID env vars to enable.
+// If not set, outbound messages are logged to console only.
+
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const TELEGRAM_CHAT_ID   = process.env.TELEGRAM_CHAT_ID   || '';
+const HEARTBEAT_MS       = parseInt(process.env.HEARTBEAT_MS || '3600000', 10); // default 1 h
+
+// Deduplication: track recently sent messages to avoid repeated floods
+const _sentMessages = new Map(); // text -> sentAt ms
+const MSG_DEDUP_MS  = 60_000;    // 1 minute dedup window
+
+/**
+ * sendTelegram(text, dedup)
+ * Sends a Telegram message via the Bot API.
+ * No-op (console log only) if token/chat are not configured.
+ */
+function sendTelegram(text, dedup) {
+  if (dedup) {
+    const last = _sentMessages.get(text);
+    if (last && Date.now() - last < MSG_DEDUP_MS) {
+      console.log('[Telegram] deduped:', text.slice(0, 80));
+      return false;
+    }
+    _sentMessages.set(text, Date.now());
+  }
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log('[Telegram] (not configured) ->', text.slice(0, 120));
+    return false;
+  }
+  const body = JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: 'Markdown' });
+  const opts = {
+    hostname: 'api.telegram.org',
+    path: '/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+  };
+  const req = https.request(opts, res => {
+    let raw = '';
+    res.on('data', c => { raw += c; });
+    res.on('end', () => {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        console.log('[Telegram] sent OK:', text.slice(0, 80));
+      } else {
+        console.error('[Telegram] send failed', res.statusCode, raw.slice(0, 200));
+      }
+    });
+  });
+  req.on('error', err => console.error('[Telegram] request error:', err.message));
+  req.write(body);
+  req.end();
+  return true;
+}
+
+/** [OUTBOUND] Startup / online message */
+function notifyStartup() {
+  const ts = new Date().toISOString();
+  const lines = [
+    '*[PROFITLORD] ONLINE*',
+    'Server started on port ' + PORT,
+    'GitHub writeback: ' + (GH_TOKEN ? 'enabled' : 'DISABLED'),
+    'Redis: ' + (REDIS_URL ? 'enabled' : 'DISABLED'),
+    'Proactive messaging: ' + ((TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) ? 'enabled' : 'NOT CONFIGURED'),
+    ts,
+  ];
+  sendTelegram(lines.join('\n'), false);
+}
+
+/** [OUTBOUND] Periodic heartbeat */
+function notifyHeartbeat() {
+  const ts = new Date().toISOString();
+  const lines = [
+    '*[PROFITLORD] HEARTBEAT*',
+    'Status: online',
+    'Uptime: ' + Math.floor(process.uptime() / 60) + 'm',
+    ts,
+  ];
+  sendTelegram(lines.join('\n'), true);
+}
+
+/** [OUTBOUND] Major error notification */
+function notifyError(context, errorMsg) {
+  const ts = new Date().toISOString();
+  const lines = [
+    '*[PROFITLORD] ERROR*',
+    'Context: ' + context,
+    'Error: ' + String(errorMsg).slice(0, 300),
+    ts,
+  ];
+  sendTelegram(lines.join('\n'), false);
+}
+
+/** [OUTBOUND] SESHAT PRIME directive message */
+function notifySeshatDirective(directive) {
+  const ts = new Date().toISOString();
+  const lines = [
+    '*[SESHAT PRIME] DIRECTIVE*',
+    String(directive).slice(0, 500),
+    ts,
+  ];
+  sendTelegram(lines.join('\n'), false);
+}
+
+/** [OUTBOUND] Completion or status summary */
+function notifyStatus(summary) {
+  const ts = new Date().toISOString();
+  const lines = [
+    '*[PROFITLORD] STATUS*',
+    String(summary).slice(0, 500),
+    ts,
+  ];
+  sendTelegram(lines.join('\n'), true);
+}
+
 
 if (!GH_TOKEN) {
   console.warn('[WARN] GH_TOKEN is not set — GitHub writeback will be disabled.');
@@ -524,6 +639,7 @@ const server = http.createServer(async (req, res) => {
     send(res, 404, { error: 'Not found', path });
   } catch (e) {
     console.error('[ERROR]', e);
+    notifyError('request handler', e.message || String(e));
     send(res, 500, { error: 'Internal server error' });
   }
 });
@@ -533,4 +649,14 @@ server.listen(PORT, () => {
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
   console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
+  console.log(`[profitlord-server] Telegram outbound: ${(TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) ? 'enabled' : 'DISABLED (set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID)'}`);
+
+  // Send startup notification (fire-and-forget)
+  notifyStartup();
+
+  // Start heartbeat interval
+  if (HEARTBEAT_MS > 0) {
+    setInterval(notifyHeartbeat, HEARTBEAT_MS);
+    console.log(`[profitlord-server] Heartbeat interval: ${HEARTBEAT_MS}ms`);
+  }
 });

@@ -1,0 +1,28 @@
+{
+  "agent": "SESHAT PRIME",
+  "id": "seshat",
+  "version": "1.0.0",
+  "status": "active",
+  "registered_at": "2026-03-19T14:53:07.000Z",
+  "last_directive": null,
+  "last_verification": null,
+  "governance_log": [],
+  "active_directives": [
+    {
+      "id": "dir-001",
+      "ts": "2026-03-19T14:53:07.000Z",
+      "directive": "Stabilize Profitlord runtime, register SESHAT PRIME, wire proactive messaging.",
+      "status": "in-progress",
+      "priority": 1
+    }
+  ],
+  "verification_status": {
+    "server_startup": "UNVERIFIED",
+    "dashboard_load": "UNVERIFIED",
+    "proactive_messaging": "UNVERIFIED",
+    "agent_registry": "VERIFIED",
+    "state_integrity": "VERIFIED",
+    "seshat_registration": "VERIFIED"
+  },
+  "notes": "SESHAT PRIME registered via agents/seshat/state.json and docs/agents.json during stabilization pass."
+}

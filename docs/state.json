@@ -1,10 +1,44 @@
 {
-  "updated_at": "2026-03-19T12:22:59.673Z",
+  "updated_at": "2026-03-19T15:09:25.133Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
   "pages_total": 63,
   "souls": {
+    "SESHAT PRIME": {
+      "id": "seshat",
+      "name": "SESHAT PRIME",
+      "role": "Governance Agent",
+      "capabilities": [
+        "governance",
+        "verification",
+        "anti-drift",
+        "directives",
+        "audit"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T15:09:25.135Z",
+      "endpoint": "/chat/SESHAT",
+      "hierarchy_level": 2,
+      "files": "agents/seshat/"
+    },
+    "nreal": {
+      "id": "nreal",
+      "name": "nreal",
+      "role": "Operator & Execution Engine",
+      "capabilities": [
+        "execution",
+        "scanning",
+        "self-tasking",
+        "build",
+        "deployment",
+        "automation"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T15:09:25.135Z",
+      "endpoint": "/chat/nreal",
+      "hierarchy_level": 3
+    },
     "SoulCollector": {
       "id": "soulcollector",
       "name": "SoulCollector",
@@ -16,7 +50,7 @@
         "agent management"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T12:22:59.675Z",
+      "last_seen": "2026-03-19T15:09:25.135Z",
       "endpoint": "/chat/SoulCollector"
     },
     "Profit": {
@@ -30,7 +64,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T12:22:59.675Z",
+      "last_seen": "2026-03-19T15:09:25.135Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -44,7 +78,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T12:22:59.675Z",
+      "last_seen": "2026-03-19T15:09:25.135Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {

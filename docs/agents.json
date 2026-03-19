@@ -1,5 +1,26 @@
 [
   {
+    "id": "seshat",
+    "name": "SESHAT PRIME",
+    "role": "Governance Agent",
+    "capabilities": ["governance", "verification", "anti-drift", "directives", "audit"],
+    "status": "active",
+    "last_seen": "2026-03-19T14:53:07.000Z",
+    "endpoint": "/chat/SESHAT",
+    "hierarchy_level": 2,
+    "files": "agents/seshat/"
+  },
+  {
+    "id": "nreal",
+    "name": "nreal",
+    "role": "Operator & Execution Engine",
+    "capabilities": ["execution", "scanning", "self-tasking", "build", "deployment", "automation"],
+    "status": "active",
+    "last_seen": "2026-03-19T14:53:07.000Z",
+    "endpoint": "/chat/nreal",
+    "hierarchy_level": 3
+  },
+  {
     "id": "soulcollector",
     "name": "SoulCollector",
     "role": "Soul Orchestrator",
