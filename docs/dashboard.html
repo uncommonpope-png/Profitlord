@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profitlord Command Center</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --panel: #111827;
+      --border: #1f2937;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e5e7eb;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    header h1 { font-size: 20px; letter-spacing: 2px; color: var(--accent); }
+    #status-badge {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: bold; letter-spacing: 1px;
+    }
+    #status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+    #status-dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    #status-dot.stale { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+    #status-dot.nosignal { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+    .signal-banner {
+      display: none; background: var(--red); color: #fff;
+      text-align: center; padding: 14px; font-size: 16px;
+      letter-spacing: 2px; font-weight: bold; margin-bottom: 20px;
+      border-radius: 6px;
+    }
+    .signal-banner.visible { display: block; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .panel h2 {
+      font-size: 13px; letter-spacing: 2px; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 8px;
+    }
+
+    /* State info */
+    .kv { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+    .kv .key { color: var(--muted); }
+    .kv .val { color: var(--text); font-weight: bold; }
+
+    /* Souls */
+    .soul-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .soul-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px;
+    }
+    .soul-card .soul-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+    .soul-card .soul-role { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .soul-card .soul-status {
+      font-size: 11px; padding: 2px 8px; border-radius: 999px;
+      display: inline-block; margin-bottom: 6px;
+    }
+    .soul-card .soul-status.idle { background: #1f2937; color: var(--muted); }
+    .soul-card .soul-status.active { background: #064e3b; color: var(--green); }
+    .soul-card .soul-status.offline { background: #450a0a; color: var(--red); }
+    .soul-card .soul-last { font-size: 11px; color: var(--muted); }
+    .soul-card .soul-msg { font-size: 11px; color: var(--text); margin-top: 4px; font-style: italic; word-break: break-word; }
+
+    /* Command section */
+    .cmd-area { display: flex; flex-direction: column; gap: 10px; }
+    .cmd-area textarea, .cmd-area input[type=text] {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; padding: 10px;
+      font-family: inherit; font-size: 13px; resize: vertical; width: 100%;
+    }
+    .cmd-area textarea:focus, .cmd-area input[type=text]:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .btn {
+      background: var(--accent2); color: #fff; border: none;
+      padding: 10px 20px; border-radius: 6px; cursor: pointer;
+      font-family: inherit; font-size: 13px; letter-spacing: 1px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn.secondary { background: #1f2937; }
+    .response-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px; font-size: 12px;
+      min-height: 60px; white-space: pre-wrap; word-break: break-word;
+      color: var(--accent); display: none;
+    }
+    .response-box.visible { display: block; }
+
+    /* Chat section */
+    .chat-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .soul-btn {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); padding: 6px 14px; border-radius: 999px;
+      cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s;
+    }
+    .soul-btn.active { border-color: var(--accent); color: var(--accent); }
+    .chat-log {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px; min-height: 100px; max-height: 220px;
+      overflow-y: auto; font-size: 12px; margin-bottom: 10px;
+    }
+    .chat-log .msg { margin-bottom: 8px; }
+    .chat-log .msg .who { font-weight: bold; }
+    .chat-log .msg .who.you { color: var(--accent2); }
+    .chat-log .msg .who.soul { color: var(--accent); }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; padding: 8px;
+      font-family: inherit; font-size: 13px;
+    }
+    .chat-input-row input:focus { outline: none; border-color: var(--accent); }
+
+    /* Ledger */
+    .ledger-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px; max-height: 260px;
+      overflow-y: auto; font-size: 11px;
+    }
+    .ledger-entry { padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .ledger-entry:last-child { border-bottom: none; }
+    .ledger-entry .ts { color: var(--muted); margin-right: 8px; }
+    .ledger-entry .type { color: var(--accent2); margin-right: 6px; font-weight: bold; }
+    .ledger-entry .evt { color: var(--text); }
+
+    footer {
+      text-align: center; padding: 20px; color: var(--muted);
+      font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>⚡ PROFITLORD COMMAND CENTER</h1>
+  <div id="status-badge">
+    <div id="status-dot" class="nosignal"></div>
+    <span id="status-text">LOADING…</span>
+  </div>
+</header>
+
+<main>
+  <div class="signal-banner" id="no-signal-banner">⚠ NO SIGNAL — STATE UNAVAILABLE</div>
+
+  <div class="grid">
+    <!-- System State -->
+    <div class="panel">
+      <h2>System State</h2>
+      <div id="state-info">
+        <div class="kv"><span class="key">UPDATED</span><span class="val" id="s-updated">—</span></div>
+        <div class="kv"><span class="key">HEALTH</span><span class="val" id="s-health">—</span></div>
+        <div class="kv"><span class="key">CURRENT TASK</span><span class="val" id="s-task">—</span></div>
+        <div class="kv"><span class="key">SIGNAL AGE</span><span class="val" id="s-age">—</span></div>
+      </div>
+    </div>
+
+    <!-- Souls -->
+    <div class="panel">
+      <h2>Souls</h2>
+      <div class="soul-grid" id="souls-grid"></div>
+    </div>
+
+    <!-- Execute Command -->
+    <div class="panel">
+      <h2>Execute Command</h2>
+      <div class="cmd-area">
+        <textarea id="cmd-input" rows="3" placeholder="Enter command…"></textarea>
+        <button class="btn" id="cmd-send" onclick="sendCommand()">▶ EXECUTE</button>
+        <div class="response-box" id="cmd-response"></div>
+      </div>
+    </div>
+
+    <!-- Soul Chat -->
+    <div class="panel">
+      <h2>Soul Chat</h2>
+      <div class="chat-controls" id="soul-btns"></div>
+      <div class="chat-log" id="chat-log"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Message…" onkeydown="if(event.key==='Enter')sendChat()" />
+        <button class="btn" onclick="sendChat()">SEND</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ledger -->
+  <div class="panel" style="margin-top:20px">
+    <h2>Event Ledger <span style="color:var(--muted);font-size:11px">(recent)</span></h2>
+    <div class="ledger-box" id="ledger-box"></div>
+  </div>
+</main>
+
+<footer>
+  Profitlord Command Center &middot;
+  <a href="./index.html">Home</a> &middot;
+  <a href="./state.json" target="_blank">state.json</a> &middot;
+  <a href="./agents.json" target="_blank">agents.json</a>
+</footer>
+
+<script>
+  // ─── Configuration ─────────────────────────────────────────────────────────
+  const BACKEND_BASE_URL = 'https://pltcommands.onrender.com';
+  const STALE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+  const POLL_INTERVAL_MS = 60 * 1000;         // poll state every 60 s
+
+  // ─── Session ───────────────────────────────────────────────────────────────
+  const SESSION_ID = 'sess_' + Math.random().toString(36).slice(2, 10);
+  let selectedSoul = null;
+  let agents = [];
+
+  // ─── DOM helpers ───────────────────────────────────────────────────────────
+  function el(id) { return document.getElementById(id); }
+
+  function setSignal(state) {
+    const dot = el('status-dot');
+    const txt = el('status-text');
+    const banner = el('no-signal-banner');
+    dot.className = '';
+    if (state === 'live')      { dot.className = 'live'; txt.textContent = 'LIVE'; banner.classList.remove('visible'); }
+    else if (state === 'stale'){ dot.className = 'stale'; txt.textContent = 'STALE'; banner.classList.remove('visible'); }
+    else                       { dot.className = 'nosignal'; txt.textContent = 'NO SIGNAL'; banner.classList.add('visible'); }
+  }
+
+  function fmtTs(ts) {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString(); } catch { return ts; }
+  }
+
+  function ageStr(ts) {
+    if (!ts) return '—';
+    const diff = Date.now() - new Date(ts).getTime();
+    if (isNaN(diff)) return '—';
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + 'm ago';
+    return Math.floor(m / 60) + 'h ' + (m % 60) + 'm ago';
+  }
+
+  // ─── Load state ────────────────────────────────────────────────────────────
+  async function loadState() {
+    try {
+      const res = await fetch('./state.json?_=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const state = await res.json();
+      renderState(state);
+    } catch (err) {
+      setSignal('nosignal');
+      el('s-updated').textContent = 'UNAVAILABLE';
+      el('s-health').textContent = 'UNAVAILABLE';
+      el('s-task').textContent = 'UNAVAILABLE';
+      el('s-age').textContent = 'UNAVAILABLE';
+      el('souls-grid').innerHTML = '<p style="color:var(--muted);font-size:12px">No signal — cannot reach state.</p>';
+    }
+  }
+
+  function renderState(state) {
+    const updatedAt = state.updated_at || null;
+    const ageMs = updatedAt ? Date.now() - new Date(updatedAt).getTime() : null;
+    const signalState = (ageMs === null) ? 'nosignal'
+                      : (ageMs > STALE_THRESHOLD_MS) ? 'stale'
+                      : 'live';
+    setSignal(signalState);
+
+    el('s-updated').textContent = fmtTs(updatedAt);
+    el('s-health').textContent = state.health || '—';
+    el('s-task').textContent = state.current_task || '—';
+    el('s-age').textContent = ageStr(updatedAt);
+
+    // Souls
+    const souls = state.souls || {};
+    const grid = el('souls-grid');
+    if (Object.keys(souls).length === 0) {
+      grid.innerHTML = '<p style="color:var(--muted);font-size:12px">No souls registered.</p>';
+      return;
+    }
+    grid.innerHTML = Object.entries(souls).map(([name, s]) => {
+      const agent = agents.find(a => a.name === name) || {};
+      const sc = (s.status === 'active') ? 'active' : (s.status === 'offline') ? 'offline' : 'idle';
+      return `<div class="soul-card">
+        <div class="soul-name">${name}</div>
+        <div class="soul-role">${agent.role || ''}</div>
+        <span class="soul-status ${sc}">${s.status || 'idle'}</span>
+        <div class="soul-last">${ageStr(s.last_seen)}</div>
+        ${s.last_message ? '<div class="soul-msg">"' + escHtml(s.last_message) + '"</div>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ─── Load agents ───────────────────────────────────────────────────────────
+  async function loadAgents() {
+    try {
+      const res = await fetch('./agents.json?_=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      agents = await res.json();
+      renderSoulButtons();
+    } catch { /* non-fatal */ }
+  }
+
+  function renderSoulButtons() {
+    const c = el('soul-btns');
+    c.innerHTML = agents.map(a =>
+      `<button class="soul-btn${selectedSoul === a.name ? ' active' : ''}" onclick="selectSoul('${a.name}')">${a.name}</button>`
+    ).join('');
+    if (!selectedSoul && agents.length > 0) selectSoul(agents[0].name, true);
+  }
+
+  function selectSoul(name, silent) {
+    selectedSoul = name;
+    document.querySelectorAll('.soul-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === name);
+    });
+    if (!silent) el('chat-log').innerHTML = '';
+  }
+
+  // ─── Load ledger ───────────────────────────────────────────────────────────
+  async function loadLedger() {
+    try {
+      const res = await fetch('./ledger.jsonl?_=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      const text = await res.text();
+      const lines = text.trim().split('\n').filter(Boolean);
+      const entries = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      const box = el('ledger-box');
+      if (entries.length === 0) { box.innerHTML = '<span style="color:var(--muted)">No events yet.</span>'; return; }
+      box.innerHTML = entries.slice(-50).reverse().map(e =>
+        `<div class="ledger-entry">
+          <span class="ts">${fmtTs(e.ts)}</span>
+          <span class="type">[${escHtml(e.type || 'event')}]</span>
+          <span class="evt">${escHtml(e.event || JSON.stringify(e))}</span>
+          ${e.source ? '<span style="color:var(--muted)"> — ' + escHtml(e.source) + '</span>' : ''}
+        </div>`
+      ).join('');
+    } catch { /* non-fatal */ }
+  }
+
+  // ─── Execute command ────────────────────────────────────────────────────────
+  async function sendCommand() {
+    const input = el('cmd-input');
+    const btn = el('cmd-send');
+    const respBox = el('cmd-response');
+    const cmd = input.value.trim();
+    if (!cmd) return;
+
+    btn.disabled = true;
+    btn.textContent = '… EXECUTING';
+    respBox.textContent = '';
+    respBox.classList.remove('visible');
+
+    try {
+      const res = await fetch(BACKEND_BASE_URL + '/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: cmd, source: 'dashboard', ts: new Date().toISOString() })
+      });
+      const data = await res.json();
+      respBox.textContent = JSON.stringify(data, null, 2);
+      respBox.classList.add('visible');
+      if (res.ok) input.value = '';
+    } catch (err) {
+      respBox.textContent = 'Error: ' + err.message;
+      respBox.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '▶ EXECUTE';
+    }
+  }
+
+  // ─── Soul chat ──────────────────────────────────────────────────────────────
+  async function sendChat() {
+    const input = el('chat-input');
+    const msg = input.value.trim();
+    if (!msg || !selectedSoul) return;
+    input.value = '';
+
+    appendChat('you', 'YOU', msg);
+
+    try {
+      const res = await fetch(BACKEND_BASE_URL + '/chat/' + encodeURIComponent(selectedSoul), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, session_id: SESSION_ID })
+      });
+      const data = await res.json();
+      appendChat('soul', selectedSoul, data.reply || data.message || JSON.stringify(data));
+    } catch (err) {
+      appendChat('soul', selectedSoul, '(error: ' + err.message + ')');
+    }
+  }
+
+  function appendChat(role, who, text) {
+    const log = el('chat-log');
+    const div = document.createElement('div');
+    div.className = 'msg';
+    div.innerHTML = `<span class="who ${role}">${escHtml(who)}</span>: ${escHtml(text)}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // ─── Utilities ─────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ─── Boot ──────────────────────────────────────────────────────────────────
+  async function boot() {
+    await loadAgents();
+    await loadState();
+    await loadLedger();
+  }
+
+  boot();
+  setInterval(() => { loadState(); loadLedger(); }, POLL_INTERVAL_MS);
+</script>
+</body>
+</html>
