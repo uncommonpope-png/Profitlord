@@ -1,0 +1,27 @@
+{
+  "updated_at": "2026-03-19T08:00:00.000Z",
+  "health": "ok",
+  "current_task": "idle",
+  "souls": {
+    "Profit": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": ""
+    },
+    "Deerg": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": ""
+    },
+    "Betty": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": ""
+    },
+    "Teacher": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": ""
+    }
+  }
+}

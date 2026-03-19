@@ -1,0 +1,38 @@
+[
+  {
+    "id": "profit",
+    "name": "Profit",
+    "role": "Chief Profit Officer",
+    "capabilities": ["strategy", "revenue", "pricing", "PLT analysis"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Profit"
+  },
+  {
+    "id": "deerg",
+    "name": "Deerg",
+    "role": "Deal Evaluator",
+    "capabilities": ["deal scoring", "risk analysis", "negotiation", "pipeline"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Deerg"
+  },
+  {
+    "id": "betty",
+    "name": "Betty",
+    "role": "Business Operations",
+    "capabilities": ["operations", "cashflow", "budgeting", "KPI tracking"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Betty"
+  },
+  {
+    "id": "teacher",
+    "name": "Teacher",
+    "role": "Knowledge Synthesizer",
+    "capabilities": ["education", "frameworks", "playbooks", "content"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Teacher"
+  }
+]

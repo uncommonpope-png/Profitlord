@@ -1,0 +1,13 @@
+{
+  "name": "profitlord-server",
+  "version": "1.0.0",
+  "description": "Profitlord Command Center backend for Render",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {}
+}
