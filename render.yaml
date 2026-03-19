@@ -1,7 +1,6 @@
 services:
   - type: web
     name: profitlord-server
-    name: plt-server
     env: node
     plan: free
     rootDir: server
@@ -16,6 +15,10 @@ services:
         value: main
       - key: GH_TOKEN
         sync: false
+      - key: GH_CLIENT_ID
+        sync: false
+      - key: GH_CLIENT_SECRET
+        sync: false
       - key: REDIS_URL
         fromService:
           name: profitlord-redis
@@ -27,4 +30,3 @@ databases:
     name: profitlord-redis
     plan: free
     ipAllowList: []
-        sync: false
