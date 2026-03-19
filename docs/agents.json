@@ -3,90 +3,140 @@
     "id": "soulcollector",
     "name": "SoulCollector",
     "role": "Soul Orchestrator",
-    "capabilities": ["soul collection", "task delegation", "orchestration", "agent management"],
+    "capabilities": [
+      "soul collection",
+      "task delegation",
+      "orchestration",
+      "agent management"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/SoulCollector"
   },
   {
     "id": "profit",
     "name": "Profit",
     "role": "Chief Profit Officer",
-    "capabilities": ["strategy", "revenue", "pricing", "PLT analysis"],
+    "capabilities": [
+      "strategy",
+      "revenue",
+      "pricing",
+      "PLT analysis"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Profit"
   },
   {
     "id": "deerg",
     "name": "Deerg",
     "role": "Deal Evaluator",
-    "capabilities": ["deal scoring", "risk analysis", "negotiation", "pipeline"],
+    "capabilities": [
+      "deal scoring",
+      "risk analysis",
+      "negotiation",
+      "pipeline"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Deerg"
   },
   {
     "id": "betty",
     "name": "Betty",
     "role": "Business Operations",
-    "capabilities": ["operations", "cashflow", "budgeting", "KPI tracking"],
+    "capabilities": [
+      "operations",
+      "cashflow",
+      "budgeting",
+      "KPI tracking"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Betty"
   },
   {
     "id": "teacher",
     "name": "Teacher",
     "role": "Knowledge Synthesizer",
-    "capabilities": ["education", "frameworks", "playbooks", "content"],
+    "capabilities": [
+      "education",
+      "frameworks",
+      "playbooks",
+      "content"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Teacher"
   },
   {
     "id": "architect",
     "name": "Architect",
     "role": "Systems Designer",
-    "capabilities": ["system design", "architecture", "scalability", "blueprints"],
+    "capabilities": [
+      "system design",
+      "architecture",
+      "scalability",
+      "blueprints"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Architect"
   },
   {
     "id": "builder",
     "name": "Builder",
     "role": "Execution Engine",
-    "capabilities": ["coding", "automation", "deployment", "integrations"],
+    "capabilities": [
+      "coding",
+      "automation",
+      "deployment",
+      "integrations"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Builder"
   },
   {
     "id": "auditor",
     "name": "Auditor",
     "role": "Quality & Compliance",
-    "capabilities": ["auditing", "compliance", "risk assessment", "reporting"],
+    "capabilities": [
+      "auditing",
+      "compliance",
+      "risk assessment",
+      "reporting"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Auditor"
   },
   {
     "id": "scout",
     "name": "Scout",
     "role": "Intelligence Gatherer",
-    "capabilities": ["market research", "competitive analysis", "signals", "leads"],
+    "capabilities": [
+      "market research",
+      "competitive analysis",
+      "signals",
+      "leads"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Scout"
   },
   {
     "id": "scribe",
     "name": "Scribe",
     "role": "Chronicler & Documenter",
-    "capabilities": ["documentation", "reporting", "logs", "summaries"],
+    "capabilities": [
+      "documentation",
+      "reporting",
+      "logs",
+      "summaries"
+    ],
     "status": "active",
-    "last_seen": "2026-03-19T11:00:00.000Z",
+    "last_seen": "2026-03-19T17:20:27.260Z",
     "endpoint": "/chat/Scribe"
   }
 ]

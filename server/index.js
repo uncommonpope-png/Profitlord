@@ -482,7 +482,46 @@ async function handleDelegate(req, res) {
 
 
 
-const server = http.createServer(async (req, res) => {
+// POST /broadcast — mark all souls as active and log a system broadcast event
+const SOUL_REGISTRY = [
+  { id: 'soulcollector', name: 'SoulCollector', role: 'Soul Orchestrator' },
+  { id: 'profit',        name: 'Profit',        role: 'Chief Profit Officer' },
+  { id: 'deerg',         name: 'Deerg',         role: 'Deal Evaluator' },
+  { id: 'betty',         name: 'Betty',         role: 'Business Operations' },
+  { id: 'teacher',       name: 'Teacher',       role: 'Knowledge Synthesizer' },
+  { id: 'architect',     name: 'Architect',     role: 'Systems Designer' },
+  { id: 'builder',       name: 'Builder',       role: 'Execution Engine' },
+  { id: 'auditor',       name: 'Auditor',       role: 'Quality & Compliance' },
+  { id: 'scout',         name: 'Scout',         role: 'Intelligence Gatherer' },
+  { id: 'scribe',        name: 'Scribe',        role: 'Chronicler & Documenter' },
+];
+
+async function handleBroadcast(req, res) {
+  let body = {};
+  if (req.method === 'POST') {
+    try { body = await readBody(req); } catch { body = {}; }
+  }
+
+  const source = String(body.source || 'dashboard').slice(0, 64);
+  const now    = new Date().toISOString();
+
+  console.log(`[broadcast] triggered by source=${source}`);
+
+  // Update all souls to active in state.json
+  const soulsUpdate = {};
+  for (const s of SOUL_REGISTRY) {
+    soulsUpdate[s.name] = { status: 'active', last_seen: now };
+  }
+  updateState({ souls: soulsUpdate, health: 100, current_task: 'All souls broadcasting' }).catch(() => {});
+  appendLedger({ type: 'broadcast_all', event: 'All souls activated and broadcasting', source }).catch(() => {});
+
+  send(res, 200, {
+    ok: true,
+    souls_activated: SOUL_REGISTRY.length,
+    ts: now,
+    message: 'All souls activated. Broadcast complete.',
+  });
+}
   setCors(req, res);
 
   // Handle CORS preflight
@@ -516,6 +555,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && path === '/delegate') {
       return handleDelegate(req, res);
+    }
+    if ((req.method === 'POST' || req.method === 'GET') && path === '/broadcast') {
+      return handleBroadcast(req, res);
     }
     const chatMatch = path.match(/^\/chat\/([^/]+)$/);
     if (req.method === 'POST' && chatMatch) {
