@@ -4,34 +4,33 @@
 // Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /delegate      { task, soul, source }
-//   POST /chat/:soul    { message, session_id }
-//   GET  /auth/login     — redirect to GitHub OAuth authorization
-//   GET  /auth/callback  — exchange code for token, redirect to dashboard
-//   GET  /auth/me        — return authenticated user info (requires Bearer token)
-//   GET  /auth/logout    — invalidate session
-//   POST /execute        { command, source, ts }
-//   POST /chat/:soul     { message, session_id }
+//   POST /execute             { command, source, ts }
+//   POST /delegate            { task, soul, source }
+//   POST /chat/:soul          { message, session_id }
+//   GET  /auth/login          — redirect to GitHub OAuth authorization
+//   GET  /auth/callback       — exchange code for token, redirect to dashboard
+//   GET  /auth/me             — return authenticated user info (requires Bearer token)
+//   GET  /auth/logout         — invalidate session
+//   GET  /telegram/setup      — discover CHAT_ID from recent Telegram messages
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
-//   GH_TOKEN        — GitHub personal access token with repo write access
-//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO         — Repository name   (e.g. Profitlord)
-//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_TOKEN         — GitHub personal access token with repo write access
+//   GH_OWNER         — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO          — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID     — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
-//   PORT            — (optional) listening port, defaults to 3000
+//   REDIS_URL        — Redis connection URL (e.g. redis://host:6379)
+//   BOT_TOKEN        — Telegram bot token from @BotFather
+//   CHAT_ID          — Telegram chat/user ID to deliver messages to
+//   PORT             — (optional) listening port, defaults to 3000
 // ---------------------------------------------------------------------------
 
 const http = require('http');
 const https = require('https');
 const { createClient } = require('redis');
 const crypto = require('crypto');
+const messaging = require('./messaging');
+const { getUpdates } = require('./telegram');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const GH_TOKEN = process.env.GH_TOKEN || '';
@@ -64,6 +63,7 @@ if (REDIS_URL) {
       console.error('[Redis] connect failed:', err.message);
       redisClient = null;
     });
+}
 if (!GH_CLIENT_ID || !GH_CLIENT_SECRET) {
   console.warn('[WARN] GH_CLIENT_ID / GH_CLIENT_SECRET not set — GitHub OAuth login will be disabled.');
 }
@@ -396,6 +396,9 @@ async function handleExecute(req, res) {
   updateState({ current_task: command, health: 100 }).catch(() => {});
   appendLedger({ type: 'command', event: command, source }).catch(() => {});
 
+  // Notify via Telegram
+  messaging.triggerTaskComplete(command, source).catch(() => {});
+
   send(res, 200, {
     ok: true,
     received: { command, source, ts },
@@ -469,6 +472,9 @@ async function handleDelegate(req, res) {
     original_source: source,
   }).catch(() => {});
 
+  // Notify via Telegram
+  messaging.triggerTaskComplete(`Delegated to ${soul}: ${task.slice(0, TASK_SUMMARY_LEN)}`, source).catch(() => {});
+
   send(res, 200, {
     ok: true,
     collector: SOUL_COLLECTOR_NAME,
@@ -477,7 +483,22 @@ async function handleDelegate(req, res) {
     message: `Task delegated to ${soul}.`,
   });
 }
-
+// GET /telegram/setup — discover CHAT_ID from recent bot updates
+async function handleTelegramSetup(req, res) {
+  if (!process.env.BOT_TOKEN) {
+    return send(res, 503, { error: 'BOT_TOKEN is not configured' });
+  }
+  const updates = await getUpdates();
+  if (!updates) {
+    return send(res, 502, { error: 'Failed to fetch Telegram updates' });
+  }
+  const chats = (updates.result || []).map(u => ({
+    chat_id: (u.message?.chat?.id || u.channel_post?.chat?.id || null),
+    username: (u.message?.chat?.username || u.message?.chat?.first_name || null),
+    text: (u.message?.text || null),
+  })).filter(u => u.chat_id !== null);
+  send(res, 200, { ok: true, chats, hint: 'Set CHAT_ID to the chat_id of the desired chat.' });
+}
 
 
 const server = http.createServer(async (req, res) => {
@@ -509,6 +530,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && path === '/auth/logout') {
       return handleAuthLogout(req, res);
     }
+    if (req.method === 'GET' && path === '/telegram/setup') {
+      return handleTelegramSetup(req, res);
+    }
     if (req.method === 'POST' && path === '/execute') {
       return handleExecute(req, res);
     }
@@ -522,6 +546,7 @@ const server = http.createServer(async (req, res) => {
     send(res, 404, { error: 'Not found', path });
   } catch (e) {
     console.error('[ERROR]', e);
+    messaging.triggerError('unhandled request error', e).catch(() => {});
     send(res, 500, { error: 'Internal server error' });
   }
 });
@@ -531,4 +556,6 @@ server.listen(PORT, () => {
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
   console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
+  console.log(`[profitlord-server] Telegram: ${process.env.BOT_TOKEN ? 'enabled' : 'DISABLED (no BOT_TOKEN)'}`);
+  messaging.startHeartbeat();
 });

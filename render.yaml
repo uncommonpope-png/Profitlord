@@ -1,6 +1,5 @@
 services:
   - type: web
-    name: profitlord-server
     name: plt-server
     env: node
     plan: free
@@ -21,10 +20,13 @@ services:
           name: profitlord-redis
           type: redis
           property: connectionString
+      - key: BOT_TOKEN
+        sync: false
+      - key: CHAT_ID
+        sync: false
 
 databases:
   - type: redis
     name: profitlord-redis
     plan: free
     ipAllowList: []
-        sync: false

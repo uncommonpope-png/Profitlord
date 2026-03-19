@@ -1,0 +1,12 @@
+{
+  "id": "seshat",
+  "name": "SESHAT PRIME",
+  "status": "active",
+  "authority": "TIER_1_SUPREME",
+  "last_directive_at": null,
+  "directives_issued": 0,
+  "audits_completed": 0,
+  "interventions": [],
+  "last_audit_at": null,
+  "notes": "Governance agent initialised. Awaiting first system state read."
+}

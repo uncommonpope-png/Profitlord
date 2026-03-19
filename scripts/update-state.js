@@ -113,6 +113,12 @@ function main() {
     souls[agent.name] = { ...agent };
   }
 
+  // SESHAT PRIME is always active — mark it so on every build
+  if (souls['SESHAT PRIME']) {
+    souls['SESHAT PRIME'].status   = 'active';
+    souls['SESHAT PRIME'].last_seen = now;
+  }
+
   // Merge with existing state so we don't overwrite unrelated fields
   const existing = readJson(statePath, {});
 

@@ -1,0 +1,46 @@
+{
+  "version": "1.0.0",
+  "authority": "TIER_1_SUPREME",
+  "rules": [
+    {
+      "id": "SESHAT-001",
+      "name": "Drift Intervention",
+      "description": "If system health drops below 80 or no soul has been active for more than 30 minutes, SESHAT must issue an immediate intervention directive.",
+      "trigger": "health < 80 OR last_active_gap_mins > 30",
+      "action": "Issue DIRECTIVE to SoulCollector to re-activate idle souls.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "SESHAT-002",
+      "name": "No Orphan Tasks",
+      "description": "Every task that enters the system must be assigned to a soul within 5 minutes.",
+      "trigger": "task_unassigned_mins > 5",
+      "action": "Issue DIRECTIVE to SoulCollector to delegate the orphan task immediately.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "SESHAT-003",
+      "name": "Profit Alignment Audit",
+      "description": "All agent outputs must be evaluated against the PLT profit framework. Non-aligned outputs are flagged.",
+      "trigger": "output_without_plt_tag",
+      "action": "Flag output for review and request resubmission with PLT tagging.",
+      "severity": "MEDIUM"
+    },
+    {
+      "id": "SESHAT-004",
+      "name": "Ledger Integrity",
+      "description": "Every governance action taken by SESHAT must be written to docs/ledger.jsonl within 60 seconds.",
+      "trigger": "always",
+      "action": "Append governance event to ledger immediately after directive is issued.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "SESHAT-005",
+      "name": "Heartbeat Enforcement",
+      "description": "If no heartbeat has been received within 35 minutes, SESHAT escalates to operator via Telegram.",
+      "trigger": "heartbeat_gap_mins > 35",
+      "action": "Send Telegram alert to operator with system state snapshot.",
+      "severity": "CRITICAL"
+    }
+  ]
+}

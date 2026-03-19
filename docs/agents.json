@@ -1,5 +1,14 @@
 [
   {
+    "id": "seshat",
+    "name": "SESHAT PRIME",
+    "role": "Supreme Governance & Routing Authority",
+    "capabilities": ["governance", "routing", "auditing", "directives", "interventions", "system oversight"],
+    "status": "active",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/SESHAT"
+  },
+  {
     "id": "soulcollector",
     "name": "SoulCollector",
     "role": "Soul Orchestrator",
@@ -51,10 +60,6 @@
     "capabilities": ["system design", "infrastructure planning", "architecture review", "scalability"],
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
-    "role": "System Designer",
-    "capabilities": ["system design", "architecture", "scalability", "blueprints"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
     "endpoint": "/chat/Architect"
   },
   {
@@ -64,10 +69,6 @@
     "capabilities": ["code generation", "repo operations", "CI/CD", "deployment"],
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
-    "role": "Implementation Engine",
-    "capabilities": ["coding", "automation", "deployment", "integrations"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
     "endpoint": "/chat/Builder"
   },
   {
@@ -77,9 +78,6 @@
     "capabilities": ["code review", "security audit", "compliance checks", "quality assurance"],
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
-    "capabilities": ["auditing", "compliance", "risk assessment", "reporting"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
     "endpoint": "/chat/Auditor"
   },
   {
@@ -89,9 +87,6 @@
     "capabilities": ["market research", "opportunity detection", "competitive analysis", "trend tracking"],
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
-    "capabilities": ["market research", "competitive analysis", "signals", "leads"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
     "endpoint": "/chat/Scout"
   },
   {
@@ -101,10 +96,6 @@
     "capabilities": ["documentation", "content writing", "ledger maintenance", "reporting"],
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
-    "role": "Chronicler & Documenter",
-    "capabilities": ["documentation", "reporting", "logs", "summaries"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
     "endpoint": "/chat/Scribe"
   }
 ]

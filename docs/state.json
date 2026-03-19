@@ -5,6 +5,22 @@
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
   "pages_total": 63,
   "souls": {
+    "SESHAT PRIME": {
+      "id": "seshat",
+      "name": "SESHAT PRIME",
+      "role": "Supreme Governance & Routing Authority",
+      "capabilities": [
+        "governance",
+        "routing",
+        "auditing",
+        "directives",
+        "interventions",
+        "system oversight"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T11:12:13.998Z",
+      "endpoint": "/chat/SESHAT"
+    },
     "SoulCollector": {
       "id": "soulcollector",
       "name": "SoulCollector",
@@ -78,12 +94,12 @@
     "Architect": {
       "id": "architect",
       "name": "Architect",
-      "role": "System Designer",
+      "role": "Systems Designer",
       "capabilities": [
         "system design",
-        "architecture",
-        "scalability",
-        "blueprints"
+        "infrastructure planning",
+        "architecture review",
+        "scalability"
       ],
       "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
@@ -92,12 +108,12 @@
     "Builder": {
       "id": "builder",
       "name": "Builder",
-      "role": "Implementation Engine",
+      "role": "Execution Engine",
       "capabilities": [
-        "coding",
-        "automation",
-        "deployment",
-        "integrations"
+        "code generation",
+        "repo operations",
+        "CI/CD",
+        "deployment"
       ],
       "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
@@ -108,10 +124,10 @@
       "name": "Auditor",
       "role": "Quality & Compliance",
       "capabilities": [
-        "auditing",
-        "compliance",
-        "risk assessment",
-        "reporting"
+        "code review",
+        "security audit",
+        "compliance checks",
+        "quality assurance"
       ],
       "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
@@ -123,9 +139,9 @@
       "role": "Intelligence Gatherer",
       "capabilities": [
         "market research",
+        "opportunity detection",
         "competitive analysis",
-        "signals",
-        "leads"
+        "trend tracking"
       ],
       "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
@@ -134,12 +150,12 @@
     "Scribe": {
       "id": "scribe",
       "name": "Scribe",
-      "role": "Chronicler & Documenter",
+      "role": "Documentation Specialist",
       "capabilities": [
         "documentation",
-        "reporting",
-        "logs",
-        "summaries"
+        "content writing",
+        "ledger maintenance",
+        "reporting"
       ],
       "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
