@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-19T11:12:13.996Z",
+  "updated_at": "2026-03-19T12:22:59.673Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
@@ -16,7 +16,7 @@
         "agent management"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T11:12:13.998Z",
+      "last_seen": "2026-03-19T12:22:59.675Z",
       "endpoint": "/chat/SoulCollector"
     },
     "Profit": {
@@ -30,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T11:12:13.998Z",
+      "last_seen": "2026-03-19T12:22:59.675Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -44,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T11:12:13.998Z",
+      "last_seen": "2026-03-19T12:22:59.675Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -58,7 +58,7 @@
         "KPI tracking"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Betty"
     },
     "Teacher": {
@@ -72,13 +72,13 @@
         "content"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Teacher"
     },
     "Architect": {
       "id": "architect",
       "name": "Architect",
-      "role": "System Designer",
+      "role": "Systems Designer",
       "capabilities": [
         "system design",
         "architecture",
@@ -86,13 +86,13 @@
         "blueprints"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T09:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Architect"
     },
     "Builder": {
       "id": "builder",
       "name": "Builder",
-      "role": "Implementation Engine",
+      "role": "Execution Engine",
       "capabilities": [
         "coding",
         "automation",
@@ -100,7 +100,7 @@
         "integrations"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T09:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Builder"
     },
     "Auditor": {
@@ -114,7 +114,7 @@
         "reporting"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T09:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Auditor"
     },
     "Scout": {
@@ -128,7 +128,7 @@
         "leads"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T09:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Scout"
     },
     "Scribe": {
@@ -142,7 +142,7 @@
         "summaries"
       ],
       "status": "stale",
-      "last_seen": "2026-03-19T09:00:00.000Z",
+      "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Scribe"
     }
   }
