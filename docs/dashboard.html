@@ -1,572 +1,1389 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profitlord Command Center</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PROFITLORD — Soul Economy Command Center</title>
+  <meta name="description" content="Soul Economy OS — Collect. Multiply. Compound."/>
+  <link rel="canonical" href="https://uncommonpope-png.github.io/Profitlord/dashboard.html"/>
   <style>
-    :root {
-      --bg: #0a0e1a;
-      --panel: #111827;
-      --border: #1f2937;
-      --accent: #00d4ff;
-      --accent2: #7c3aed;
-      --green: #10b981;
-      --red: #ef4444;
-      --yellow: #f59e0b;
-      --text: #e5e7eb;
-      --muted: #6b7280;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+    /* ── IMPORTS & ROOT ─────────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
 
+    :root {
+      --void:    #020408;
+      --deep:    #040c14;
+      --hull:    #071220;
+      --panel:   #0a1a2a;
+      --border:  #0d2840;
+      --cyan:    #00e5ff;
+      --cyan2:   #00b8d4;
+      --magenta: #ff00ff;
+      --mag2:    #cc00cc;
+      --green:   #00ff41;
+      --amber:   #ff9800;
+      --red:     #ff1744;
+      --gold:    #ffd700;
+      --silver:  #b0bec5;
+      --muted:   #2a4a6a;
+      --text:    #8ab4cc;
+      --bright:  #cce8ff;
+      --glow-c:  0 0 10px #00e5ff88, 0 0 30px #00e5ff33;
+      --glow-m:  0 0 10px #ff00ff88, 0 0 30px #ff00ff33;
+      --glow-g:  0 0 10px #00ff4188, 0 0 30px #00ff4133;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { overflow-x: hidden; }
+
+    body {
+      background: var(--void);
+      color: var(--text);
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── SCANLINE OVERLAY ──────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,229,255,0.015) 2px,
+        rgba(0,229,255,0.015) 4px
+      );
+      pointer-events: none;
+    }
+
+    /* ── STAR FIELD ────────────────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(0,229,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 70%, rgba(0,229,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 20%, rgba(255,0,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 80%, rgba(0,255,65,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 35%, rgba(0,229,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 90%, rgba(0,229,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 88%, rgba(255,0,255,0.4) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    #app { position: relative; z-index: 1; min-height: 100vh; }
+
+    /* ── HEADER ────────────────────────────────────────────────────────── */
     header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px; border-bottom: 1px solid var(--border);
-      background: var(--panel);
+      padding: 12px 24px;
+      background: linear-gradient(90deg, var(--hull) 0%, #0a1830 50%, var(--hull) 100%);
+      border-bottom: 1px solid var(--cyan);
+      box-shadow: 0 0 20px rgba(0,229,255,0.3), inset 0 -1px 0 rgba(0,229,255,0.5);
+      position: sticky; top: 0; z-index: 100;
     }
-    header h1 { font-size: 20px; letter-spacing: 2px; color: var(--accent); }
-    #status-badge {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: bold; letter-spacing: 1px;
+
+    .hdr-left { display: flex; align-items: center; gap: 16px; }
+
+    .hdr-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px; font-weight: 900;
+      color: var(--cyan);
+      text-shadow: var(--glow-c);
+      letter-spacing: 4px;
+      text-transform: uppercase;
     }
-    #status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
-    #status-dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); }
-    #status-dot.stale { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-    #status-dot.nosignal { background: var(--red); box-shadow: 0 0 8px var(--red); }
 
-    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-
-    .signal-banner {
-      display: none; background: var(--red); color: #fff;
-      text-align: center; padding: 14px; font-size: 16px;
-      letter-spacing: 2px; font-weight: bold; margin-bottom: 20px;
-      border-radius: 6px;
+    .hdr-sub {
+      font-size: 9px; color: var(--magenta); letter-spacing: 3px;
+      text-transform: uppercase; text-shadow: var(--glow-m);
     }
-    .signal-banner.visible { display: block; }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .hdr-right { display: flex; align-items: center; gap: 20px; }
 
+    .status-cluster { display: flex; align-items: center; gap: 8px; }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .status-dot.live     { background: var(--green);   box-shadow: var(--glow-g); }
+    .status-dot.stale    { background: var(--amber);   box-shadow: 0 0 10px #ff980088; }
+    .status-dot.nosignal { background: var(--red);     box-shadow: 0 0 10px #ff174488; }
+
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.5; }
+    }
+
+    #status-text { font-size: 11px; color: var(--bright); letter-spacing: 2px; }
+
+    .hdr-nav a {
+      color: var(--cyan2); font-size: 11px; text-decoration: none;
+      letter-spacing: 1px; margin-left: 12px;
+      transition: color .2s, text-shadow .2s;
+    }
+    .hdr-nav a:hover { color: var(--cyan); text-shadow: var(--glow-c); }
+
+    .mode-badge {
+      display: none; padding: 3px 10px; border-radius: 3px;
+      font-size: 10px; letter-spacing: 2px; font-weight: bold;
+      animation: mode-flash 1s ease-in-out infinite;
+    }
+    .mode-badge.money    { display: inline-block; background: #1a0800; color: var(--gold); border: 1px solid var(--gold); }
+    .mode-badge.architect{ display: inline-block; background: #00081a; color: var(--cyan); border: 1px solid var(--cyan); }
+
+    @keyframes mode-flash { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+    /* ── ECONOMY BAR ───────────────────────────────────────────────────── */
+    .eco-bar {
+      display: flex; align-items: stretch;
+      background: linear-gradient(90deg, var(--deep), var(--hull), var(--deep));
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+    }
+
+    .eco-stat {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 8px;
+      border-right: 1px solid var(--border);
+      transition: background .3s;
+      position: relative; overflow: hidden;
+    }
+    .eco-stat:last-child { border-right: none; }
+    .eco-stat::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,229,255,0.03) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .eco-stat:hover { background: rgba(0,229,255,0.05); }
+
+    .eco-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px; font-weight: 700;
+      color: var(--cyan); text-shadow: var(--glow-c);
+      line-height: 1;
+    }
+    .eco-stat.nsv .eco-val  { color: var(--gold); text-shadow: 0 0 10px #ffd70088, 0 0 30px #ffd70033; font-size: 22px; }
+    .eco-stat.money .eco-val{ color: var(--green); text-shadow: var(--glow-g); }
+    .eco-lbl { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+
+    .eco-formula {
+      padding: 8px 20px; display: flex; align-items: center;
+      font-size: 10px; color: var(--muted); white-space: nowrap;
+      border-right: 1px solid var(--border);
+    }
+    .eco-formula span { color: var(--cyan); margin: 0 3px; }
+    .eco-formula .minus { color: var(--red); }
+
+    /* ── SCAN TICKER ───────────────────────────────────────────────────── */
+    .scan-ticker {
+      background: var(--deep);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 24px;
+      display: flex; align-items: center; gap: 16px;
+      overflow: hidden;
+    }
+    .ticker-label { font-size: 9px; color: var(--magenta); letter-spacing: 3px; flex-shrink: 0;
+                    text-shadow: var(--glow-m); }
+    .ticker-phases { display: flex; gap: 6px; align-items: center; }
+    .t-phase {
+      padding: 2px 8px; border-radius: 2px; font-size: 10px;
+      letter-spacing: 1px; border: 1px solid var(--border); color: var(--muted);
+      transition: all .3s;
+    }
+    .t-phase.active {
+      border-color: var(--cyan); color: var(--cyan);
+      background: rgba(0,229,255,0.1); text-shadow: var(--glow-c);
+      animation: phase-pulse .8s ease-in-out infinite;
+    }
+    .t-phase.done { border-color: var(--green); color: var(--green); background: rgba(0,255,65,0.08); }
+    @keyframes phase-pulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 8px rgba(0,229,255,0.5)} }
+
+    .ticker-arrow { color: var(--muted); font-size: 10px; }
+    .scan-report { flex: 1; font-size: 10px; color: var(--text); overflow: hidden;
+                   white-space: nowrap; text-overflow: ellipsis; }
+    .btn-scan {
+      padding: 3px 12px; background: transparent; border: 1px solid var(--cyan);
+      color: var(--cyan); font-family: inherit; font-size: 10px; cursor: pointer;
+      letter-spacing: 1px; flex-shrink: 0; transition: all .2s;
+    }
+    .btn-scan:hover { background: rgba(0,229,255,0.15); box-shadow: var(--glow-c); }
+
+    /* ── MAIN LAYOUT ───────────────────────────────────────────────────── */
+    main { max-width: 1400px; margin: 0 auto; padding: 16px; }
+
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 12px;
+    }
+    @media (max-width: 1100px) {
+      .cockpit-grid { grid-template-columns: 1fr 1fr; }
+      .cockpit-right { grid-column: 1/-1; }
+    }
+    @media (max-width: 700px) {
+      .cockpit-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── PANEL ─────────────────────────────────────────────────────────── */
     .panel {
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 10px; padding: 20px;
+      background: linear-gradient(135deg, var(--panel) 0%, var(--deep) 100%);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
     }
+
+    /* Corner brackets */
+    .panel::before, .panel::after {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      pointer-events: none;
+    }
+    .panel::before {
+      top: 0; left: 0;
+      border-top: 2px solid var(--cyan);
+      border-left: 2px solid var(--cyan);
+    }
+    .panel::after {
+      bottom: 0; right: 0;
+      border-bottom: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+    }
+
+    .panel.accent-m::before, .panel.accent-m::after { border-color: var(--magenta); }
+    .panel.accent-g::before, .panel.accent-g::after { border-color: var(--green); }
+    .panel.accent-gold::before, .panel.accent-gold::after { border-color: var(--gold); }
+
     .panel h2 {
-      font-size: 13px; letter-spacing: 2px; color: var(--accent);
-      text-transform: uppercase; margin-bottom: 16px;
-      border-bottom: 1px solid var(--border); padding-bottom: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 10px; font-weight: 700;
+      color: var(--cyan); letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel.accent-m h2 { color: var(--magenta); text-shadow: var(--glow-m); }
+    .panel.accent-g h2 { color: var(--green); text-shadow: var(--glow-g); }
+    .panel.accent-gold h2 { color: var(--gold); text-shadow: 0 0 10px #ffd70066; }
+
+    .panel-icon { font-size: 12px; }
+
+    /* ── KV ROWS ───────────────────────────────────────────────────────── */
+    .kv { display: flex; justify-content: space-between; align-items: baseline;
+          margin-bottom: 6px; font-size: 12px; }
+    .kv .k { color: var(--muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+    .kv .v { color: var(--bright); font-weight: bold; }
+
+    /* ── HEALTH BAR ────────────────────────────────────────────────────── */
+    .health-wrap { margin: 10px 0; }
+    .health-label { display: flex; justify-content: space-between; font-size: 10px;
+                    color: var(--muted); margin-bottom: 4px; letter-spacing: 1px; }
+    .health-track {
+      height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
+    }
+    .health-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      box-shadow: 0 0 8px var(--green);
+      transition: width .5s ease;
     }
 
-    /* State info */
-    .kv { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-    .kv .key { color: var(--muted); }
-    .kv .val { color: var(--text); font-weight: bold; }
+    /* ── BOTS GRID ─────────────────────────────────────────────────────── */
+    .bot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
-    /* Souls */
-    .soul-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .soul-card {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 12px;
+    .bot-card {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 3px; padding: 8px;
+      cursor: pointer; transition: all .25s;
+      position: relative; overflow: hidden;
     }
-    .soul-card .soul-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
-    .soul-card .soul-role { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-    .soul-card .soul-status {
-      font-size: 11px; padding: 2px 8px; border-radius: 999px;
-      display: inline-block; margin-bottom: 6px;
+    .bot-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 2px; height: 100%;
+      background: var(--muted); transition: background .25s;
     }
-    .soul-card .soul-status.idle { background: #1f2937; color: var(--muted); }
-    .soul-card .soul-status.active { background: #064e3b; color: var(--green); }
-    .soul-card .soul-status.offline { background: #450a0a; color: var(--red); }
-    .soul-card .soul-last { font-size: 11px; color: var(--muted); }
-    .soul-card .soul-msg { font-size: 11px; color: var(--text); margin-top: 4px; font-style: italic; word-break: break-word; }
+    .bot-card:hover { border-color: var(--cyan); background: rgba(0,229,255,0.06); }
+    .bot-card:hover::before { background: var(--cyan); }
+    .bot-card.active::before  { background: var(--green); }
+    .bot-card.stale::before   { background: var(--amber); }
+    .bot-card.offline::before { background: var(--red); }
 
-    /* Command section */
-    .cmd-area { display: flex; flex-direction: column; gap: 10px; }
-    .cmd-area textarea, .cmd-area input[type=text] {
-      background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); border-radius: 6px; padding: 10px;
-      font-family: inherit; font-size: 13px; resize: vertical; width: 100%;
+    .bot-name { font-size: 11px; font-weight: bold; color: var(--bright); margin-bottom: 2px; }
+    .bot-role { font-size: 9px; color: var(--muted); margin-bottom: 4px; overflow: hidden;
+                white-space: nowrap; text-overflow: ellipsis; }
+    .bot-status-row { display: flex; align-items: center; justify-content: space-between; }
+    .bot-status {
+      font-size: 9px; padding: 1px 6px; border-radius: 2px;
+      text-transform: uppercase; letter-spacing: 1px;
     }
-    .cmd-area textarea:focus, .cmd-area input[type=text]:focus {
-      outline: none; border-color: var(--accent);
+    .bot-status.active  { background: rgba(0,255,65,0.15);  color: var(--green); }
+    .bot-status.idle    { background: rgba(42,74,106,0.4);  color: var(--muted); }
+    .bot-status.stale   { background: rgba(255,152,0,0.15); color: var(--amber); }
+    .bot-status.offline { background: rgba(255,23,68,0.15); color: var(--red); }
+    .bot-nsv { font-size: 9px; color: var(--cyan); font-family: 'Orbitron', monospace; }
+    .bot-msg { font-size: 9px; color: var(--muted); margin-top: 3px; font-style: italic;
+               overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    /* ── LEADERBOARD ───────────────────────────────────────────────────── */
+    .lb-list { display: flex; flex-direction: column; gap: 5px; max-height: 340px; overflow-y: auto; }
+
+    .lb-row {
+      display: grid; grid-template-columns: 28px 1fr auto auto;
+      align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 3px;
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      font-size: 11px; transition: all .2s;
+      position: relative; overflow: hidden;
     }
-    .btn {
-      background: var(--accent2); color: #fff; border: none;
-      padding: 10px 20px; border-radius: 6px; cursor: pointer;
-      font-family: inherit; font-size: 13px; letter-spacing: 1px;
-      transition: opacity 0.2s;
+    .lb-row::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,229,255,0.03) 0%, transparent 100%);
+      pointer-events: none;
     }
-    .btn:hover { opacity: 0.85; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn.secondary { background: #1f2937; }
+    .lb-row:hover { border-color: var(--cyan); }
+    .lb-row.top1 { border-color: var(--gold); }
+    .lb-row.top1::after { background: linear-gradient(90deg, rgba(255,215,0,0.06) 0%, transparent 100%); }
+    .lb-row.top2 { border-color: var(--silver); }
+    .lb-row.top3 { border-color: #cd7f32; }
+
+    .lb-rank { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--muted);
+               text-align: center; }
+    .lb-row.top1 .lb-rank { color: var(--gold); text-shadow: 0 0 8px #ffd70088; }
+    .lb-row.top2 .lb-rank { color: var(--silver); }
+    .lb-row.top3 .lb-rank { color: #cd7f32; }
+
+    .lb-name { color: var(--bright); font-weight: bold; overflow: hidden;
+               white-space: nowrap; text-overflow: ellipsis; }
+    .lb-nsv { font-family: 'Orbitron', monospace; font-size: 12px;
+              color: var(--gold); text-shadow: 0 0 8px #ffd70055; }
+    .lb-tier {
+      font-size: 9px; padding: 2px 7px; border-radius: 2px;
+      text-transform: uppercase; letter-spacing: 1px; font-weight: bold; white-space: nowrap;
+    }
+    .tier-mythic  { background: rgba(255,215,0,0.12); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+    .tier-elite   { background: rgba(192,132,252,0.12); color: #c084fc;  border: 1px solid rgba(192,132,252,0.3); }
+    .tier-gold    { background: rgba(255,152,0,0.12); color: var(--amber); border: 1px solid rgba(255,152,0,0.3); }
+    .tier-silver  { background: rgba(176,190,197,0.12); color: var(--silver); border: 1px solid rgba(176,190,197,0.3); }
+    .tier-bronze  { background: rgba(205,127,50,0.12); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+
+    /* ── TASKS ─────────────────────────────────────────────────────────── */
+    .task-list { display: flex; flex-direction: column; gap: 5px; max-height: 260px; overflow-y: auto; }
+
+    .task-item {
+      display: grid; grid-template-columns: auto 1fr auto auto;
+      align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 3px;
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      font-size: 11px;
+    }
+    .task-item:hover { border-color: var(--magenta); cursor: pointer; }
+
+    .task-badge {
+      font-size: 9px; padding: 2px 7px; border-radius: 2px;
+      text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
+    }
+    .task-badge.pending  { background: rgba(255,152,0,0.15); color: var(--amber); border: 1px solid rgba(255,152,0,0.3); }
+    .task-badge.active   { background: rgba(0,229,255,0.1);  color: var(--cyan);  border: 1px solid rgba(0,229,255,0.3); }
+    .task-badge.complete { background: rgba(0,255,65,0.1);   color: var(--green); border: 1px solid rgba(0,255,65,0.3); }
+    .task-badge.blocked  { background: rgba(255,23,68,0.1);  color: var(--red);   border: 1px solid rgba(255,23,68,0.3); }
+
+    .task-title { color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .task-bot   { font-size: 10px; color: var(--magenta); white-space: nowrap; }
+    .task-pts   { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan); white-space: nowrap; }
+
+    .task-create-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+
+    /* ── COMMAND ───────────────────────────────────────────────────────── */
+    .cmd-area { display: flex; flex-direction: column; gap: 8px; }
+
+    .hud-textarea, .hud-input {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border);
+      color: var(--bright);
+      border-radius: 3px; padding: 10px;
+      font-family: 'Share Tech Mono', monospace; font-size: 12px;
+      resize: vertical; width: 100%;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .hud-textarea:focus, .hud-input:focus {
+      outline: none; border-color: var(--cyan);
+      box-shadow: 0 0 0 1px rgba(0,229,255,0.2), inset 0 0 10px rgba(0,229,255,0.05);
+    }
+
     .response-box {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 6px; padding: 10px; font-size: 12px;
-      min-height: 60px; white-space: pre-wrap; word-break: break-word;
-      color: var(--accent); display: none;
+      background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+      border-radius: 3px; padding: 10px; font-size: 11px;
+      white-space: pre-wrap; word-break: break-all; color: var(--cyan);
+      display: none; max-height: 200px; overflow-y: auto; line-height: 1.6;
     }
     .response-box.visible { display: block; }
+    .response-box.error   { color: var(--red); border-color: rgba(255,23,68,0.3); }
 
-    /* Chat section */
-    .chat-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    .soul-btn {
-      background: var(--bg); border: 1px solid var(--border);
-      color: var(--muted); padding: 6px 14px; border-radius: 999px;
-      cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s;
+    /* ── BUTTONS ───────────────────────────────────────────────────────── */
+    .btn {
+      padding: 9px 18px; border-radius: 3px; cursor: pointer;
+      font-family: 'Share Tech Mono', monospace; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid; transition: all .2s;
     }
-    .soul-btn.active { border-color: var(--accent); color: var(--accent); }
+    .btn-cyan   { background: rgba(0,229,255,0.1); border-color: var(--cyan);    color: var(--cyan); }
+    .btn-mag    { background: rgba(255,0,255,0.1); border-color: var(--magenta); color: var(--magenta); }
+    .btn-green  { background: rgba(0,255,65,0.1);  border-color: var(--green);   color: var(--green); }
+    .btn-gold   { background: rgba(255,215,0,0.1); border-color: var(--gold);    color: var(--gold); }
+    .btn-ghost  { background: transparent; border-color: var(--border); color: var(--muted); }
+    .btn:hover  { filter: brightness(1.3); box-shadow: 0 0 12px currentColor; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; filter: none; box-shadow: none; }
+    .btn-sm { padding: 5px 12px; font-size: 10px; }
+
+    /* ── CHAT ──────────────────────────────────────────────────────────── */
+    .soul-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .soul-tab {
+      padding: 4px 12px; border-radius: 2px;
+      border: 1px solid var(--border); color: var(--muted);
+      background: transparent; cursor: pointer;
+      font-family: inherit; font-size: 11px; transition: all .2s;
+    }
+    .soul-tab.active { border-color: var(--magenta); color: var(--magenta);
+                       background: rgba(255,0,255,0.08); text-shadow: var(--glow-m); }
+
     .chat-log {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 6px; padding: 10px; min-height: 100px; max-height: 220px;
-      overflow-y: auto; font-size: 12px; margin-bottom: 10px;
+      background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+      border-radius: 3px; padding: 10px; min-height: 120px; max-height: 200px;
+      overflow-y: auto; font-size: 11px; margin-bottom: 8px; line-height: 1.7;
     }
-    .chat-log .msg { margin-bottom: 8px; }
-    .chat-log .msg .who { font-weight: bold; }
-    .chat-log .msg .who.you { color: var(--accent2); }
-    .chat-log .msg .who.soul { color: var(--accent); }
+    .chat-log .msg { margin-bottom: 6px; }
+    .chat-log .who        { font-weight: bold; }
+    .chat-log .who.you    { color: var(--magenta); }
+    .chat-log .who.soul   { color: var(--cyan); }
+    .chat-log .who.system { color: var(--green); }
+    .chat-log .who.error  { color: var(--red); }
     .chat-input-row { display: flex; gap: 8px; }
-    .chat-input-row input {
-      flex: 1; background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); border-radius: 6px; padding: 8px;
-      font-family: inherit; font-size: 13px;
-    }
-    .chat-input-row input:focus { outline: none; border-color: var(--accent); }
+    .chat-input-row input { flex: 1; }
 
-    /* Delegate task section */
-    .delegate-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    .delegate-soul-btn {
-      background: var(--bg); border: 1px solid var(--border);
-      color: var(--muted); padding: 6px 14px; border-radius: 999px;
-      cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s;
+    /* ── DELEGATE ──────────────────────────────────────────────────────── */
+    .delegate-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .delegate-tab {
+      padding: 4px 12px; border-radius: 2px;
+      border: 1px solid var(--border); color: var(--muted);
+      background: transparent; cursor: pointer;
+      font-family: inherit; font-size: 11px; transition: all .2s;
     }
-    .delegate-soul-btn.active { border-color: var(--accent2); color: var(--accent2); }
+    .delegate-tab.active { border-color: var(--cyan); color: var(--cyan);
+                           background: rgba(0,229,255,0.08); }
 
-    /* Ledger */
-    .ledger-box {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 6px; padding: 10px; max-height: 260px;
-      overflow-y: auto; font-size: 11px;
+    /* ── LEDGER ────────────────────────────────────────────────────────── */
+    .ledger-feed {
+      background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+      border-radius: 3px; padding: 10px; max-height: 280px; overflow-y: auto;
     }
-    .ledger-entry { padding: 4px 0; border-bottom: 1px solid var(--border); }
-    .ledger-entry:last-child { border-bottom: none; }
-    .ledger-entry .ts { color: var(--muted); margin-right: 8px; }
-    .ledger-entry .type { color: var(--accent2); margin-right: 6px; font-weight: bold; }
-    .ledger-entry .evt { color: var(--text); }
+    .ledger-line {
+      display: flex; gap: 8px; padding: 4px 0;
+      border-bottom: 1px solid rgba(13,40,64,0.6); font-size: 11px; line-height: 1.5;
+    }
+    .ledger-line:last-child { border-bottom: none; }
+    .l-ts    { color: var(--muted); white-space: nowrap; font-size: 10px; flex-shrink: 0; }
+    .l-type  { color: var(--magenta); font-weight: bold; white-space: nowrap; flex-shrink: 0; }
+    .l-evt   { color: var(--text); word-break: break-word; }
+    .l-src   { color: var(--cyan); white-space: nowrap; flex-shrink: 0; font-size: 10px; }
 
+    /* ── TASK QUEUE (INTERNAL) ─────────────────────────────────────────── */
+    .queue-list { display: flex; flex-direction: column; gap: 5px; max-height: 200px; overflow-y: auto; }
+    .queue-item {
+      padding: 6px 10px; border: 1px solid var(--border); border-radius: 3px;
+      background: rgba(0,0,0,0.3); font-size: 11px;
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 8px; align-items: center;
+    }
+    .queue-cat {
+      font-size: 9px; padding: 1px 6px; border-radius: 2px;
+      text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
+    }
+    .cat-MONEY      { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+    .cat-SYSTEM     { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
+    .cat-CONTENT    { background: rgba(255,0,255,0.1); color: var(--magenta); border: 1px solid rgba(255,0,255,0.3); }
+    .cat-INTELLIGENCE{ background: rgba(0,255,65,0.1); color: var(--green); border: 1px solid rgba(0,255,65,0.3); }
+    .queue-name { color: var(--bright); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .queue-score { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--cyan); white-space: nowrap; }
+
+    /* ── SCROLLBARS ────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar       { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--void); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan2); }
+
+    /* ── FOOTER ────────────────────────────────────────────────────────── */
     footer {
-      text-align: center; padding: 20px; color: var(--muted);
-      font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px;
+      text-align: center; padding: 16px; color: var(--muted);
+      font-size: 10px; border-top: 1px solid var(--border); margin-top: 20px;
+      letter-spacing: 2px;
     }
-    footer a { color: var(--accent); text-decoration: none; }
+    footer a { color: var(--cyan2); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: var(--cyan); }
+
+    /* ── SIGNAL BANNER ─────────────────────────────────────────────────── */
+    .signal-banner {
+      display: none; background: linear-gradient(90deg, var(--red), #880020);
+      color: #fff; text-align: center; padding: 10px;
+      font-family: 'Orbitron', monospace; font-size: 12px; letter-spacing: 4px;
+      margin-bottom: 12px; border-radius: 3px;
+      border: 1px solid var(--red); box-shadow: 0 0 20px rgba(255,23,68,0.4);
+      animation: alert-flash 1s ease-in-out infinite;
+    }
+    .signal-banner.visible { display: block; }
+    @keyframes alert-flash { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+    /* ── FAILURE ALERTS ────────────────────────────────────────────────── */
+    .failure-alerts { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+    .failure-alert {
+      padding: 5px 10px; border-radius: 2px; font-size: 10px;
+      background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.3);
+      color: var(--red); display: flex; align-items: center; gap: 6px;
+    }
+
+    /* ── RADAR CIRCLE (decoration) ─────────────────────────────────────── */
+    .radar-wrap { display: flex; justify-content: center; margin: 10px 0; }
+    .radar {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 1px solid var(--border);
+      position: relative; flex-shrink: 0;
+      background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+    }
+    .radar::before, .radar::after {
+      content: ''; position: absolute;
+      border-radius: 50%; border: 1px solid var(--border);
+    }
+    .radar::before { inset: 20%; }
+    .radar::after  { inset: 40%; }
+    .radar-sweep {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent 80%, rgba(0,229,255,0.4) 100%);
+      animation: sweep 4s linear infinite;
+    }
+    @keyframes sweep { to { transform: rotate(360deg); } }
+    .radar-dot {
+      position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--green); box-shadow: var(--glow-g);
+      transform: translate(-50%,-50%);
+    }
+
+    /* ── BOTTOM FULL-WIDTH GRID ─────────────────────────────────────────── */
+    .full-row   { grid-column: 1 / -1; }
+    .dual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .dual-row { grid-template-columns: 1fr; } }
+
+    /* ── MISC HELPERS ──────────────────────────────────────────────────── */
+    .flex-row  { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .spacer    { flex: 1; }
+    .dim       { color: var(--muted); }
+    .bright    { color: var(--bright); }
+    .glow-c    { text-shadow: var(--glow-c); }
+    .glow-m    { text-shadow: var(--glow-m); }
+    .glow-g    { text-shadow: var(--glow-g); }
+
+    /* ── ANIMATED GRID LINES (bg decoration) ──────────────────────────── */
+    .cockpit-grid::before {
+      content: none; /* can enable for more decoration */
+    }
   </style>
 </head>
 <body>
+<div id="app">
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
 <header>
-  <h1>⚡ PROFITLORD COMMAND CENTER</h1>
-  <div id="status-badge">
-    <div id="status-dot" class="nosignal"></div>
-    <span id="status-text">LOADING…</span>
+  <div class="hdr-left">
+    <div>
+      <div class="hdr-logo">⚡ PROFITLORD</div>
+      <div class="hdr-sub">Soul Economy Command Center · v2.0</div>
+    </div>
+    <span id="mode-badge" class="mode-badge"></span>
+  </div>
+  <div class="hdr-right">
+    <div class="status-cluster">
+      <div id="status-dot" class="status-dot nosignal"></div>
+      <span id="status-text">INITIALIZING…</span>
+    </div>
+    <nav class="hdr-nav">
+      <a href="./nreal.html">nreal</a>
+      <a href="./state.json" target="_blank">state</a>
+      <a href="./agents.json" target="_blank">agents</a>
+      <a href="./immortal-expansion/index.html">expansion</a>
+    </nav>
   </div>
 </header>
+
+<!-- ── ECONOMY BAR ────────────────────────────────────────────────────── -->
+<div class="eco-bar">
+  <div class="eco-stat nsv">
+    <div class="eco-val" id="eco-nsv">0</div>
+    <div class="eco-lbl">Net Soul Value</div>
+  </div>
+  <div class="eco-formula">
+    (<span>Profit</span> + <span>Love</span>) − <span class="minus">Tax</span>
+  </div>
+  <div class="eco-stat money">
+    <div class="eco-val" id="eco-pts">0</div>
+    <div class="eco-lbl">Total Points</div>
+  </div>
+  <div class="eco-stat">
+    <div class="eco-val" id="eco-tasks">0</div>
+    <div class="eco-lbl">Tasks Done</div>
+  </div>
+  <div class="eco-stat">
+    <div class="eco-val" id="eco-bots">0</div>
+    <div class="eco-lbl">Active Bots</div>
+  </div>
+  <div class="eco-stat">
+    <div class="eco-val" id="eco-events">0</div>
+    <div class="eco-lbl">Events Logged</div>
+  </div>
+  <div class="eco-stat">
+    <div class="eco-val" id="eco-queue">0</div>
+    <div class="eco-lbl">Queue Items</div>
+  </div>
+</div>
+
+<!-- ── SCAN TICKER ────────────────────────────────────────────────────── -->
+<div class="scan-ticker">
+  <span class="ticker-label">◈ COLLECTOR LOOP</span>
+  <div class="ticker-phases">
+    <span class="t-phase" id="tp-observe">OBSERVE</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-score">SCORE</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-interpret">INTERPRET</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-capture">CAPTURE</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-multiply">MULTIPLY</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-store">STORE</span>
+    <span class="ticker-arrow">→</span>
+    <span class="t-phase" id="tp-report">REPORT</span>
+  </div>
+  <div class="scan-report" id="scan-report">—</div>
+  <button class="btn-scan" onclick="triggerScan()">▶ SCAN</button>
+</div>
 
 <main>
   <div class="signal-banner" id="no-signal-banner">⚠ NO SIGNAL — STATE UNAVAILABLE</div>
 
-  <div class="grid">
-    <!-- System State -->
-    <div class="panel">
-      <h2>System State</h2>
-      <div id="state-info">
-        <div class="kv"><span class="key">UPDATED</span><span class="val" id="s-updated">—</span></div>
-        <div class="kv"><span class="key">HEALTH</span><span class="val" id="s-health">—</span></div>
-        <div class="kv"><span class="key">CURRENT TASK</span><span class="val" id="s-task">—</span></div>
-        <div class="kv"><span class="key">SIGNAL AGE</span><span class="val" id="s-age">—</span></div>
+  <!-- ── COCKPIT GRID ──────────────────────────────────────────────────── -->
+  <div class="cockpit-grid" style="margin-bottom:12px">
+
+    <!-- LEFT COLUMN: TELEMETRY -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- System State -->
+      <div class="panel accent-g">
+        <h2><span class="panel-icon">◉</span> System State</h2>
+        <div class="kv"><span class="k">Updated</span><span class="v" id="s-updated">—</span></div>
+        <div class="kv"><span class="k">Health</span><span class="v" id="s-health">—</span></div>
+        <div class="health-wrap">
+          <div class="health-label"><span>SYSTEM HEALTH</span><span id="s-health-pct">—</span></div>
+          <div class="health-track"><div class="health-fill" id="health-fill" style="width:0%"></div></div>
+        </div>
+        <div class="kv"><span class="k">Current Task</span><span class="v" id="s-task">—</span></div>
+        <div class="kv"><span class="k">Signal Age</span><span class="v" id="s-age">—</span></div>
+        <div class="kv"><span class="k">Last Scan</span><span class="v" id="s-scan">—</span></div>
+        <div class="kv"><span class="k">Law</span><span class="v" style="font-size:9px;color:var(--gold)">NSV = P + L − T</span></div>
+        <div class="radar-wrap">
+          <div class="radar">
+            <div class="radar-sweep"></div>
+            <div class="radar-dot" style="top:30%;left:50%"></div>
+            <div class="radar-dot" style="top:60%;left:30%;background:var(--magenta);box-shadow:var(--glow-m)"></div>
+            <div class="radar-dot" style="top:45%;left:70%;background:var(--amber)"></div>
+          </div>
+        </div>
+        <div id="failure-alerts" class="failure-alerts"></div>
       </div>
+
+      <!-- Internal Task Queue -->
+      <div class="panel accent-gold">
+        <h2><span class="panel-icon">◈</span> Self-Task Queue</h2>
+        <div class="flex-row" style="margin-bottom:8px">
+          <button class="btn btn-gold btn-sm" onclick="doGenerateTasks()">+ Generate</button>
+          <span class="spacer"></span>
+          <span id="queue-count" class="dim" style="font-size:10px">0 items</span>
+        </div>
+        <div class="queue-list" id="queue-list">
+          <div class="dim" style="font-size:11px">Generating tasks…</div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Immortal Expansion -->
-    <div class="panel">
-      <h2>⚡ Immortal Expansion</h2>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
-        <a href="./immortal-expansion/index.html" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:12px" target="_blank">📖 Overview</a>
-        <a href="./immortal-expansion/roadmap.json" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:12px" target="_blank">🗺 Roadmap</a>
+    <!-- CENTER COLUMN: ACTIONS -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- Soul Roster -->
+      <div class="panel">
+        <h2><span class="panel-icon">◎</span> Soul Roster</h2>
+        <div class="bot-grid" id="souls-grid">
+          <div class="dim" style="font-size:11px;grid-column:1/-1">Loading souls…</div>
+        </div>
+        <div id="souls-grid-extra" style="margin-top:8px"></div>
       </div>
-      <p style="color:var(--muted);font-size:11px">Expanding the Command Center with new souls, builder capabilities, and autonomous task execution.</p>
+
+      <!-- Soul Chat -->
+      <div class="panel accent-m">
+        <h2><span class="panel-icon">◈</span> Soul Chat</h2>
+        <div class="soul-tabs" id="soul-btns"></div>
+        <div class="chat-log" id="chat-log"></div>
+        <div class="chat-input-row">
+          <input type="text" class="hud-input" id="chat-input"
+                 placeholder="Message…" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="btn btn-mag btn-sm" onclick="sendChat()">SEND</button>
+        </div>
+      </div>
+
+      <!-- Execute Command -->
+      <div class="panel">
+        <h2><span class="panel-icon">▶</span> Execute Command</h2>
+        <div class="cmd-area">
+          <textarea class="hud-textarea" id="cmd-input" rows="3"
+                    placeholder="Enter system command…"></textarea>
+          <div class="flex-row">
+            <button class="btn btn-cyan btn-sm" id="cmd-send" onclick="sendCommand()">▶ EXECUTE</button>
+            <button class="btn btn-ghost btn-sm" onclick="el('cmd-input').value='STATUS'">STATUS</button>
+            <button class="btn btn-ghost btn-sm" onclick="el('cmd-input').value='HELP'">HELP</button>
+          </div>
+          <div class="response-box" id="cmd-response"></div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Souls -->
-    <div class="panel">
-      <h2>Souls</h2>
-      <div class="soul-grid" id="souls-grid"></div>
-    </div>
+    <!-- RIGHT COLUMN: INTELLIGENCE -->
+    <div class="cockpit-right" style="display:flex;flex-direction:column;gap:12px">
 
-    <!-- Execute Command -->
-    <div class="panel">
-      <h2>Execute Command</h2>
-      <div class="cmd-area">
-        <textarea id="cmd-input" rows="3" placeholder="Enter command…"></textarea>
-        <button class="btn" id="cmd-send" onclick="sendCommand()">▶ EXECUTE</button>
-        <div class="response-box" id="cmd-response"></div>
+      <!-- Leaderboard -->
+      <div class="panel accent-gold">
+        <h2><span class="panel-icon">▲</span> Leaderboard</h2>
+        <div class="lb-list" id="leaderboard-list">
+          <div class="dim" style="font-size:11px">Computing rankings…</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Delegate Task (SoulCollector) -->
-    <div class="panel">
-      <h2>Delegate Task <span style="color:var(--muted);font-size:11px">via SoulCollector</span></h2>
-      <div class="cmd-area">
-        <div class="delegate-controls" id="delegate-soul-btns"></div>
-        <textarea id="delegate-input" rows="3" placeholder="Describe the task to delegate…"></textarea>
-        <button class="btn" id="delegate-send" onclick="delegateTask()">⚡ DELEGATE</button>
-        <div class="response-box" id="delegate-response"></div>
+      <!-- Delegate Task -->
+      <div class="panel">
+        <h2><span class="panel-icon">⚡</span> Delegate via SoulCollector</h2>
+        <div class="cmd-area">
+          <div class="delegate-tabs" id="delegate-soul-btns"></div>
+          <textarea class="hud-textarea" id="delegate-input" rows="3"
+                    placeholder="Describe task to delegate…"></textarea>
+          <button class="btn btn-cyan btn-sm" id="delegate-send" onclick="delegateTask()">⚡ DELEGATE</button>
+          <div class="response-box" id="delegate-response"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Soul Chat -->
-    <div class="panel">
-      <h2>Soul Chat</h2>
-      <div class="chat-controls" id="soul-btns"></div>
-      <div class="chat-log" id="chat-log"></div>
-      <div class="chat-input-row">
-        <input type="text" id="chat-input" placeholder="Message…" onkeydown="if(event.key==='Enter')sendChat()" />
-        <button class="btn" onclick="sendChat()">SEND</button>
-      </div>
     </div>
   </div>
 
-  <!-- Immortal Expansion -->
-  <div class="panel" style="margin-top:20px">
-    <h2>Immortal Expansion <span style="color:var(--muted);font-size:11px">— expanded souls</span></h2>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-      <p style="font-size:12px;color:var(--muted);line-height:1.6;max-width:680px;">
-        Five specialist agents have joined the Profitlord collective: Architect, Builder, Auditor, Scout, and Scribe.
-        Each is purpose-built to amplify the profit-cycle orchestration engine.
-      </p>
-      <a href="./immortal-expansion/index.html"
-         style="background:var(--accent2);color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:12px;letter-spacing:1px;white-space:nowrap;">
-        ▶ VIEW EXPANSION
-      </a>
+  <!-- ── FULL-WIDTH ROWS ─────────────────────────────────────────────── -->
+  <div class="dual-row" style="margin-bottom:12px">
+
+    <!-- Tasks -->
+    <div class="panel accent-m">
+      <h2><span class="panel-icon">◐</span> Task Engine</h2>
+      <div class="task-create-row">
+        <input type="text" class="hud-input" id="task-title-input"
+               placeholder="Task title…" style="flex:1"/>
+        <select id="task-bot-select" class="hud-input" style="width:130px">
+          <option value="">Bot…</option>
+        </select>
+        <input type="number" class="hud-input" id="task-pts-input"
+               placeholder="pts" value="10" style="width:60px"/>
+        <button class="btn btn-mag btn-sm" onclick="createQuickTask()">+ Task</button>
+      </div>
+      <div class="flex-row" style="margin-bottom:8px">
+        <button class="btn btn-ghost btn-sm" onclick="filterTasks('all')" id="tf-all">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterTasks('pending')" id="tf-pending">Pending</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterTasks('active')" id="tf-active">Active</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterTasks('complete')" id="tf-complete">Done</button>
+      </div>
+      <div class="task-list" id="task-list">
+        <div class="dim" style="font-size:11px">No tasks yet.</div>
+      </div>
     </div>
-    <div class="soul-grid" id="immortal-souls-grid"></div>
+
+    <!-- Event Ledger -->
+    <div class="panel">
+      <h2><span class="panel-icon">◎</span> Event Ledger</h2>
+      <div class="ledger-feed" id="ledger-box">
+        <div class="dim" style="font-size:11px">Loading events…</div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Ledger -->
-  <div class="panel" style="margin-top:20px">
-    <h2>Event Ledger <span style="color:var(--muted);font-size:11px">(recent)</span></h2>
-    <div class="ledger-box" id="ledger-box"></div>
-  </div>
 </main>
 
 <footer>
-  Profitlord Command Center &middot;
-  <a href="./index.html">Home</a> &middot;
-  <a href="./immortal-expansion/index.html">Immortal Expansion</a> &middot;
-  <a href="./state.json" target="_blank">state.json</a> &middot;
+  PROFITLORD SOUL ECONOMY &middot; NET SOUL VALUE = PROFIT + LOVE − TAX &middot;
+  <a href="./index.html">Home</a>
+  <a href="./nreal.html">nreal Console</a>
+  <a href="./state.json" target="_blank">state.json</a>
   <a href="./agents.json" target="_blank">agents.json</a>
+  <a href="./immortal-expansion/index.html">Expansion</a>
 </footer>
 
+</div><!-- #app -->
+
+<!-- ── SCRIPTS ──────────────────────────────────────────────────────────── -->
+<script src="./system.js"></script>
+<script src="./api.js"></script>
 <script>
-  // ─── Configuration ─────────────────────────────────────────────────────────
-  const BACKEND_BASE_URL = 'https://plt-server.onrender.com';
-  const STALE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
-  const POLL_INTERVAL_MS = 60 * 1000;         // poll state every 60 s
+'use strict';
 
-  // ─── Session ───────────────────────────────────────────────────────────────
-  const SESSION_ID = 'sess_' + Math.random().toString(36).slice(2, 10);
-  let selectedSoul = null;
-  let agents = [];
+// ─── Config ─────────────────────────────────────────────────────────────────
+const BACKEND_BASE_URL   = 'https://plt-server.onrender.com';
+const STALE_THRESHOLD_MS = 15 * 60 * 1000;
+const POLL_INTERVAL_MS   = 60 * 1000;
+const SESSION_ID         = 'sess_' + Math.random().toString(36).slice(2, 10);
 
-  // ─── DOM helpers ───────────────────────────────────────────────────────────
-  function el(id) { return document.getElementById(id); }
+let selectedSoul         = null;
+let selectedDelegateSoul = null;
+let agents               = [];
+let _taskFilter          = 'all';
 
-  function setSignal(state) {
-    const dot = el('status-dot');
-    const txt = el('status-text');
-    const banner = el('no-signal-banner');
-    dot.className = '';
-    if (state === 'live')      { dot.className = 'live'; txt.textContent = 'LIVE'; banner.classList.remove('visible'); }
-    else if (state === 'stale'){ dot.className = 'stale'; txt.textContent = 'STALE'; banner.classList.remove('visible'); }
-    else                       { dot.className = 'nosignal'; txt.textContent = 'NO SIGNAL'; banner.classList.add('visible'); }
+// ─── DOM ────────────────────────────────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtTs(ts) {
+  if (!ts) return '—';
+  try { return new Date(ts).toLocaleTimeString(); } catch { return ts; }
+}
+
+function ageStr(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - new Date(ts).getTime();
+  if (isNaN(diff)) return '—';
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return m + 'm ago';
+  return Math.floor(m/60) + 'h ' + (m%60) + 'm ago';
+}
+
+function setSignal(state) {
+  const dot = el('status-dot'), txt = el('status-text'), banner = el('no-signal-banner');
+  dot.className = 'status-dot';
+  if (state === 'live')  { dot.classList.add('live');     txt.textContent = 'LIVE';      banner.classList.remove('visible'); }
+  else if (state==='stale'){ dot.classList.add('stale');  txt.textContent = 'STALE';     banner.classList.remove('visible'); }
+  else                   { dot.classList.add('nosignal'); txt.textContent = 'NO SIGNAL'; banner.classList.add('visible'); }
+}
+
+// ─── Scan phase animation ─────────────────────────────────────────────────
+const PHASES = ['observe','score','interpret','capture','multiply','store','report'];
+
+function setPhaseUI(phase, report) {
+  PHASES.forEach(p => {
+    const el2 = el('tp-' + p);
+    if (!el2) return;
+    el2.className = 't-phase';
+    if (p === phase)                     el2.classList.add('active');
+    else if (PHASES.indexOf(p) < PHASES.indexOf(phase)) el2.classList.add('done');
+  });
+  if (phase === 'complete' || phase === 'report') {
+    PHASES.forEach(p => { const e = el('tp-'+p); if(e) e.className='t-phase done'; });
+  }
+  if (report) el('scan-report').textContent = Array.isArray(report) ? report.join(' · ') : report;
+}
+
+// ─── Economy bar ─────────────────────────────────────────────────────────
+function renderEconomy(state) {
+  const eco = state?.economy || ProfitlordOS.getEconomyStats();
+  el('eco-nsv').textContent   = eco.total_nsv    || 0;
+  el('eco-pts').textContent   = eco.total_points || 0;
+  el('eco-tasks').textContent = eco.total_tasks  || 0;
+  el('eco-bots').textContent  = eco.active_bots  || 0;
+  el('eco-events').textContent = ProfitlordOS.getLedger().length;
+  el('eco-queue').textContent  = ProfitlordOS.getTaskQueue().length;
+}
+
+// ─── Mode badge ──────────────────────────────────────────────────────────
+function renderModeBadge(state) {
+  const badge = el('mode-badge');
+  if (state?.money_mode) {
+    badge.className = 'mode-badge money';
+    badge.textContent = '💰 MONEY MODE';
+  } else if (state?.architect_mode) {
+    badge.className = 'mode-badge architect';
+    badge.textContent = '🏗 ARCHITECT MODE';
+  } else {
+    badge.className = 'mode-badge';
+    badge.textContent = '';
+  }
+}
+
+// ─── Souls ────────────────────────────────────────────────────────────────
+function renderSouls(state) {
+  const souls = state?.souls || {};
+  const bots  = ProfitlordOS.getBots();
+  const grid  = el('souls-grid');
+
+  // Merge remote souls with OS bots
+  const allBots = bots.length ? bots : Object.values(souls);
+
+  if (!allBots.length) {
+    grid.innerHTML = '<div class="dim" style="font-size:11px;grid-column:1/-1">No souls registered.</div>';
+    return;
   }
 
-  function fmtTs(ts) {
-    if (!ts) return '—';
-    try { return new Date(ts).toLocaleString(); } catch { return ts; }
-  }
+  // Main 10 bots
+  const mainBots   = allBots.slice(0, 10);
 
-  function ageStr(ts) {
-    if (!ts) return '—';
-    const diff = Date.now() - new Date(ts).getTime();
-    if (isNaN(diff)) return '—';
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return 'just now';
-    if (m < 60) return m + 'm ago';
-    return Math.floor(m / 60) + 'h ' + (m % 60) + 'm ago';
-  }
+  grid.innerHTML = mainBots.map(b => {
+    const name    = b.name || b.plt_name || b.id;
+    const role    = b.role || '';
+    const status  = b.status || 'idle';
+    const nsv     = ProfitlordOS.calcNSV(b);
+    const lastMsg = b.last_message || '';
+    return `<div class="bot-card ${escHtml(status)}" onclick="selectSoulFromBot('${escHtml(name)}')">
+      <div class="bot-name">${escHtml(name)}</div>
+      <div class="bot-role">${escHtml(role)}</div>
+      <div class="bot-status-row">
+        <span class="bot-status ${escHtml(status)}">${escHtml(status)}</span>
+        <span class="bot-nsv">${nsv.nsv}</span>
+      </div>
+      ${lastMsg ? `<div class="bot-msg">"${escHtml(lastMsg.slice(0,40))}"</div>` : ''}
+    </div>`;
+  }).join('');
+}
 
-  // ─── Load state ────────────────────────────────────────────────────────────
-  async function loadState() {
-    try {
-      const res = await fetch('./state.json?_=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const state = await res.json();
-      renderState(state);
-    } catch (err) {
-      setSignal('nosignal');
-      el('s-updated').textContent = 'UNAVAILABLE';
-      el('s-health').textContent = 'UNAVAILABLE';
-      el('s-task').textContent = 'UNAVAILABLE';
-      el('s-age').textContent = 'UNAVAILABLE';
-      el('souls-grid').innerHTML = '<p style="color:var(--muted);font-size:12px">No signal — cannot reach state.</p>';
+// ─── Leaderboard ─────────────────────────────────────────────────────────
+function renderLeaderboard() {
+  const board = ProfitlordOS.updateLeaderboard();
+  const list  = el('leaderboard-list');
+  if (!board.length) {
+    list.innerHTML = '<div class="dim" style="font-size:11px">No data yet.</div>';
+    return;
+  }
+  list.innerHTML = board.map(b => {
+    const rowClass = b.rank === 1 ? 'top1' : b.rank === 2 ? 'top2' : b.rank === 3 ? 'top3' : '';
+    const flag = b.low_love ? ' <span style="color:var(--red);font-size:9px" title="Low Love — add trust layer">⚠</span>' : '';
+    return `<div class="lb-row ${rowClass}">
+      <span class="lb-rank">#${b.rank}</span>
+      <span class="lb-name">${escHtml(b.name)}${flag}</span>
+      <span class="lb-nsv">${b.net_soul_value}</span>
+      <span class="lb-tier tier-${b.tier}">${b.tier}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── Tasks ────────────────────────────────────────────────────────────────
+function renderTasks(filter) {
+  if (filter) _taskFilter = filter;
+  let tasks = ProfitlordOS.getTasks();
+  if (_taskFilter !== 'all') tasks = tasks.filter(t => t.status === _taskFilter);
+  tasks = tasks.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const list = el('task-list');
+  if (!tasks.length) {
+    list.innerHTML = '<div class="dim" style="font-size:11px">No tasks in this filter.</div>';
+    return;
+  }
+  list.innerHTML = tasks.slice(0, 30).map(t => {
+    const botName = t.assigned_bot
+      ? (ProfitlordOS.getBot(t.assigned_bot)?.name || t.assigned_bot) : '—';
+    return `<div class="task-item" onclick="handleTaskClick('${escHtml(t.id)}','${escHtml(t.status)}')">
+      <span class="task-badge ${escHtml(t.status)}">${escHtml(t.status)}</span>
+      <span class="task-title">${escHtml(t.title)}</span>
+      <span class="task-bot">${escHtml(botName)}</span>
+      <span class="task-pts">+${t.reward_points}</span>
+    </div>`;
+  }).join('');
+}
+
+function handleTaskClick(id, status) {
+  if (status === 'active' || status === 'pending') {
+    if (confirm(`Complete task "${id}"?`)) {
+      ProfitlordOS.completeTask(id);
+      renderTasks(); renderLeaderboard(); renderEconomy(ProfitlordOS.getState());
     }
   }
+}
 
-  function renderState(state) {
-    const updatedAt = state.updated_at || null;
-    const ageMs = updatedAt ? Date.now() - new Date(updatedAt).getTime() : null;
-    const signalState = (ageMs === null) ? 'nosignal'
-                      : (ageMs > STALE_THRESHOLD_MS) ? 'stale'
-                      : 'live';
-    setSignal(signalState);
+function filterTasks(f) {
+  ['all','pending','active','complete'].forEach(s => {
+    const b = el('tf-'+s);
+    if (b) b.className = 'btn btn-ghost btn-sm' + (s===f ? ' btn-cyan' : '');
+  });
+  renderTasks(f);
+}
 
-    el('s-updated').textContent = fmtTs(updatedAt);
-    el('s-health').textContent = state.health || '—';
-    el('s-task').textContent = state.current_task || '—';
-    el('s-age').textContent = ageStr(updatedAt);
+function createQuickTask() {
+  const title  = el('task-title-input').value.trim();
+  const botId  = el('task-bot-select').value;
+  const pts    = parseInt(el('task-pts-input').value) || 10;
+  if (!title) { el('task-title-input').focus(); return; }
+  ProfitlordOS.createTask(title, '', botId || null, pts);
+  el('task-title-input').value = '';
+  renderTasks(); renderLeaderboard(); renderEconomy(ProfitlordOS.getState());
+}
 
-    // Souls
-    const souls = state.souls || {};
-    const grid = el('souls-grid');
-    if (Object.keys(souls).length === 0) {
-      grid.innerHTML = '<p style="color:var(--muted);font-size:12px">No souls registered.</p>';
-      return;
-    }
-    grid.innerHTML = Object.entries(souls).map(([name, s]) => {
-      const agent = agents.find(a => a.name === name) || {};
-      const sc = (s.status === 'active') ? 'active' : (s.status === 'offline') ? 'offline' : 'idle';
-      return `<div class="soul-card">
-        <div class="soul-name">${name}</div>
-        <div class="soul-role">${agent.role || ''}</div>
-        <span class="soul-status ${sc}">${s.status || 'idle'}</span>
-        <div class="soul-last">${ageStr(s.last_seen)}</div>
-        ${s.last_message ? '<div class="soul-msg">"' + escHtml(s.last_message) + '"</div>' : ''}
-      </div>`;
-    }).join('');
+// ─── Task queue (self-tasking) ─────────────────────────────────────────
+function renderQueue() {
+  const q    = ProfitlordOS.getTaskQueue();
+  const list = el('queue-list');
+  el('queue-count').textContent = q.length + ' items';
+  if (!q.length) {
+    list.innerHTML = '<div class="dim" style="font-size:11px">Queue empty — generating…</div>';
+    return;
   }
+  list.innerHTML = q.slice(0, 8).map(t =>
+    `<div class="queue-item">
+      <span class="queue-cat cat-${escHtml(t.category)}">${escHtml(t.category)}</span>
+      <span class="queue-name">${escHtml(t.name)}</span>
+      <span class="queue-score">${t.priority_score || 0}</span>
+    </div>`
+  ).join('');
+}
 
-  // ─── Load agents ───────────────────────────────────────────────────────────
-  async function loadAgents() {
-    try {
-      const res = await fetch('./agents.json?_=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) return;
-      agents = await res.json();
-      renderSoulButtons();
-    } catch { /* non-fatal */ }
+function doGenerateTasks() {
+  ProfitlordOS.generateTasks();
+  renderQueue();
+}
+
+// ─── Failure detection ────────────────────────────────────────────────
+function renderFailures(failures) {
+  const box = el('failure-alerts');
+  if (!failures?.length) { box.innerHTML = ''; return; }
+  box.innerHTML = failures.map(f =>
+    `<div class="failure-alert">⚠ ${escHtml(f.msg || f.message || f.type)}</div>`
+  ).join('');
+}
+
+// ─── Ledger ───────────────────────────────────────────────────────────
+function renderLedger() {
+  // First use OS ledger (local), then augment from remote
+  const osEvents = ProfitlordOS.getLedger({ limit: 40 }).slice().reverse();
+  const box = el('ledger-box');
+  if (!osEvents.length) {
+    box.innerHTML = '<div class="dim" style="font-size:11px">No events yet.</div>';
+    return;
   }
+  box.innerHTML = osEvents.map(e =>
+    `<div class="ledger-line">
+      <span class="l-ts">${fmtTs(e.ts)}</span>
+      <span class="l-type">[${escHtml(e.type||'event')}]</span>
+      <span class="l-evt">${escHtml(e.payload?.title || e.payload?.content || e.payload?.summary || JSON.stringify(e.payload||{}).slice(0,60))}</span>
+      <span class="l-src">${escHtml(e.actor||'')}</span>
+    </div>`
+  ).join('');
+  // Also fetch remote ledger.jsonl
+  loadRemoteLedger();
+}
 
-  function renderSoulButtons() {
-    const c = el('soul-btns');
-    c.innerHTML = agents.map(a =>
-      `<button class="soul-btn${selectedSoul === a.name ? ' active' : ''}" onclick="selectSoul('${a.name}')">${a.name}</button>`
+async function loadRemoteLedger() {
+  try {
+    const res = await fetch('./ledger.jsonl?_='+Date.now(), { cache:'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const lines = text.trim().split('\n').filter(Boolean);
+    const entries = lines.map(l => { try { return JSON.parse(l); } catch { return null; } })
+                         .filter(Boolean).slice(-30).reverse();
+    const box = el('ledger-box');
+    const remoteHtml = entries.map(e =>
+      `<div class="ledger-line">
+        <span class="l-ts">${fmtTs(e.ts)}</span>
+        <span class="l-type">[${escHtml(e.type||'event')}]</span>
+        <span class="l-evt">${escHtml(e.summary||e.event||JSON.stringify(e).slice(0,60))}</span>
+        <span class="l-src" style="color:var(--cyan2)">remote</span>
+      </div>`
     ).join('');
-    if (!selectedSoul && agents.length > 0) selectSoul(agents[0].name, true);
-    renderDelegateSoulButtons();
+    if (remoteHtml) box.innerHTML = box.innerHTML + '<div style="height:4px;border-top:1px solid var(--border);margin:4px 0"></div>' + remoteHtml;
+  } catch { /* non-fatal */ }
+}
+
+// ─── System state (remote) ────────────────────────────────────────────
+function renderRemoteState(state) {
+  const updatedAt = state.updated_at || null;
+  const ageMs     = updatedAt ? Date.now() - new Date(updatedAt).getTime() : null;
+  const sig       = ageMs === null ? 'nosignal' : ageMs > STALE_THRESHOLD_MS ? 'stale' : 'live';
+  setSignal(sig);
+
+  const pct = typeof state.health === 'number' ? state.health : 100;
+  el('s-updated').textContent  = fmtTs(updatedAt);
+  el('s-health').textContent   = pct + '%';
+  el('s-health-pct').textContent = pct + '%';
+  el('health-fill').style.width = pct + '%';
+  el('s-task').textContent     = state.current_task || '—';
+  el('s-age').textContent      = ageStr(updatedAt);
+  el('s-scan').textContent     = ageStr(ProfitlordOS.getState().scan?.last_run) || 'never';
+
+  renderSouls(state);
+  renderSoulButtons(agents);
+  renderDelegateSoulButtons(agents);
+}
+
+// ─── Soul buttons ────────────────────────────────────────────────────
+function renderSoulButtons(agentList) {
+  const c = el('soul-btns'); if (!c) return;
+  c.innerHTML = agentList.map(a =>
+    `<button class="soul-tab${selectedSoul===a.name?' active':''}" onclick="selectSoul('${escHtml(a.name)}')">${escHtml(a.name)}</button>`
+  ).join('');
+  if (!selectedSoul && agentList.length) selectSoul(agentList[0].name, true);
+  populateTaskBotSelect(agentList);
+}
+
+function renderDelegateSoulButtons(agentList) {
+  const c = el('delegate-soul-btns'); if (!c) return;
+  const targets = agentList.filter(a => a.id !== 'soulcollector');
+  c.innerHTML = targets.map(a =>
+    `<button class="delegate-tab${selectedDelegateSoul===a.name?' active':''}" onclick="selectDelegateSoul('${escHtml(a.name)}')">${escHtml(a.name)}</button>`
+  ).join('');
+  if (!selectedDelegateSoul && targets.length) selectDelegateSoul(targets[0].name, true);
+}
+
+function selectSoul(name, silent) {
+  selectedSoul = name;
+  document.querySelectorAll('.soul-tab').forEach(b => {
+    b.classList.toggle('active', b.textContent === name);
+  });
+  if (!silent) {
+    el('chat-log').innerHTML = '';
+    // Load OS chat history for this soul
+    const msgs = ProfitlordOS.getMessages(name.toLowerCase());
+    msgs.slice(-20).forEach(m => appendChat('soul', m.sender, m.content));
   }
+}
 
-  let selectedDelegateSoul = null;
+function selectSoulFromBot(name) { selectSoul(name); }
 
-  function renderDelegateSoulButtons() {
-    const c = el('delegate-soul-btns');
-    if (!c) return;
-    // SoulCollector delegates TO other souls (exclude itself)
-    const targets = agents.filter(a => a.id !== 'soulcollector');
-    c.innerHTML = targets.map(a =>
-      `<button class="delegate-soul-btn${selectedDelegateSoul === a.name ? ' active' : ''}" onclick="selectDelegateSoul('${a.name}')">${a.name}</button>`
-    ).join('');
-    if (!selectedDelegateSoul && targets.length > 0) selectDelegateSoul(targets[0].name, true);
-  }
+function selectDelegateSoul(name) {
+  selectedDelegateSoul = name;
+  document.querySelectorAll('.delegate-tab').forEach(b => {
+    b.classList.toggle('active', b.textContent === name);
+  });
+}
 
-  function selectDelegateSoul(name, silent) {
-    selectedDelegateSoul = name;
-    document.querySelectorAll('.delegate-soul-btn').forEach(b => {
-      b.classList.toggle('active', b.textContent === name);
+function populateTaskBotSelect(agentList) {
+  const sel = el('task-bot-select');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Bot…</option>' +
+    agentList.map(a => `<option value="${escHtml(a.id)}">${escHtml(a.name)}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────
+async function sendChat() {
+  const input = el('chat-input');
+  const msg   = input.value.trim();
+  if (!msg || !selectedSoul) return;
+  input.value = '';
+  appendChat('you', 'YOU', msg);
+
+  // Log to OS chat
+  ProfitlordOS.sendMessage('user', msg, selectedSoul.toLowerCase());
+
+  try {
+    const res = await fetch(BACKEND_BASE_URL + '/chat/' + encodeURIComponent(selectedSoul), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, session_id: SESSION_ID })
     });
-    renderImmortalSouls();
+    const data = await res.json();
+    const reply = data.reply || data.message || JSON.stringify(data);
+    appendChat('soul', selectedSoul, reply);
+    ProfitlordOS.sendMessage(selectedSoul, reply, selectedSoul.toLowerCase());
+    renderLedger();
+  } catch (err) {
+    appendChat('error', selectedSoul, '(offline: ' + err.message + ') — reply stored locally');
+    // Simulate soul response
+    const localReply = `${selectedSoul}: Signal received. NSV analysed. Proceeding.`;
+    ProfitlordOS.sendMessage(selectedSoul, localReply, selectedSoul.toLowerCase());
   }
+}
 
-  const IMMORTAL_IDS = new Set(['architect', 'builder', 'auditor', 'scout', 'scribe']);
+function appendChat(role, who, text) {
+  const log = el('chat-log');
+  const div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = `<span class="who ${role}">${escHtml(who)}</span>: ${escHtml(text)}`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
 
-  function renderImmortalSouls() {
-    const grid = el('immortal-souls-grid');
-    if (!grid) return;
-    const immortals = agents.filter(a => IMMORTAL_IDS.has(a.id));
-    if (immortals.length === 0) {
-      grid.innerHTML = '<p style="color:var(--muted);font-size:12px">No immortal souls registered yet.</p>';
-      return;
-    }
-    grid.innerHTML = immortals.map(a => {
-      const sc = (a.status === 'active') ? 'active' : (a.status === 'offline') ? 'offline' : 'idle';
-      return `<div class="soul-card">
-        <div class="soul-name">${escHtml(a.name)}</div>
-        <div class="soul-role">${escHtml(a.role || '')}</div>
-        <span class="soul-status ${sc}">${escHtml(a.status || 'idle')}</span>
-        <div class="soul-last">${ageStr(a.last_seen)}</div>
-      </div>`;
-    }).join('');
-  }
+// ─── Command execute ──────────────────────────────────────────────────
+async function sendCommand() {
+  const input   = el('cmd-input');
+  const btn     = el('cmd-send');
+  const respBox = el('cmd-response');
+  const cmd     = input.value.trim();
+  if (!cmd) return;
 
-  function selectSoul(name, silent) {
-    selectedSoul = name;
-    document.querySelectorAll('.soul-btn').forEach(b => {
-      b.classList.toggle('active', b.textContent === name);
-    });
-    if (!silent) el('chat-log').innerHTML = '';
-  }
+  btn.disabled    = true;
+  btn.textContent = '… EXECUTING';
+  respBox.className = 'response-box visible';
+  respBox.textContent = '…';
 
-  // ─── Load ledger ───────────────────────────────────────────────────────────
-  async function loadLedger() {
-    try {
-      const res = await fetch('./ledger.jsonl?_=' + Date.now(), { cache: 'no-store' });
-      if (!res.ok) return;
-      const text = await res.text();
-      const lines = text.trim().split('\n').filter(Boolean);
-      const entries = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-      const box = el('ledger-box');
-      if (entries.length === 0) { box.innerHTML = '<span style="color:var(--muted)">No events yet.</span>'; return; }
-      box.innerHTML = entries.slice(-50).reverse().map(e =>
-        `<div class="ledger-entry">
-          <span class="ts">${fmtTs(e.ts)}</span>
-          <span class="type">[${escHtml(e.type || 'event')}]</span>
-          <span class="evt">${escHtml(e.event || JSON.stringify(e))}</span>
-          ${e.source ? '<span style="color:var(--muted)"> — ' + escHtml(e.source) + '</span>' : ''}
-        </div>`
-      ).join('');
-    } catch { /* non-fatal */ }
-  }
-
-  // ─── Delegate task (SoulCollector) ─────────────────────────────────────────
-  async function delegateTask() {
-    const input = el('delegate-input');
-    const btn = el('delegate-send');
-    const respBox = el('delegate-response');
-    const task = input.value.trim();
-
-    if (!task) {
-      respBox.textContent = 'Please enter a task to delegate.';
-      respBox.classList.add('visible');
-      return;
-    }
-    if (!selectedDelegateSoul) {
-      respBox.textContent = 'Please select a soul to delegate to.';
-      respBox.classList.add('visible');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = '… DELEGATING';
-    respBox.textContent = '';
-    respBox.classList.remove('visible');
-
-    try {
-      const res = await fetch(BACKEND_BASE_URL + '/delegate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task, soul: selectedDelegateSoul, source: 'dashboard' })
-      });
-      const data = await res.json();
-      respBox.textContent = JSON.stringify(data, null, 2);
-      respBox.classList.add('visible');
-      if (res.ok) input.value = '';
-    } catch (err) {
-      respBox.textContent = 'Error: ' + err.message;
-      respBox.classList.add('visible');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '⚡ DELEGATE';
-    }
-  }
-
-  // ─── Execute command ────────────────────────────────────────────────────────
-  async function sendCommand() {
-    const input = el('cmd-input');
-    const btn = el('cmd-send');
-    const respBox = el('cmd-response');
-    const cmd = input.value.trim();
-    if (!cmd) return;
-
-    btn.disabled = true;
-    btn.textContent = '… EXECUTING';
-    respBox.textContent = '';
-    respBox.classList.remove('visible');
-
+  // Try OS command first
+  const osResult = ProfitlordOS.execCommand(cmd);
+  if (osResult.ok) {
+    respBox.textContent = typeof osResult.result === 'object'
+      ? JSON.stringify(osResult.result, null, 2)
+      : String(osResult.result);
+    renderAll();
+  } else {
+    // Fall back to backend execute
     try {
       const res = await fetch(BACKEND_BASE_URL + '/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command: cmd, source: 'dashboard', ts: new Date().toISOString() })
       });
       const data = await res.json();
       respBox.textContent = JSON.stringify(data, null, 2);
-      respBox.classList.add('visible');
-      if (res.ok) input.value = '';
     } catch (err) {
-      respBox.textContent = 'Error: ' + err.message;
-      respBox.classList.add('visible');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '▶ EXECUTE';
+      respBox.textContent = '⚠ Backend offline: ' + err.message + '\n\nOS error: ' + osResult.error;
+      respBox.className   = 'response-box visible error';
     }
   }
+  btn.disabled    = false;
+  btn.textContent = '▶ EXECUTE';
+  if (cmd.toUpperCase() !== 'HELP') input.value = '';
+}
 
-  // ─── Soul chat ──────────────────────────────────────────────────────────────
-  async function sendChat() {
-    const input = el('chat-input');
-    const msg = input.value.trim();
-    if (!msg || !selectedSoul) return;
+// ─── Delegate ─────────────────────────────────────────────────────────
+async function delegateTask() {
+  const input   = el('delegate-input');
+  const btn     = el('delegate-send');
+  const respBox = el('delegate-response');
+  const task    = input.value.trim();
+  if (!task) { respBox.textContent='Enter a task.'; respBox.className='response-box visible'; return; }
+  if (!selectedDelegateSoul) { respBox.textContent='Select a soul.'; respBox.className='response-box visible'; return; }
+
+  btn.disabled = true; btn.textContent = '… DELEGATING';
+  respBox.className = 'response-box'; respBox.textContent = '';
+
+  // Log in OS
+  ProfitlordOS.createTask('Delegated: ' + task, task, selectedDelegateSoul.toLowerCase(), 20, 'SYSTEM');
+  ProfitlordOS.appendLedger('task_delegated', 'SoulCollector',
+    { task, delegated_to: selectedDelegateSoul });
+
+  try {
+    const res = await fetch(BACKEND_BASE_URL + '/delegate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task, soul: selectedDelegateSoul, source: 'dashboard' })
+    });
+    const data = await res.json();
+    respBox.textContent  = JSON.stringify(data, null, 2);
+    respBox.className    = 'response-box visible';
+    if (res.ok) { input.value = ''; renderAll(); }
+  } catch (err) {
+    respBox.textContent = '⚠ Backend offline — task queued locally.\n' + err.message;
+    respBox.className   = 'response-box visible';
     input.value = '';
+    renderAll();
+  }
+  btn.disabled = false; btn.textContent = '⚡ DELEGATE';
+}
 
-    appendChat('you', 'YOU', msg);
+// ─── Scan trigger ─────────────────────────────────────────────────────
+async function triggerScan() {
+  const PHASE_NAMES = ['observe','score','interpret','capture','multiply','store','report'];
+  let i = 0;
+  const interval = setInterval(() => {
+    setPhaseUI(PHASE_NAMES[i] || 'complete');
+    i++;
+    if (i >= PHASE_NAMES.length) clearInterval(interval);
+  }, 350);
 
-    try {
-      const res = await fetch(BACKEND_BASE_URL + '/chat/' + encodeURIComponent(selectedSoul), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, session_id: SESSION_ID })
-      });
-      const data = await res.json();
-      appendChat('soul', selectedSoul, data.reply || data.message || JSON.stringify(data));
-    } catch (err) {
-      appendChat('soul', selectedSoul, '(error: ' + err.message + ')');
+  const result = await ProfitlordOS.runScan();
+  clearInterval(interval);
+  setPhaseUI('complete', result.report);
+  renderAll();
+}
+
+// ─── Render all ───────────────────────────────────────────────────────
+function renderAll(state) {
+  const s = state || ProfitlordOS.getState();
+  renderEconomy(s);
+  renderModeBadge(s);
+  renderLeaderboard();
+  renderTasks();
+  renderQueue();
+  renderLedger();
+  el('s-scan').textContent = ageStr(s.scan?.last_run) || 'never';
+  // Failure detection from last scan
+  const lastReport = s.scan?.last_report || [];
+  const failures = lastReport.filter(r => r.includes('⚠') || r.includes('failure'));
+}
+
+// ─── Data load ────────────────────────────────────────────────────────
+async function loadAgents() {
+  try {
+    const res = await fetch('./agents.json?_='+Date.now(), { cache:'no-store' });
+    if (!res.ok) return;
+    agents = await res.json();
+    renderSoulButtons(agents);
+    renderDelegateSoulButtons(agents);
+  } catch { /* non-fatal */ }
+}
+
+async function loadState() {
+  try {
+    const res = await fetch('./state.json?_='+Date.now(), { cache:'no-store' });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const state = await res.json();
+    renderRemoteState(state);
+  } catch {
+    setSignal('nosignal');
+    // Still render from local OS
+    renderSouls({});
+  }
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────
+async function boot() {
+  // Initialize OS engine
+  await ProfitlordOS.init();
+
+  // Subscribe to OS state changes → update UI
+  ProfitlordOS.subscribe(state => {
+    renderAll(state);
+    // Animate scan phase
+    const phase = state.scan?.phase;
+    if (phase && phase !== 'idle' && phase !== 'complete') {
+      setPhaseUI(phase);
+    } else if (phase === 'complete') {
+      setPhaseUI('complete', state.scan?.last_report);
     }
-  }
+  });
 
-  function appendChat(role, who, text) {
-    const log = el('chat-log');
-    const div = document.createElement('div');
-    div.className = 'msg';
-    div.innerHTML = `<span class="who ${role}">${escHtml(who)}</span>: ${escHtml(text)}`;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-  }
+  // Load remote data
+  await Promise.all([loadAgents(), loadState()]);
+  renderAll();
 
-  // ─── Utilities ─────────────────────────────────────────────────────────────
-  function escHtml(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  // Poll remote every 60s
+  setInterval(() => { loadState(); }, POLL_INTERVAL_MS);
+  setInterval(() => { renderLedger(); }, 30000);
+}
 
-  // ─── Boot ──────────────────────────────────────────────────────────────────
-  async function boot() {
-    await loadAgents();
-    await loadState();
-    await loadLedger();
-  }
-
-  boot();
-  setInterval(() => { loadState(); loadLedger(); }, POLL_INTERVAL_MS);
+boot();
 </script>
 </body>
 </html>
