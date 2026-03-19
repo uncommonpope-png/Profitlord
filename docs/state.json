@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-03-19T09:59:39.572Z",
+  "updated_at": "2026-03-19T10:00:04.600Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
-  "pages_total": 62,
+  "pages_total": 63,
   "souls": {
     "Profit": {
       "id": "profit",
@@ -16,7 +16,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:59:39.574Z",
+      "last_seen": "2026-03-19T10:00:04.603Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -30,7 +30,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:59:39.574Z",
+      "last_seen": "2026-03-19T10:00:04.603Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -71,7 +71,7 @@
         "scalability",
         "blueprints"
       ],
-      "status": "idle",
+      "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Architect"
     },
@@ -85,7 +85,7 @@
         "deployment",
         "integrations"
       ],
-      "status": "idle",
+      "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Builder"
     },
@@ -99,7 +99,7 @@
         "risk assessment",
         "reporting"
       ],
-      "status": "idle",
+      "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Auditor"
     },
@@ -113,7 +113,7 @@
         "signals",
         "leads"
       ],
-      "status": "idle",
+      "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Scout"
     },
@@ -127,7 +127,7 @@
         "logs",
         "summaries"
       ],
-      "status": "idle",
+      "status": "stale",
       "last_seen": "2026-03-19T09:00:00.000Z",
       "endpoint": "/chat/Scribe"
     }
