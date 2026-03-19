@@ -17,4 +17,14 @@ services:
       - key: GH_TOKEN
         sync: false
       - key: REDIS_URL
+        fromService:
+          name: profitlord-redis
+          type: redis
+          property: connectionString
+
+databases:
+  - type: redis
+    name: profitlord-redis
+    plan: free
+    ipAllowList: []
         sync: false

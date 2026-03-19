@@ -9,5 +9,7 @@
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "redis": "^5.11.0"
+  }
 }

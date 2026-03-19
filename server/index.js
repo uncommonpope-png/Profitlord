@@ -1,7 +1,7 @@
 'use strict';
 
 // ---------------------------------------------------------------------------
-// Profitlord Command Center — Backend (Node 20, no external dependencies)
+// Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
 //   POST /execute       { command, source, ts }
@@ -15,6 +15,11 @@
 //   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
+//   GH_TOKEN   — GitHub personal access token with repo write access
+//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO    — Repository name   (e.g. Profitlord)
+//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
+//   PORT       — (optional) listening port, defaults to 3000
 //   GH_TOKEN        — GitHub personal access token with repo write access
 //   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
 //   GH_REPO         — Repository name   (e.g. Profitlord)
@@ -25,6 +30,7 @@
 
 const http = require('http');
 const https = require('https');
+const { createClient } = require('redis');
 const crypto = require('crypto');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -32,6 +38,7 @@ const GH_TOKEN = process.env.GH_TOKEN || '';
 const GH_OWNER = process.env.GH_OWNER || 'uncommonpope-png';
 const GH_REPO = process.env.GH_REPO || 'Profitlord';
 const GH_BRANCH = process.env.GH_BRANCH || 'main';
+const REDIS_URL = process.env.REDIS_URL || '';
 const GH_CLIENT_ID = process.env.GH_CLIENT_ID || '';
 const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET || '';
 const ALLOWED_ORIGIN = 'https://uncommonpope-png.github.io';
@@ -40,6 +47,23 @@ const DASHBOARD_URL = ALLOWED_ORIGIN + '/Profitlord/dashboard.html';
 if (!GH_TOKEN) {
   console.warn('[WARN] GH_TOKEN is not set — GitHub writeback will be disabled.');
 }
+if (!REDIS_URL) {
+  console.warn('[WARN] REDIS_URL is not set — Redis caching will be disabled.');
+}
+
+// ─── Redis client ────────────────────────────────────────────────────────────
+
+let redisClient = null;
+
+if (REDIS_URL) {
+  redisClient = createClient({ url: REDIS_URL });
+  redisClient.on('error', err => console.error('[Redis] client error:', err.message));
+  redisClient.connect()
+    .then(() => console.log('[Redis] connected'))
+    .catch(err => {
+      console.error('[Redis] connect failed:', err.message);
+      redisClient = null;
+    });
 if (!GH_CLIENT_ID || !GH_CLIENT_SECRET) {
   console.warn('[WARN] GH_CLIENT_ID / GH_CLIENT_SECRET not set — GitHub OAuth login will be disabled.');
 }
@@ -160,10 +184,17 @@ async function updateState(patch) {
     if (file) { state = JSON.parse(file.content); sha = file.sha; }
     const next = deepMerge(state, patch);
     next.updated_at = new Date().toISOString();
+    const nextJson = JSON.stringify(next, null, 2) + '\n';
+
+    // Cache in Redis (fire-and-forget, only when connection is ready)
+    if (redisClient?.isReady) {
+      redisClient.set('state', nextJson).catch(err => console.error('[Redis] set state error:', err.message));
+    }
+
     const r = await ghPutFile(
       'docs/state.json',
       'nreal: update state.json [skip ci]',
-      JSON.stringify(next, null, 2) + '\n',
+      nextJson,
       sha
     );
     if (r.status >= 200 && r.status < 300) {
@@ -244,7 +275,12 @@ function setCors(req, res) {
 // ─── Route handlers ─────────────────────────────────────────────────────────
 
 async function handleHealth(req, res) {
-  send(res, 200, { status: 'ok', ts: new Date().toISOString(), service: 'profitlord-server' });
+  send(res, 200, {
+    status: 'ok',
+    ts: new Date().toISOString(),
+    service: 'profitlord-server',
+    redis: redisClient?.isReady ? 'connected' : 'disabled',
+  });
 }
 
 // GET /auth/login — redirect to GitHub OAuth authorization
@@ -493,5 +529,6 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`[profitlord-server] listening on port ${PORT}`);
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
+  console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
 });
