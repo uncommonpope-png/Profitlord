@@ -4,27 +4,21 @@
 // Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /delegate      { task, soul, source }
-//   POST /chat/:soul    { message, session_id }
 //   GET  /auth/login     — redirect to GitHub OAuth authorization
 //   GET  /auth/callback  — exchange code for token, redirect to dashboard
 //   GET  /auth/me        — return authenticated user info (requires Bearer token)
 //   GET  /auth/logout    — invalidate session
 //   POST /execute        { command, source, ts }
+//   POST /delegate       { task, soul, source }
 //   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
 //   GH_TOKEN        — GitHub personal access token with repo write access
 //   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
 //   GH_REPO         — Repository name   (e.g. Profitlord)
 //   GH_CLIENT_ID    — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
+//   REDIS_URL       — Redis connection URL (e.g. redis://host:6379)
 //   PORT            — (optional) listening port, defaults to 3000
 // ---------------------------------------------------------------------------
 
