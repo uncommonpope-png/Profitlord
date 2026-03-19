@@ -1,9 +1,10 @@
 {
   "updated_at": "2026-03-19T09:42:28.588Z",
+  "updated_at": "2026-03-19T10:27:43.743Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
-  "pages_total": 62,
+  "pages_total": 63,
   "souls": {
     "SoulCollector": {
       "id": "soulcollector",
@@ -31,6 +32,7 @@
       ],
       "status": "active",
       "last_seen": "2026-03-19T09:42:28.590Z",
+      "last_seen": "2026-03-19T10:27:43.746Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -45,6 +47,7 @@
       ],
       "status": "active",
       "last_seen": "2026-03-19T09:42:28.590Z",
+      "last_seen": "2026-03-19T10:27:43.746Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -74,6 +77,76 @@
       "status": "stale",
       "last_seen": "2026-03-19T08:00:00.000Z",
       "endpoint": "/chat/Teacher"
+    },
+    "Architect": {
+      "id": "architect",
+      "name": "Architect",
+      "role": "System Designer",
+      "capabilities": [
+        "system design",
+        "architecture",
+        "scalability",
+        "blueprints"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Architect"
+    },
+    "Builder": {
+      "id": "builder",
+      "name": "Builder",
+      "role": "Implementation Engine",
+      "capabilities": [
+        "coding",
+        "automation",
+        "deployment",
+        "integrations"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Builder"
+    },
+    "Auditor": {
+      "id": "auditor",
+      "name": "Auditor",
+      "role": "Quality & Compliance",
+      "capabilities": [
+        "auditing",
+        "compliance",
+        "risk assessment",
+        "reporting"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Auditor"
+    },
+    "Scout": {
+      "id": "scout",
+      "name": "Scout",
+      "role": "Intelligence Gatherer",
+      "capabilities": [
+        "market research",
+        "competitive analysis",
+        "signals",
+        "leads"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Scout"
+    },
+    "Scribe": {
+      "id": "scribe",
+      "name": "Scribe",
+      "role": "Chronicler & Documenter",
+      "capabilities": [
+        "documentation",
+        "reporting",
+        "logs",
+        "summaries"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Scribe"
     }
   },
   "last_queue_consumed": "2026-03-19T09:43:09.297Z",

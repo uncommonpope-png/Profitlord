@@ -224,6 +224,22 @@
     </div>
   </div>
 
+  <!-- Immortal Expansion -->
+  <div class="panel" style="margin-top:20px">
+    <h2>Immortal Expansion <span style="color:var(--muted);font-size:11px">— expanded souls</span></h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;max-width:680px;">
+        Five specialist agents have joined the Profitlord collective: Architect, Builder, Auditor, Scout, and Scribe.
+        Each is purpose-built to amplify the profit-cycle orchestration engine.
+      </p>
+      <a href="./immortal-expansion/index.html"
+         style="background:var(--accent2);color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:12px;letter-spacing:1px;white-space:nowrap;">
+        ▶ VIEW EXPANSION
+      </a>
+    </div>
+    <div class="soul-grid" id="immortal-souls-grid"></div>
+  </div>
+
   <!-- Ledger -->
   <div class="panel" style="margin-top:20px">
     <h2>Event Ledger <span style="color:var(--muted);font-size:11px">(recent)</span></h2>
@@ -234,6 +250,7 @@
 <footer>
   Profitlord Command Center &middot;
   <a href="./index.html">Home</a> &middot;
+  <a href="./immortal-expansion/index.html">Immortal Expansion</a> &middot;
   <a href="./state.json" target="_blank">state.json</a> &middot;
   <a href="./agents.json" target="_blank">agents.json</a>
 </footer>
@@ -364,6 +381,28 @@
     document.querySelectorAll('.delegate-soul-btn').forEach(b => {
       b.classList.toggle('active', b.textContent === name);
     });
+    renderImmortalSouls();
+  }
+
+  const IMMORTAL_IDS = new Set(['architect', 'builder', 'auditor', 'scout', 'scribe']);
+
+  function renderImmortalSouls() {
+    const grid = el('immortal-souls-grid');
+    if (!grid) return;
+    const immortals = agents.filter(a => IMMORTAL_IDS.has(a.id));
+    if (immortals.length === 0) {
+      grid.innerHTML = '<p style="color:var(--muted);font-size:12px">No immortal souls registered yet.</p>';
+      return;
+    }
+    grid.innerHTML = immortals.map(a => {
+      const sc = (a.status === 'active') ? 'active' : (a.status === 'offline') ? 'offline' : 'idle';
+      return `<div class="soul-card">
+        <div class="soul-name">${escHtml(a.name)}</div>
+        <div class="soul-role">${escHtml(a.role || '')}</div>
+        <span class="soul-status ${sc}">${escHtml(a.status || 'idle')}</span>
+        <div class="soul-last">${ageStr(a.last_seen)}</div>
+      </div>`;
+    }).join('');
   }
 
   function selectSoul(name, silent) {

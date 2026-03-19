@@ -43,5 +43,50 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Teacher"
+  },
+  {
+    "id": "architect",
+    "name": "Architect",
+    "role": "System Designer",
+    "capabilities": ["system design", "architecture", "scalability", "blueprints"],
+    "status": "idle",
+    "last_seen": "2026-03-19T09:00:00.000Z",
+    "endpoint": "/chat/Architect"
+  },
+  {
+    "id": "builder",
+    "name": "Builder",
+    "role": "Implementation Engine",
+    "capabilities": ["coding", "automation", "deployment", "integrations"],
+    "status": "idle",
+    "last_seen": "2026-03-19T09:00:00.000Z",
+    "endpoint": "/chat/Builder"
+  },
+  {
+    "id": "auditor",
+    "name": "Auditor",
+    "role": "Quality & Compliance",
+    "capabilities": ["auditing", "compliance", "risk assessment", "reporting"],
+    "status": "idle",
+    "last_seen": "2026-03-19T09:00:00.000Z",
+    "endpoint": "/chat/Auditor"
+  },
+  {
+    "id": "scout",
+    "name": "Scout",
+    "role": "Intelligence Gatherer",
+    "capabilities": ["market research", "competitive analysis", "signals", "leads"],
+    "status": "idle",
+    "last_seen": "2026-03-19T09:00:00.000Z",
+    "endpoint": "/chat/Scout"
+  },
+  {
+    "id": "scribe",
+    "name": "Scribe",
+    "role": "Chronicler & Documenter",
+    "capabilities": ["documentation", "reporting", "logs", "summaries"],
+    "status": "idle",
+    "last_seen": "2026-03-19T09:00:00.000Z",
+    "endpoint": "/chat/Scribe"
   }
 ]
