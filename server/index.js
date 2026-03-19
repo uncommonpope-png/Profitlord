@@ -183,7 +183,7 @@ async function handleExecute(req, res) {
   console.log(`[execute] source=${source} command=${command.slice(0, 120)}`);
 
   // Fire-and-forget GitHub writes
-  updateState({ current_task: command, health: 'ok' }).catch(() => {});
+  updateState({ current_task: command, health: 100 }).catch(() => {});
   appendLedger({ type: 'command', event: command, source }).catch(() => {});
 
   send(res, 200, {
@@ -215,7 +215,7 @@ async function handleChat(req, res, soul) {
         last_message: message.slice(0, 200),
       },
     },
-    health: 'ok',
+    health: 100,
   }).catch(() => {});
   appendLedger({ type: 'chat', event: message, source: soul, session_id: sessionId }).catch(() => {});
 

@@ -1,8 +1,66 @@
 {
+  "updated_at": "2026-03-19T09:05:30.285Z",
   "updated_at": "2026-03-19T09:03:14.155Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
   "pages_total": 62,
-  "souls": []
+  "souls": {
+    "Profit": {
+      "id": "profit",
+      "name": "Profit",
+      "role": "Chief Profit Officer",
+      "capabilities": [
+        "strategy",
+        "revenue",
+        "pricing",
+        "PLT analysis"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T09:05:30.287Z",
+      "endpoint": "/chat/Profit"
+    },
+    "Deerg": {
+      "id": "deerg",
+      "name": "Deerg",
+      "role": "Deal Evaluator",
+      "capabilities": [
+        "deal scoring",
+        "risk analysis",
+        "negotiation",
+        "pipeline"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T09:05:30.287Z",
+      "endpoint": "/chat/Deerg"
+    },
+    "Betty": {
+      "id": "betty",
+      "name": "Betty",
+      "role": "Business Operations",
+      "capabilities": [
+        "operations",
+        "cashflow",
+        "budgeting",
+        "KPI tracking"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "endpoint": "/chat/Betty"
+    },
+    "Teacher": {
+      "id": "teacher",
+      "name": "Teacher",
+      "role": "Knowledge Synthesizer",
+      "capabilities": [
+        "education",
+        "frameworks",
+        "playbooks",
+        "content"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "endpoint": "/chat/Teacher"
+    }
+  }
 }
