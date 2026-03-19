@@ -1,10 +1,11 @@
 services:
   - type: web
     name: profitlord-server
+    name: plt-server
     env: node
     plan: free
     rootDir: server
-    buildCommand: echo "no build step"
+    buildCommand: npm install
     startCommand: node index.js
     envVars:
       - key: GH_OWNER

@@ -78,6 +78,18 @@ function handleCommand(entry) {
       return { success: true, message: 'Ecosystem scan scheduled', payload };
     case type === 'PING':
       return { success: true, message: 'PONG', payload };
+    case type.startsWith('DELEGATE:'): {
+      const soul = type.split(':')[1] || '';
+      if (!soul) {
+        return { success: false, message: 'DELEGATE command missing soul name (use DELEGATE:<soul>)', payload };
+      }
+      const task = payload.task || '(no task specified)';
+      return {
+        success: true,
+        message: `SoulCollector delegated task to ${soul}: "${task}"`,
+        payload: { ...payload, delegated_to: soul, delegated_at: new Date().toISOString() },
+      };
+    }
     default:
       return { success: false, message: `Unknown command type: ${type}`, payload };
   }

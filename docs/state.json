@@ -1,10 +1,24 @@
 {
-  "updated_at": "2026-03-19T09:11:35.663Z",
+  "updated_at": "2026-03-19T10:29:19.544Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
-  "pages_total": 62,
+  "pages_total": 63,
   "souls": {
+    "SoulCollector": {
+      "id": "soulcollector",
+      "name": "SoulCollector",
+      "role": "Soul Orchestrator",
+      "capabilities": [
+        "soul collection",
+        "task delegation",
+        "orchestration",
+        "agent management"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T10:29:19.547Z",
+      "endpoint": "/chat/SoulCollector"
+    },
     "Profit": {
       "id": "profit",
       "name": "Profit",
@@ -16,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:11:35.665Z",
+      "last_seen": "2026-03-19T10:29:19.547Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -30,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:11:35.665Z",
+      "last_seen": "2026-03-19T10:29:19.547Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -60,6 +74,78 @@
       "status": "stale",
       "last_seen": "2026-03-19T08:00:00.000Z",
       "endpoint": "/chat/Teacher"
+    },
+    "Architect": {
+      "id": "architect",
+      "name": "Architect",
+      "role": "System Designer",
+      "capabilities": [
+        "system design",
+        "architecture",
+        "scalability",
+        "blueprints"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Architect"
+    },
+    "Builder": {
+      "id": "builder",
+      "name": "Builder",
+      "role": "Implementation Engine",
+      "capabilities": [
+        "coding",
+        "automation",
+        "deployment",
+        "integrations"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Builder"
+    },
+    "Auditor": {
+      "id": "auditor",
+      "name": "Auditor",
+      "role": "Quality & Compliance",
+      "capabilities": [
+        "auditing",
+        "compliance",
+        "risk assessment",
+        "reporting"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Auditor"
+    },
+    "Scout": {
+      "id": "scout",
+      "name": "Scout",
+      "role": "Intelligence Gatherer",
+      "capabilities": [
+        "market research",
+        "competitive analysis",
+        "signals",
+        "leads"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Scout"
+    },
+    "Scribe": {
+      "id": "scribe",
+      "name": "Scribe",
+      "role": "Chronicler & Documenter",
+      "capabilities": [
+        "documentation",
+        "reporting",
+        "logs",
+        "summaries"
+      ],
+      "status": "stale",
+      "last_seen": "2026-03-19T09:00:00.000Z",
+      "endpoint": "/chat/Scribe"
     }
-  }
+  },
+  "last_queue_consumed": "2026-03-19T09:43:09.297Z",
+  "queue_consumed_count": 1
 }
