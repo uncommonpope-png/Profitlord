@@ -1,0 +1,320 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+// ---------------------------------------------------------------------------
+// Configuration – set via env vars or falls back to GitHub Pages defaults
+// ---------------------------------------------------------------------------
+const CONFIG = {
+  siteUrl: process.env.SITE_URL || 'https://uncommonpope-png.github.io/Profitlord',
+  outputDir: process.env.OUTPUT_DIR
+    ? path.resolve(process.env.OUTPUT_DIR)
+    : path.resolve(__dirname, 'docs'),
+  siteName: process.env.SITE_NAME || 'Profitlord',
+  siteDescription:
+    process.env.SITE_DESCRIPTION ||
+    'Profitlord — profit tracking, business scoring, and the PLT mindset.',
+};
+
+// ---------------------------------------------------------------------------
+// 50+ keywords
+// ---------------------------------------------------------------------------
+const KEYWORDS = [
+  'profit tracking',
+  'business scoring system',
+  'PLT framework',
+  'profit love tax',
+  'entrepreneur decision making',
+  'cashflow planning',
+  'budgeting for entrepreneurs',
+  'pricing strategy',
+  'sales pipeline tracking',
+  'customer lifetime value',
+  'unit economics',
+  'gross margin optimization',
+  'expense control',
+  'forecasting model',
+  'daily profit dashboard',
+  'weekly business review',
+  'business KPI tracker',
+  'startup finance basics',
+  'small business profit tools',
+  'profit mindset',
+  'tax planning basics',
+  'business negotiation',
+  'deal evaluation framework',
+  'opportunity scoring',
+  'risk reward analysis',
+  'time leverage strategy',
+  'relationship capital',
+  'brand trust compounding',
+  'systems thinking for business',
+  'operational excellence',
+  'profit first method',
+  'cash reserve strategy',
+  'pricing psychology',
+  'value based pricing',
+  'offer design',
+  'conversion rate optimization',
+  'landing page copy',
+  'SEO for entrepreneurs',
+  'content marketing strategy',
+  'sitemap and robots',
+  'canonical URL',
+  'open graph tags',
+  'meta description',
+  'google indexing basics',
+  'business analytics',
+  'revenue tracking',
+  'profit projection',
+  'financial discipline',
+  'entrepreneur toolkit',
+  'profitlord app',
+  'profitlord dashboard',
+  'passive income strategy',
+  'return on investment',
+  'business growth hacks',
+];
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
+}
+
+function slugify(s) {
+  return String(s)
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function writeFile(filePath, content) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`  Written: ${filePath}`);
+}
+
+function isoDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+// ---------------------------------------------------------------------------
+// Page template
+// ---------------------------------------------------------------------------
+
+function pageHtml({ title, description, canonicalPath, bodyHtml }) {
+  const canonical = `${CONFIG.siteUrl}${canonicalPath}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(description)}" />
+  <link rel="canonical" href="${escapeHtml(canonical)}" />
+  <meta property="og:title" content="${escapeHtml(title)}" />
+  <meta property="og:description" content="${escapeHtml(description)}" />
+  <meta property="og:url" content="${escapeHtml(canonical)}" />
+  <meta property="og:type" content="website" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:40px auto;max-width:900px;line-height:1.6;color:#1a1a1a}
+    a{color:#0b5fff}
+    header{margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #eee}
+    h1{margin-bottom:4px}
+    .tag{display:inline-block;padding:3px 10px;border-radius:999px;background:#f2f2f2;margin:2px 6px 2px 0;font-size:14px}
+    footer{margin-top:48px;padding-top:16px;border-top:1px solid #eee;color:#666;font-size:13px}
+    code{background:#f6f6f6;padding:2px 6px;border-radius:6px;font-size:13px}
+    ul{line-height:2}
+  </style>
+</head>
+<body>
+<header>
+  <h1>${escapeHtml(CONFIG.siteName)}</h1>
+  <p>${escapeHtml(CONFIG.siteDescription)}</p>
+  <p><a href="${escapeHtml(CONFIG.siteUrl)}/">Home</a> &middot; <a href="${escapeHtml(CONFIG.siteUrl)}/sitemap.xml">Sitemap</a></p>
+</header>
+
+${bodyHtml}
+
+<footer>
+  Generated by <code>deploy-seo.js</code> on ${isoDate()}.
+</footer>
+</body>
+</html>`;
+}
+
+// ---------------------------------------------------------------------------
+// Build home page
+// ---------------------------------------------------------------------------
+
+function buildHome() {
+  const links = KEYWORDS.map((k) => {
+    const slug = slugify(k);
+    return `  <li><a href="${escapeHtml(`${CONFIG.siteUrl}/seo/${slug}/`)}">${escapeHtml(k)}</a></li>`;
+  }).join('\n');
+
+  const bodyHtml = `<h2>SEO Library</h2>
+<p>Auto-generated pages designed to rank and route attention.</p>
+<ul>
+${links}
+</ul>`;
+
+  writeFile(
+    path.join(CONFIG.outputDir, 'index.html'),
+    pageHtml({
+      title: `${CONFIG.siteName} — Home`,
+      description: CONFIG.siteDescription,
+      canonicalPath: '/',
+      bodyHtml,
+    })
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Build keyword pages
+// ---------------------------------------------------------------------------
+
+function buildKeywordPages() {
+  for (const k of KEYWORDS) {
+    const slug = slugify(k);
+    const canonicalPath = `/seo/${slug}/`;
+    const title = `${k} — ${CONFIG.siteName}`;
+    const description = `Learn about ${k} with a practical framework. Built for entrepreneurs who want clear decisions and clean profit.`;
+
+    const tags = ['Profit', 'Systems', 'Decision', 'Discipline', 'Leverage', 'Focus']
+      .map((t) => `<span class="tag">${escapeHtml(t)}</span>`)
+      .join('');
+
+    const bodyHtml = `<h2>${escapeHtml(k)}</h2>
+<p>${escapeHtml(description)}</p>
+
+<h3>What it means</h3>
+<p>${escapeHtml(k)} is a lever. If you can measure it, you can improve it. Every entrepreneur who masters ${escapeHtml(k)} gains a durable edge.</p>
+
+<h3>How Profitlord uses it</h3>
+<ol>
+  <li>Track the number.</li>
+  <li>Compare it over time.</li>
+  <li>Attach actions to outcomes.</li>
+</ol>
+
+<h3>Key ideas</h3>
+<div>${tags}</div>
+
+<p><a href="${escapeHtml(CONFIG.siteUrl)}/">&larr; Back to Home</a></p>`;
+
+    writeFile(
+      path.join(CONFIG.outputDir, 'seo', slug, 'index.html'),
+      pageHtml({ title, description, canonicalPath, bodyHtml })
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Build sitemap.xml
+// ---------------------------------------------------------------------------
+
+function collectHtmlUrls(rootDir) {
+  const urls = [];
+
+  function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile() && entry.name.endsWith('.html')) {
+        const rel = path.relative(rootDir, full).replace(/\\/g, '/');
+        const urlPath = rel === 'index.html' ? '/' : '/' + rel.replace(/index\.html$/, '');
+        urls.push(urlPath);
+      }
+    }
+  }
+
+  if (fs.existsSync(rootDir)) walk(rootDir);
+  return Array.from(new Set(urls)).sort();
+}
+
+function buildSitemap() {
+  const pages = collectHtmlUrls(CONFIG.outputDir);
+  const lastmod = isoDate();
+
+  const urlEntries = pages
+    .map(
+      (p) => `  <url>\n    <loc>${CONFIG.siteUrl}${p}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+    )
+    .join('\n');
+
+  const content = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>
+`;
+
+  writeFile(path.join(CONFIG.outputDir, 'sitemap.xml'), content);
+}
+
+// ---------------------------------------------------------------------------
+// Build robots.txt
+// ---------------------------------------------------------------------------
+
+function buildRobots() {
+  const content = `User-agent: *
+Allow: /
+
+Sitemap: ${CONFIG.siteUrl}/sitemap.xml
+`;
+  writeFile(path.join(CONFIG.outputDir, 'robots.txt'), content);
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+function main() {
+  const { siteUrl, outputDir } = CONFIG;
+
+  console.log('=== Profitlord Master Build ===');
+  console.log(`Site URL  : ${siteUrl}`);
+  console.log(`Output dir: ${outputDir}`);
+  console.log('');
+
+  ensureDir(outputDir);
+
+  console.log('[1/4] Building home page …');
+  buildHome();
+
+  console.log(`[2/4] Building ${KEYWORDS.length} keyword pages …`);
+  buildKeywordPages();
+
+  console.log('[3/4] Building sitemap.xml …');
+  buildSitemap();
+
+  console.log('[4/4] Building robots.txt …');
+  buildRobots();
+
+  console.log('');
+  console.log('✅ Build complete.');
+  console.log(`   Pages generated : ${KEYWORDS.length + 1}`);
+  console.log(`   Output directory: ${outputDir}`);
+  console.log(`   Sitemap         : ${path.join(outputDir, 'sitemap.xml')}`);
+  console.log(`   Robots          : ${path.join(outputDir, 'robots.txt')}`);
+}
+
+main();
