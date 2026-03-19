@@ -4,34 +4,43 @@
 // Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /delegate      { task, soul, source }
-//   POST /chat/:soul    { message, session_id }
+//   POST /execute        { command, source, ts }
+//   POST /delegate       { task, soul, source }
+//   POST /chat/:soul     { message, session_id }
 //   GET  /auth/login     — redirect to GitHub OAuth authorization
 //   GET  /auth/callback  — exchange code for token, redirect to dashboard
 //   GET  /auth/me        — return authenticated user info (requires Bearer token)
 //   GET  /auth/logout    — invalidate session
-//   POST /execute        { command, source, ts }
-//   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
-//   GH_TOKEN        — GitHub personal access token with repo write access
-//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO         — Repository name   (e.g. Profitlord)
-//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_TOKEN         — GitHub personal access token with repo write access
+//   GH_OWNER         — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO          — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID     — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
-//   PORT            — (optional) listening port, defaults to 3000
+//   REDIS_URL        — Redis connection URL (e.g. redis://host:6379)
+//   OPENAI_API_KEY   — OpenAI (or compatible) API key (enables live agent brains)
+//   TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID — enables Telegram notifications
+//   PORT             — (optional) listening port, defaults to 3000
 // ---------------------------------------------------------------------------
 
 const http = require('http');
 const https = require('https');
 const { createClient } = require('redis');
 const crypto = require('crypto');
+
+// ─── Agent modules ───────────────────────────────────────────────────────────
+const profitAgent = require('./agents/profit');
+const nrealAgent  = require('./agents/nreal');
+const seshatAgent = require('./agents/seshat');
+const { startHeartbeat, registerStatusProvider } = require('./messaging');
+
+// Soul name → agent module (case-insensitive lookup via AGENT_REGISTRY)
+const AGENT_REGISTRY = {
+  profit: profitAgent,
+  nreal:  nrealAgent,
+  seshat: seshatAgent,
+};
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const GH_TOKEN = process.env.GH_TOKEN || '';
@@ -416,7 +425,14 @@ async function handleChat(req, res, soul) {
 
   console.log(`[chat] soul=${soul} session=${sessionId} msg=${message.slice(0, 120)}`);
 
-  const reply = `${soul} received: "${message}". (Render brain not yet wired — state recorded.)`;
+  // Dispatch to the matching agent brain, or fall back to a default reply
+  const agent = AGENT_REGISTRY[soul.toLowerCase()];
+  let reply;
+  if (agent) {
+    reply = await agent.handleChat(message, sessionId);
+  } else {
+    reply = `${soul} received: "${message.slice(0, 100)}". (No agent registered for this soul — state recorded.)`;
+  }
 
   // Fire-and-forget GitHub writes
   updateState({
@@ -533,4 +549,11 @@ server.listen(PORT, () => {
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
   console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
+
+  // Register live state provider for heartbeat messages, then start heartbeat
+  registerStatusProvider(() => {
+    // currentTask and health are not in local scope; we use what's available
+    return { health: null, current_task: 'running' };
+  });
+  startHeartbeat();
 });
