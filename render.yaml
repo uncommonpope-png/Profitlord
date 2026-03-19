@@ -1,5 +1,6 @@
 services:
   - type: web
+    name: profitlord-server
     name: plt-server
     env: node
     plan: free
@@ -14,4 +15,6 @@ services:
       - key: GH_BRANCH
         value: main
       - key: GH_TOKEN
+        sync: false
+      - key: REDIS_URL
         sync: false
