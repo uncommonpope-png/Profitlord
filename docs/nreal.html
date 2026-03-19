@@ -1,260 +1,838 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>nreal console — Profitlord</title>
-  <meta name="description" content="Profitlord nreal system console: live state, ledger events, and souls registry." />
-  <link rel="canonical" href="https://uncommonpope-png.github.io/Profitlord/nreal.html" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>nreal — Soul Economy OS Console</title>
+  <meta name="description" content="nreal command console — Soul Economy OS"/>
+  <link rel="canonical" href="https://uncommonpope-png.github.io/Profitlord/nreal.html"/>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
     :root {
-      --bg: #0a0a0f;
-      --panel: #111118;
-      --border: #1e1e30;
-      --accent: #00e5ff;
-      --green: #00ff88;
-      --yellow: #ffcc00;
-      --red: #ff4466;
-      --muted: #666680;
-      --text: #ccd6f6;
+      --void:    #020408;
+      --deep:    #040c14;
+      --hull:    #071220;
+      --panel:   #0a1a2a;
+      --border:  #0d2840;
+      --cyan:    #00e5ff;
+      --cyan2:   #00b8d4;
+      --magenta: #ff00ff;
+      --green:   #00ff41;
+      --amber:   #ff9800;
+      --red:     #ff1744;
+      --gold:    #ffd700;
+      --silver:  #b0bec5;
+      --muted:   #2a4a6a;
+      --text:    #8ab4cc;
+      --bright:  #cce8ff;
+      --glow-c:  0 0 10px #00e5ff88, 0 0 30px #00e5ff33;
+      --glow-m:  0 0 10px #ff00ff88, 0 0 30px #ff00ff33;
+      --glow-g:  0 0 10px #00ff4188, 0 0 30px #00ff4133;
     }
-    * { box-sizing: border-box; }
+
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { overflow-x:hidden; }
+
     body {
-      background: var(--bg);
+      background: var(--void);
       color: var(--text);
-      font-family: 'Courier New', monospace;
-      margin: 0;
-      padding: 16px;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    h1 { color: var(--accent); margin: 0 0 4px; font-size: 22px; letter-spacing: 2px; }
-    .subtitle { color: var(--muted); font-size: 12px; margin: 0 0 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
+
+    /* Scanlines */
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+        rgba(0,229,255,0.012) 2px, rgba(0,229,255,0.012) 4px);
     }
-    .panel h2 {
-      color: var(--accent);
-      font-size: 13px;
-      letter-spacing: 1px;
-      margin: 0 0 12px;
-      text-transform: uppercase;
+    /* Stars */
+    body::after {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:
+        radial-gradient(1px 1px at 8% 20%,  rgba(0,229,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 22% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 38% 80%, rgba(0,229,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 12%, rgba(255,0,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 38%, rgba(0,255,65,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 45% 92%, rgba(0,229,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 75%, rgba(255,215,0,0.3) 0%, transparent 100%);
     }
-    .health-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .health-bar {
-      flex: 1;
-      height: 8px;
-      background: #222;
-      border-radius: 4px;
-      overflow: hidden;
+
+    #app { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
+
+    /* ── HEADER ────────────────────────────────────────────────────── */
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 20px;
+      background:linear-gradient(90deg, var(--hull) 0%, #0a1830 50%, var(--hull) 100%);
+      border-bottom:1px solid var(--cyan);
+      box-shadow:0 0 20px rgba(0,229,255,0.25); inset 0 -1px 0 rgba(0,229,255,0.4);
+      position:sticky; top:0; z-index:100;
     }
-    .health-bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--green);
-      transition: width .4s;
+    .hdr-logo {
+      font-family:'Orbitron', monospace; font-size:16px; font-weight:900;
+      color:var(--cyan); text-shadow:var(--glow-c); letter-spacing:3px;
     }
-    .kv { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; }
-    .kv .k { color: var(--muted); }
-    .kv .v { color: var(--text); }
-    .soul {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
+    .hdr-sub { font-size:9px; color:var(--magenta); letter-spacing:3px; text-shadow:var(--glow-m); }
+    .hdr-nav a {
+      color:var(--cyan2); font-size:11px; text-decoration:none;
+      letter-spacing:1px; margin-left:14px; transition:all .2s;
     }
-    .soul:last-child { border-bottom: none; }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--muted); flex-shrink: 0;
+    .hdr-nav a:hover { color:var(--cyan); text-shadow:var(--glow-c); }
+
+    .online-dot {
+      width:8px; height:8px; border-radius:50%;
+      background:var(--green); box-shadow:var(--glow-g);
+      animation:blink 2s infinite; display:inline-block; margin-right:6px;
     }
-    .dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .dot.stale  { background: var(--yellow); }
-    .dot.offline { background: var(--red); }
-    .soul-name { color: var(--accent); font-weight: bold; min-width: 70px; }
-    .soul-caps { color: var(--muted); font-size: 11px; }
-    .ledger-list { list-style: none; margin: 0; padding: 0; }
-    .ledger-list li {
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-      line-height: 1.5;
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── STATUS BAR ────────────────────────────────────────────────── */
+    .status-bar {
+      display:flex; gap:0; background:var(--deep);
+      border-bottom:1px solid var(--border);
     }
-    .ledger-list li:last-child { border-bottom: none; }
-    .event-ts { color: var(--muted); }
-    .event-type {
-      display: inline-block;
-      padding: 1px 6px;
-      border-radius: 4px;
-      background: #1a1a2e;
-      color: var(--accent);
-      font-size: 10px;
-      margin: 0 4px;
+    .sb-cell {
+      flex:1; padding:6px 12px; text-align:center;
+      border-right:1px solid var(--border); font-size:10px;
     }
-    .event-summary { color: var(--text); }
-    .nav { font-size: 12px; margin-bottom: 16px; }
-    .nav a { color: var(--accent); margin-right: 14px; text-decoration: none; }
-    .nav a:hover { text-decoration: underline; }
-    .status-badge {
-      display: inline-block;
-      padding: 1px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      margin-left: 6px;
+    .sb-cell:last-child { border-right:none; }
+    .sb-val { font-family:'Orbitron',monospace; color:var(--cyan); font-size:13px; font-weight:700; }
+    .sb-val.gold    { color:var(--gold); text-shadow:0 0 8px #ffd70066; }
+    .sb-val.green   { color:var(--green); }
+    .sb-val.magenta { color:var(--magenta); }
+    .sb-lbl { color:var(--muted); font-size:9px; letter-spacing:2px; margin-top:1px; }
+
+    /* ── SCAN PHASES BAR ───────────────────────────────────────────── */
+    .phases-bar {
+      display:flex; align-items:center; gap:8px; padding:8px 20px;
+      background:var(--hull); border-bottom:1px solid var(--border);
+      overflow-x:auto; flex-shrink:0;
     }
-    .badge-ok    { background: #002a1a; color: var(--green); }
-    .badge-warn  { background: #2a2200; color: var(--yellow); }
-    .badge-error { background: #2a0010; color: var(--red); }
-    #error-msg { color: var(--red); font-size: 12px; }
+    .ph-label { font-size:9px; color:var(--magenta); letter-spacing:3px; white-space:nowrap; text-shadow:var(--glow-m); }
+    .ph-phase {
+      padding:3px 10px; border-radius:2px; font-size:10px; letter-spacing:1px;
+      border:1px solid var(--border); color:var(--muted); white-space:nowrap; transition:all .3s;
+    }
+    .ph-phase.active {
+      border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,0.1);
+      text-shadow:var(--glow-c); animation:ph-pulse .8s ease-in-out infinite;
+    }
+    .ph-phase.done { border-color:var(--green); color:var(--green); background:rgba(0,255,65,0.08); }
+    @keyframes ph-pulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 8px rgba(0,229,255,0.4)} }
+    .ph-arrow { color:var(--muted); font-size:10px; flex-shrink:0; }
+    .ph-report { flex:1; font-size:10px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:100px; }
+
+    /* ── MAIN GRID ──────────────────────────────────────────────────── */
+    .nreal-grid {
+      flex:1; display:grid;
+      grid-template-columns: 260px 1fr 280px;
+      grid-template-rows: 1fr 1fr;
+      gap:0; overflow:hidden;
+    }
+    @media (max-width:1000px) {
+      .nreal-grid { grid-template-columns:1fr 1fr; grid-template-rows:auto; overflow:visible; }
+    }
+    @media (max-width:640px) {
+      .nreal-grid { grid-template-columns:1fr; }
+    }
+
+    /* ── SECTION ────────────────────────────────────────────────────── */
+    .section {
+      border-right:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+    .section:last-child, .section.no-border-right { border-right:none; }
+
+    .section-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 14px;
+      background:linear-gradient(90deg, var(--hull), transparent);
+      border-bottom:1px solid var(--border); flex-shrink:0;
+    }
+    .section-title {
+      font-family:'Orbitron',monospace; font-size:9px; font-weight:700;
+      letter-spacing:3px; text-transform:uppercase; color:var(--cyan);
+    }
+    .section-title.m { color:var(--magenta); text-shadow:var(--glow-m); }
+    .section-title.g { color:var(--green); text-shadow:var(--glow-g); }
+    .section-title.gold { color:var(--gold); }
+    .section-badge { font-size:9px; color:var(--muted); }
+
+    .section-body { flex:1; overflow-y:auto; padding:10px 14px; }
+
+    /* ── KV ROWS ────────────────────────────────────────────────────── */
+    .kv { display:flex; justify-content:space-between; align-items:baseline;
+          margin-bottom:5px; font-size:11px; }
+    .kv .k { color:var(--muted); font-size:10px; letter-spacing:1px; }
+    .kv .v { color:var(--bright); font-weight:bold; }
+
+    /* ── HEALTH BAR ─────────────────────────────────────────────────── */
+    .health-track { height:3px; background:var(--border); border-radius:2px; margin:6px 0; }
+    .health-fill  { height:100%; border-radius:2px;
+                    background:linear-gradient(90deg,var(--cyan),var(--green));
+                    box-shadow:0 0 6px var(--green); transition:width .5s; }
+
+    /* ── SOULS ──────────────────────────────────────────────────────── */
+    .soul-list { display:flex; flex-direction:column; gap:4px; }
+
+    .soul-row {
+      display:flex; align-items:center; gap:8px; padding:6px 8px;
+      border:1px solid var(--border); border-radius:2px; font-size:11px;
+      background:rgba(0,0,0,0.3); transition:all .2s;
+      cursor:pointer; position:relative; overflow:hidden;
+    }
+    .soul-row::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+      background:var(--muted); transition:background .2s;
+    }
+    .soul-row:hover { border-color:var(--cyan); }
+    .soul-row:hover::before, .soul-row.active::before { background:var(--green); }
+    .soul-row.stale::before   { background:var(--amber); }
+    .soul-row.offline::before { background:var(--red); }
+
+    .soul-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+    .soul-dot.active  { background:var(--green); box-shadow:var(--glow-g); animation:blink 2s infinite; }
+    .soul-dot.stale   { background:var(--amber); }
+    .soul-dot.offline { background:var(--red); }
+    .soul-name { color:var(--bright); font-weight:bold; min-width:90px; }
+    .soul-role { color:var(--muted); font-size:10px; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .soul-nsv  { font-family:'Orbitron',monospace; font-size:10px; color:var(--cyan); white-space:nowrap; }
+    .soul-ts   { color:var(--muted); font-size:9px; white-space:nowrap; }
+
+    /* ── LEADERBOARD ────────────────────────────────────────────────── */
+    .lb-list { display:flex; flex-direction:column; gap:4px; }
+    .lb-row  {
+      display:grid; grid-template-columns:24px 1fr auto auto;
+      gap:6px; align-items:center;
+      padding:5px 8px; border:1px solid var(--border); border-radius:2px;
+      background:rgba(0,0,0,0.3); font-size:11px;
+    }
+    .lb-row.top1 { border-color:var(--gold); }
+    .lb-row.top2 { border-color:var(--silver); }
+    .lb-row.top3 { border-color:#cd7f32; }
+    .lb-rank { font-family:'Orbitron',monospace; font-size:10px; color:var(--muted); text-align:center; }
+    .lb-row.top1 .lb-rank { color:var(--gold); }
+    .lb-row.top2 .lb-rank { color:var(--silver); }
+    .lb-row.top3 .lb-rank { color:#cd7f32; }
+    .lb-name  { color:var(--bright); font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .lb-nsv   { font-family:'Orbitron',monospace; font-size:11px; color:var(--gold); }
+    .lb-tier  { font-size:9px; padding:1px 6px; border-radius:2px; text-transform:uppercase; letter-spacing:1px; white-space:nowrap; }
+    .tier-mythic  { background:rgba(255,215,0,.12);  color:var(--gold);  border:1px solid rgba(255,215,0,.3); }
+    .tier-elite   { background:rgba(192,132,252,.12); color:#c084fc;     border:1px solid rgba(192,132,252,.3); }
+    .tier-gold    { background:rgba(255,152,0,.12);  color:var(--amber); border:1px solid rgba(255,152,0,.3); }
+    .tier-silver  { background:rgba(176,190,197,.12);color:var(--silver);border:1px solid rgba(176,190,197,.3); }
+    .tier-bronze  { background:rgba(205,127,50,.12); color:#cd7f32;      border:1px solid rgba(205,127,50,.3); }
+
+    /* ── LEDGER ─────────────────────────────────────────────────────── */
+    .ledger-line {
+      display:flex; gap:6px; padding:3px 0;
+      border-bottom:1px solid rgba(13,40,64,0.5); font-size:10px; line-height:1.5;
+    }
+    .ledger-line:last-child { border-bottom:none; }
+    .l-ts   { color:var(--muted); white-space:nowrap; font-size:9px; flex-shrink:0; }
+    .l-type { color:var(--magenta); font-weight:bold; white-space:nowrap; flex-shrink:0; }
+    .l-evt  { color:var(--text); word-break:break-word; }
+    .l-src  { color:var(--cyan2); white-space:nowrap; font-size:9px; }
+
+    /* ── COMMAND CONSOLE ────────────────────────────────────────────── */
+    .console-section {
+      grid-column: 1 / -1;
+      border-right:none; border-bottom:none;
+      display:flex; flex-direction:column;
+      max-height:280px; flex-shrink:0;
+    }
+
+    .console-output {
+      flex:1; overflow-y:auto; padding:10px 14px;
+      font-size:11px; line-height:1.8;
+    }
+    .console-line { display:flex; gap:8px; padding:1px 0; }
+    .con-prompt { color:var(--cyan); flex-shrink:0; }
+    .con-cmd    { color:var(--bright); }
+    .con-out    { color:var(--green); white-space:pre-wrap; word-break:break-all; }
+    .con-err    { color:var(--red); }
+    .con-sys    { color:var(--muted); font-size:10px; }
+    .con-info   { color:var(--amber); }
+
+    .console-input-row {
+      display:flex; align-items:center; gap:0;
+      padding:8px 14px; background:var(--hull);
+      border-top:1px solid var(--border); flex-shrink:0;
+    }
+    .con-ps { color:var(--cyan); font-size:12px; margin-right:8px; white-space:nowrap; text-shadow:var(--glow-c); }
+    .con-field {
+      flex:1; background:transparent; border:none;
+      color:var(--bright); font-family:'Share Tech Mono',monospace; font-size:12px;
+      outline:none; caret-color:var(--cyan);
+    }
+    .con-run {
+      padding:4px 14px; background:rgba(0,229,255,0.1); border:1px solid var(--cyan);
+      color:var(--cyan); font-family:inherit; font-size:11px; cursor:pointer;
+      letter-spacing:1px; transition:all .2s;
+    }
+    .con-run:hover { background:rgba(0,229,255,0.2); box-shadow:var(--glow-c); }
+
+    /* Shortcut chips */
+    .shortcut-row {
+      display:flex; gap:6px; flex-wrap:wrap; padding:6px 14px;
+      background:var(--deep); border-top:1px solid var(--border); flex-shrink:0;
+    }
+    .chip {
+      padding:3px 10px; border-radius:2px; font-size:10px; cursor:pointer;
+      border:1px solid var(--border); color:var(--muted); transition:all .2s;
+    }
+    .chip:hover { border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,0.08); }
+    .chip.gold  { border-color:rgba(255,215,0,.4); color:var(--gold); }
+    .chip.mag   { border-color:rgba(255,0,255,.4); color:var(--magenta); }
+    .chip.green { border-color:rgba(0,255,65,.4); color:var(--green); }
+
+    /* ── SCROLLBARS ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar       { width:3px; height:3px; }
+    ::-webkit-scrollbar-track { background:var(--void); }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--cyan2); }
+
+    /* ── FOOTER ─────────────────────────────────────────────────────── */
+    footer {
+      text-align:center; padding:8px; color:var(--muted);
+      font-size:9px; border-top:1px solid var(--border); letter-spacing:2px; flex-shrink:0;
+    }
+    footer a { color:var(--cyan2); text-decoration:none; margin:0 8px; }
+
+    /* ── NSV POPUP ──────────────────────────────────────────────────── */
+    .nsv-breakdown {
+      display:inline-flex; gap:6px; font-size:10px; align-items:center;
+      background:rgba(0,0,0,.6); padding:2px 8px; border-radius:2px; border:1px solid var(--border);
+    }
+    .nsv-p { color:var(--green); }
+    .nsv-l { color:var(--magenta); }
+    .nsv-t { color:var(--red); }
+    .nsv-eq { color:var(--gold); font-family:'Orbitron',monospace; font-weight:700; }
   </style>
 </head>
 <body>
+<div id="app">
 
-<h1>⚡ nreal console</h1>
-<p class="subtitle">Profitlord system monitor — live state, ledger, souls</p>
+<!-- ── HEADER ─────────────────────────────────────────────────────── -->
+<header>
+  <div>
+    <div class="hdr-logo">◈ nreal console</div>
+    <div class="hdr-sub">Soul Economy OS · Collector → Architect</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span><span class="online-dot"></span><span id="status-text" style="font-size:11px;color:var(--bright)">INITIALIZING</span></span>
+    <nav class="hdr-nav">
+      <a href="./dashboard.html">dashboard</a>
+      <a href="./state.json" target="_blank">state</a>
+      <a href="./agents.json" target="_blank">agents</a>
+      <a href="./ledger.jsonl" target="_blank">ledger</a>
+    </nav>
+  </div>
+</header>
 
-<nav class="nav">
-  <a href="index.html">Home</a>
-  <a href="sitemap.xml">Sitemap</a>
-  <a href="robots.txt">Robots</a>
-  <a href="agents.json">Agents</a>
-  <a href="state.json">State JSON</a>
-  <a href="ledger.jsonl">Ledger JSONL</a>
-</nav>
+<!-- ── STATUS BAR ────────────────────────────────────────────────── -->
+<div class="status-bar">
+  <div class="sb-cell">
+    <div class="sb-val gold" id="sb-nsv">0</div>
+    <div class="sb-lbl">Net Soul Value</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-val" id="sb-bots">0</div>
+    <div class="sb-lbl">Active Bots</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-val green" id="sb-pts">0</div>
+    <div class="sb-lbl">Total Points</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-val" id="sb-tasks">0</div>
+    <div class="sb-lbl">Tasks Done</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-val magenta" id="sb-events">0</div>
+    <div class="sb-lbl">Events</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-val" id="sb-health">100%</div>
+    <div class="sb-lbl">Health</div>
+  </div>
+</div>
 
-<div id="error-msg"></div>
+<!-- ── SCAN PHASES BAR ───────────────────────────────────────────── -->
+<div class="phases-bar">
+  <span class="ph-label">◉ SCAN</span>
+  <span class="ph-phase" id="pp-observe">OBSERVE</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-score">SCORE</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-interpret">INTERPRET</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-capture">CAPTURE</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-multiply">MULTIPLY</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-store">STORE</span>
+  <span class="ph-arrow">→</span>
+  <span class="ph-phase" id="pp-report">REPORT</span>
+  <div class="ph-report" id="ph-report-text">—</div>
+</div>
 
-<div class="grid">
+<!-- ── MAIN GRID ──────────────────────────────────────────────────── -->
+<div class="nreal-grid" id="nreal-grid">
 
-  <!-- State panel -->
-  <div class="panel" id="state-panel">
-    <h2>System State</h2>
-    <div id="state-loading" style="color:var(--muted);font-size:12px;">Loading state.json…</div>
-    <div id="state-content" style="display:none">
-      <div class="health-bar-wrap">
-        <span style="font-size:12px;color:var(--muted)">Health</span>
-        <div class="health-bar"><div class="health-bar-fill" id="health-fill" style="width:0%"></div></div>
-        <span id="health-val" style="font-size:12px;color:var(--green)">—</span>
-        <span id="health-badge" class="status-badge"></span>
+  <!-- SOULS (row 1 col 1) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">◎ Soul Roster</span>
+      <span class="section-badge" id="souls-count">0 souls</span>
+    </div>
+    <div class="section-body">
+      <div class="soul-list" id="souls-list">
+        <div style="color:var(--muted);font-size:11px">Loading…</div>
       </div>
-      <div class="kv"><span class="k">Updated</span><span class="v" id="s-updated">—</span></div>
-      <div class="kv"><span class="k">Current Task</span><span class="v" id="s-task">—</span></div>
-      <div class="kv"><span class="k">Pages Total</span><span class="v" id="s-pages">—</span></div>
-      <div class="kv"><span class="k">Site URL</span><span class="v" id="s-url">—</span></div>
     </div>
   </div>
 
-  <!-- Souls panel -->
-  <div class="panel" id="souls-panel">
-    <h2>Souls Registry</h2>
-    <div id="souls-loading" style="color:var(--muted);font-size:12px;">Loading…</div>
-    <div id="souls-list"></div>
+  <!-- LEDGER (row 1 col 2) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title m">◐ Event Ledger</span>
+      <span class="section-badge" id="ledger-count">0 events</span>
+    </div>
+    <div class="section-body" id="ledger-body">
+      <div style="color:var(--muted);font-size:11px">Loading ledger…</div>
+    </div>
   </div>
 
-  <!-- Ledger panel (full width) -->
-  <div class="panel" style="grid-column: 1 / -1;">
-    <h2>Recent Ledger Events</h2>
-    <div id="ledger-loading" style="color:var(--muted);font-size:12px;">Loading ledger.jsonl…</div>
-    <ul class="ledger-list" id="ledger-list" style="display:none"></ul>
+  <!-- LEADERBOARD (row 1 col 3) -->
+  <div class="section no-border-right">
+    <div class="section-header">
+      <span class="section-title gold">▲ Leaderboard</span>
+      <span class="section-badge">NSV Ranked</span>
+    </div>
+    <div class="section-body">
+      <div class="lb-list" id="lb-list">
+        <div style="color:var(--muted);font-size:11px">Computing…</div>
+      </div>
+    </div>
   </div>
 
-</div>
+  <!-- SYSTEM STATE (row 2 col 1) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title g">◉ System State</span>
+      <span class="section-badge" id="health-badge">100%</span>
+    </div>
+    <div class="section-body">
+      <div class="kv"><span class="k">Updated</span><span class="v" id="n-updated">—</span></div>
+      <div class="kv"><span class="k">Health</span><span class="v" id="n-health">—</span></div>
+      <div class="health-track"><div class="health-fill" id="n-health-fill" style="width:100%"></div></div>
+      <div class="kv"><span class="k">Current Task</span><span class="v" id="n-task">—</span></div>
+      <div class="kv"><span class="k">Pages Total</span><span class="v" id="n-pages">—</span></div>
+      <div class="kv"><span class="k">Last Scan</span><span class="v" id="n-scan">—</span></div>
+      <div style="margin-top:10px">
+        <div style="font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">NSV LAW</div>
+        <div style="font-size:12px;color:var(--bright)">
+          (<span style="color:var(--green)">Profit</span> +
+          <span style="color:var(--magenta)">Love</span>) −
+          <span style="color:var(--red)">Tax</span>
+        </div>
+      </div>
+      <div id="n-scan-report" style="margin-top:8px;font-size:10px;color:var(--muted);line-height:1.6"></div>
+    </div>
+  </div>
 
+  <!-- REMOTE LEDGER (row 2 col 2) — scrolling live feed -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">◈ Remote Feed</span>
+      <span class="section-badge">ledger.jsonl</span>
+    </div>
+    <div class="section-body" id="remote-ledger-body">
+      <div style="color:var(--muted);font-size:11px">Fetching remote…</div>
+    </div>
+  </div>
+
+  <!-- TASK QUEUE (row 2 col 3) -->
+  <div class="section no-border-right">
+    <div class="section-header">
+      <span class="section-title gold">◈ Self-Task Queue</span>
+      <button onclick="doGenerate()" style="background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:inherit;font-size:9px;padding:2px 8px;cursor:pointer;letter-spacing:1px">+ GEN</button>
+    </div>
+    <div class="section-body">
+      <div id="queue-body" style="display:flex;flex-direction:column;gap:4px">
+        <div style="color:var(--muted);font-size:11px">Generating…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMAND CONSOLE (full width bottom) -->
+  <div class="section console-section">
+    <div class="section-header">
+      <span class="section-title">▶ Command Console</span>
+      <span class="section-badge">Soul Economy OS v2.0 · NSV = P + L − T</span>
+    </div>
+    <div class="console-output" id="console-output"></div>
+    <div class="shortcut-row">
+      <span class="chip" onclick="runCmd('STATUS')">STATUS</span>
+      <span class="chip" onclick="runCmd('SCAN')">SCAN</span>
+      <span class="chip" onclick="runCmd('LEADERBOARD')">LEADERBOARD</span>
+      <span class="chip gold" onclick="runCmd('MONEY_MODE')">💰 MONEY MODE</span>
+      <span class="chip" onclick="runCmd('ARCHITECT_MODE')">🏗 ARCHITECT</span>
+      <span class="chip mag" onclick="runCmd('GENERATE_TASKS')">GENERATE TASKS</span>
+      <span class="chip green" onclick="runCmd('QUEUE')">QUEUE</span>
+      <span class="chip" onclick="runCmd('HELP')">HELP</span>
+      <span class="chip" onclick="runCmd('RESET')" style="color:var(--red);border-color:rgba(255,23,68,.4)">RESET</span>
+    </div>
+    <div class="console-input-row">
+      <span class="con-ps">nreal:~$</span>
+      <input type="text" class="con-field" id="con-input"
+             placeholder="enter command… (HELP for list)"
+             onkeydown="handleConsoleKey(event)"/>
+      <button class="con-run" onclick="runConsoleCmd()">RUN</button>
+    </div>
+  </div>
+
+</div><!-- .nreal-grid -->
+
+<footer>
+  nreal CONSOLE · PROFITLORD SOUL ECONOMY ·
+  <a href="./dashboard.html">Dashboard</a>
+  <a href="./state.json" target="_blank">state.json</a>
+  <a href="./ledger.jsonl" target="_blank">ledger.jsonl</a>
+  <a href="./agents.json" target="_blank">agents.json</a>
+</footer>
+
+</div><!-- #app -->
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────────── -->
+<script src="./system.js"></script>
+<script src="./api.js"></script>
 <script>
-  const BASE = (function () {
-    // Use same origin so relative paths work on GitHub Pages
-    return '';
-  })();
-  const LEDGER_LINES = 20;
+'use strict';
 
-  function relTime(iso) {
-    const diff = Date.now() - new Date(iso).getTime();
-    const s = Math.floor(diff / 1000);
-    if (s < 60)   return `${s}s ago`;
-    if (s < 3600) return `${Math.floor(s/60)}m ago`;
-    if (s < 86400) return `${Math.floor(s/3600)}h ago`;
-    return `${Math.floor(s/86400)}d ago`;
+function el(id) { return document.getElementById(id); }
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtTs(ts) {
+  if (!ts) return '—';
+  try { return new Date(ts).toLocaleTimeString(); } catch { return ts; }
+}
+
+function ageStr(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - new Date(ts).getTime();
+  if (isNaN(diff)) return '—';
+  const m = Math.floor(diff/60000);
+  if (m < 1) return 'now';
+  if (m < 60) return m+'m ago';
+  return Math.floor(m/60)+'h ago';
+}
+
+// ─── Scan phases ─────────────────────────────────────────────────────
+const PHASES = ['observe','score','interpret','capture','multiply','store','report'];
+
+function setPhase(phase, report) {
+  PHASES.forEach(p => {
+    const e = el('pp-'+p); if (!e) return;
+    e.className = 'ph-phase';
+    const idx = PHASES.indexOf(p), cur = PHASES.indexOf(phase);
+    if (p === phase && phase !== 'complete') e.classList.add('active');
+    else if (idx < cur || phase === 'complete') e.classList.add('done');
+  });
+  if (report) {
+    el('ph-report-text').textContent = Array.isArray(report) ? report.slice(0,3).join(' · ') : report;
+    el('n-scan-report').innerHTML = Array.isArray(report)
+      ? report.map(r => `<div>${escHtml(r)}</div>`).join('')
+      : escHtml(report);
+  }
+}
+
+// ─── Status bar ──────────────────────────────────────────────────────
+function renderStatusBar() {
+  const state = ProfitlordOS.getState();
+  const eco   = ProfitlordOS.getEconomyStats();
+  el('sb-nsv').textContent    = eco.total_nsv    || 0;
+  el('sb-bots').textContent   = eco.active_bots  || 0;
+  el('sb-pts').textContent    = eco.total_points || 0;
+  el('sb-tasks').textContent  = eco.total_tasks  || 0;
+  el('sb-events').textContent = ProfitlordOS.getLedger().length;
+  el('sb-health').textContent = (state.system?.health || 100) + '%';
+}
+
+// ─── Souls ───────────────────────────────────────────────────────────
+function renderSouls(remoteState) {
+  const bots  = ProfitlordOS.getBots();
+  const souls = remoteState?.souls
+    ? (Array.isArray(remoteState.souls) ? remoteState.souls : Object.values(remoteState.souls))
+    : [];
+
+  // Merge OS bots with remote soul statuses
+  const merged = bots.length ? bots : souls;
+  const list   = el('souls-list');
+  el('souls-count').textContent = merged.length + ' souls';
+
+  if (!merged.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:11px">No souls registered.</div>';
+    return;
   }
 
-  function healthClass(h) {
-    if (h >= 80) return 'badge-ok';
-    if (h >= 40) return 'badge-warn';
-    return 'badge-error';
+  list.innerHTML = merged.map(b => {
+    const name   = b.name || b.plt_name || b.id;
+    const role   = b.role || '';
+    const status = b.status || 'idle';
+    const nsv    = ProfitlordOS.calcNSV(b);
+    const lastSeen = b.last_active || b.last_seen;
+    return `<div class="soul-row ${escHtml(status)}" onclick="conPre('SCORE ${escHtml(b.id)}')">
+      <div class="soul-dot ${escHtml(status)}"></div>
+      <span class="soul-name">${escHtml(name)}</span>
+      <span class="soul-role">${escHtml(role)}</span>
+      <span class="soul-nsv">${nsv.nsv}</span>
+      <span class="soul-ts">${ageStr(lastSeen)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── Leaderboard ─────────────────────────────────────────────────────
+function renderLeaderboard() {
+  const board = ProfitlordOS.updateLeaderboard();
+  const list  = el('lb-list');
+  if (!board.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:11px">No data.</div>';
+    return;
+  }
+  list.innerHTML = board.map(b => {
+    const rc = b.rank===1?'top1':b.rank===2?'top2':b.rank===3?'top3':'';
+    return `<div class="lb-row ${rc}">
+      <span class="lb-rank">#${b.rank}</span>
+      <span class="lb-name">${escHtml(b.name)}</span>
+      <span class="lb-nsv">${b.net_soul_value}</span>
+      <span class="lb-tier tier-${b.tier}">${b.tier}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── OS Ledger ────────────────────────────────────────────────────────
+function renderLedger() {
+  const events = ProfitlordOS.getLedger({ limit: 60 }).slice().reverse();
+  const body   = el('ledger-body');
+  el('ledger-count').textContent = events.length + ' events';
+  if (!events.length) { body.innerHTML = '<div style="color:var(--muted);font-size:11px">No events.</div>'; return; }
+  body.innerHTML = events.map(e =>
+    `<div class="ledger-line">
+      <span class="l-ts">${fmtTs(e.ts)}</span>
+      <span class="l-type">[${escHtml(e.type||'evt')}]</span>
+      <span class="l-evt">${escHtml(JSON.stringify(e.payload||{}).slice(0,60))}</span>
+      <span class="l-src">${escHtml(e.actor||'')}</span>
+    </div>`
+  ).join('');
+  body.scrollTop = 0;
+}
+
+// ─── Remote Ledger ────────────────────────────────────────────────────
+async function loadRemoteLedger() {
+  try {
+    const res = await fetch('./ledger.jsonl?_='+Date.now(), { cache:'no-store' });
+    if (!res.ok) return;
+    const text = await res.text();
+    const entries = text.trim().split('\n').filter(Boolean)
+      .map(l => { try { return JSON.parse(l); } catch { return null; } })
+      .filter(Boolean).slice(-40).reverse();
+    const body = el('remote-ledger-body');
+    if (!entries.length) { body.innerHTML = '<div style="color:var(--muted);font-size:11px">No remote events.</div>'; return; }
+    body.innerHTML = entries.map(e =>
+      `<div class="ledger-line">
+        <span class="l-ts">${fmtTs(e.ts)}</span>
+        <span class="l-type">[${escHtml(e.type||'build')}]</span>
+        <span class="l-evt">${escHtml(e.summary||e.event||JSON.stringify(e).slice(0,60))}</span>
+        <span class="l-src" style="color:var(--cyan2)">remote</span>
+      </div>`
+    ).join('');
+  } catch { el('remote-ledger-body').innerHTML = '<div style="color:var(--muted);font-size:11px">Remote unavailable.</div>'; }
+}
+
+// ─── Task queue ──────────────────────────────────────────────────────
+function renderQueue() {
+  const q    = ProfitlordOS.getTaskQueue();
+  const body = el('queue-body');
+  if (!q.length) {
+    body.innerHTML = '<div style="color:var(--muted);font-size:11px">Queue empty.</div>';
+    return;
+  }
+  const cats = { MONEY:'gold', SYSTEM:'', CONTENT:'mag', INTELLIGENCE:'green' };
+  body.innerHTML = q.slice(0,10).map(t =>
+    `<div style="display:flex;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px">
+      <span style="padding:1px 6px;border-radius:2px;font-size:9px;border:1px solid rgba(255,215,0,.3);color:var(--${cats[t.category]||'cyan'})">${escHtml(t.category)}</span>
+      <span style="flex:1;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escHtml(t.name)}</span>
+      <span style="color:var(--cyan);font-family:Orbitron,monospace;font-size:9px">${t.priority_score||0}</span>
+    </div>`
+  ).join('');
+}
+
+function doGenerate() { ProfitlordOS.generateTasks(); renderQueue(); }
+
+// ─── System state ────────────────────────────────────────────────────
+function renderSystemState(state) {
+  const upd  = state.updated_at || null;
+  const pct  = typeof state.health==='number' ? state.health : 100;
+  el('n-updated').textContent = fmtTs(upd);
+  el('n-health').textContent  = pct + '%';
+  el('n-health-fill').style.width = pct + '%';
+  el('n-task').textContent    = state.current_task || '—';
+  el('n-pages').textContent   = state.pages_total  || '—';
+  el('n-scan').textContent    = ageStr(ProfitlordOS.getState().scan?.last_run) || 'never';
+  el('health-badge').textContent = pct + '%';
+  el('status-text').textContent = pct >= 80 ? 'ONLINE' : pct >= 40 ? 'DEGRADED' : 'CRITICAL';
+}
+
+// ─── Console ─────────────────────────────────────────────────────────
+const _history = [];
+let   _hIdx    = -1;
+
+function conWrite(type, text) {
+  const out  = el('console-output');
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  if (type === 'cmd') {
+    line.innerHTML = `<span class="con-prompt">nreal:~$</span> <span class="con-cmd">${escHtml(text)}</span>`;
+  } else if (type === 'out') {
+    line.innerHTML = `<span class="con-out">${escHtml(text)}</span>`;
+  } else if (type === 'err') {
+    line.innerHTML = `<span class="con-err">✗ ${escHtml(text)}</span>`;
+  } else if (type === 'sys') {
+    line.innerHTML = `<span class="con-sys">[sys] ${escHtml(text)}</span>`;
+  } else if (type === 'info') {
+    line.innerHTML = `<span class="con-info">${escHtml(text)}</span>`;
+  }
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+
+function conPre(cmd) { el('con-input').value = cmd; el('con-input').focus(); }
+
+function runCmd(cmd) { el('con-input').value = cmd; runConsoleCmd(); }
+
+function runConsoleCmd() {
+  const input = el('con-input');
+  const cmd   = input.value.trim();
+  if (!cmd) return;
+  input.value = '';
+  _history.unshift(cmd);
+  _hIdx = -1;
+
+  conWrite('cmd', cmd);
+
+  // Special async commands
+  if (cmd.toUpperCase() === 'SCAN') {
+    conWrite('sys', 'Running Collector Loop…');
+    const phases = ['observe','score','interpret','capture','multiply','store','report'];
+    let i = 0;
+    const iv = setInterval(() => {
+      setPhase(phases[i]||'complete');
+      conWrite('info', `◉ ${(phases[i]||'').toUpperCase()}…`);
+      i++; if (i >= phases.length) clearInterval(iv);
+    }, 400);
+    ProfitlordOS.runScan().then(r => {
+      clearInterval(iv); setPhase('complete', r.report);
+      r.report.forEach(line => conWrite('out', line));
+      renderAll();
+    });
+    return;
   }
 
-  // ── Load state.json ──────────────────────────────────────────────────────
-  fetch('state.json?t=' + Date.now())
-    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then((state) => {
-      document.getElementById('state-loading').style.display = 'none';
-      document.getElementById('state-content').style.display = 'block';
+  const result = ProfitlordOS.execCommand(cmd);
+  if (result.ok) {
+    const out = result.result;
+    if (typeof out === 'string') {
+      out.split('\n').forEach(l => conWrite('out', l));
+    } else if (Array.isArray(out)) {
+      out.forEach(item => conWrite('out',
+        typeof item === 'object' ? JSON.stringify(item) : String(item)));
+    } else {
+      JSON.stringify(out, null, 2).split('\n').forEach(l => conWrite('out', l));
+    }
+    renderAll();
+  } else {
+    conWrite('err', result.error || 'Unknown error');
+  }
+}
 
-      const health = typeof state.health === 'number' ? state.health : 100;
-      document.getElementById('health-fill').style.width = health + '%';
-      document.getElementById('health-fill').style.background =
-        health >= 80 ? 'var(--green)' : health >= 40 ? 'var(--yellow)' : 'var(--red)';
-      document.getElementById('health-val').textContent = health + '%';
-      const badge = document.getElementById('health-badge');
-      badge.className = 'status-badge ' + healthClass(health);
-      badge.textContent = health >= 80 ? 'OK' : health >= 40 ? 'WARN' : 'ERROR';
+function handleConsoleKey(e) {
+  if (e.key === 'Enter') { runConsoleCmd(); return; }
+  if (e.key === 'ArrowUp') {
+    _hIdx = Math.min(_hIdx+1, _history.length-1);
+    el('con-input').value = _history[_hIdx] || '';
+    e.preventDefault();
+  }
+  if (e.key === 'ArrowDown') {
+    _hIdx = Math.max(_hIdx-1, -1);
+    el('con-input').value = _hIdx >= 0 ? (_history[_hIdx]||'') : '';
+    e.preventDefault();
+  }
+}
 
-      document.getElementById('s-updated').textContent =
-        state.updated_at ? relTime(state.updated_at) + ' (' + state.updated_at + ')' : '—';
-      document.getElementById('s-task').textContent = state.current_task || '—';
-      document.getElementById('s-pages').textContent = state.pages_total || '—';
-      document.getElementById('s-url').textContent = state.site_url || '—';
+// ─── Render all ──────────────────────────────────────────────────────
+function renderAll(remoteState) {
+  renderStatusBar();
+  renderLeaderboard();
+  renderLedger();
+  renderQueue();
+}
 
-      // Render souls
-      const soulsEl = document.getElementById('souls-list');
-      document.getElementById('souls-loading').style.display = 'none';
-      const souls = Array.isArray(state.souls) ? state.souls : [];
-      if (souls.length === 0) {
-        soulsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No souls registered.</div>';
-      } else {
-        soulsEl.innerHTML = souls.map((s) => `
-          <div class="soul">
-            <div class="dot ${s.status || 'offline'}"></div>
-            <span class="soul-name">${s.name || s.id}</span>
-            <span class="soul-caps">${(s.capabilities || []).join(', ')}</span>
-            <span style="margin-left:auto;color:var(--muted);font-size:10px">${s.last_seen ? relTime(s.last_seen) : 'never'}</span>
-          </div>`).join('');
-      }
-    })
-    .catch((err) => {
-      document.getElementById('state-loading').textContent = 'Failed to load state.json: ' + err.message;
-      document.getElementById('souls-loading').textContent = 'State unavailable.';
-    });
+// ─── Remote state load ───────────────────────────────────────────────
+async function loadState() {
+  try {
+    const res = await fetch('./state.json?_='+Date.now(), { cache:'no-store' });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const state = await res.json();
+    renderSystemState(state);
+    renderSouls(state);
+    renderAll(state);
+  } catch {
+    renderSouls({});
+    renderSystemState({});
+  }
+}
 
-  // ── Load ledger.jsonl ────────────────────────────────────────────────────
-  fetch('ledger.jsonl?t=' + Date.now())
-    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-    .then((text) => {
-      const lines = text.trim().split('\n').filter(Boolean).reverse().slice(0, LEDGER_LINES);
-      const events = lines.map((l) => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+// ─── Boot ────────────────────────────────────────────────────────────
+async function boot() {
+  conWrite('sys', 'Profitlord nreal OS v2.0 booting…');
+  conWrite('sys', 'Identity: Soul Economy Collector → Architect');
+  conWrite('sys', 'Law: NET SOUL VALUE = Profit + Love - Tax');
+  conWrite('sys', 'Loop: OBSERVE → SCORE → INTERPRET → CAPTURE → MULTIPLY → STORE → REPORT');
 
-      document.getElementById('ledger-loading').style.display = 'none';
-      const list = document.getElementById('ledger-list');
-      list.style.display = 'block';
+  await ProfitlordOS.init();
+  conWrite('sys', `Loaded ${ProfitlordOS.getBots().length} souls. Ledger: ${ProfitlordOS.getLedger().length} events.`);
 
-      if (events.length === 0) {
-        list.innerHTML = '<li style="color:var(--muted)">No ledger events yet.</li>';
-      } else {
-        list.innerHTML = events.map((ev) => `
-          <li>
-            <span class="event-ts">${ev.ts ? relTime(ev.ts) : ''}</span>
-            <span class="event-type">${ev.type || 'unknown'}</span>
-            <span class="event-summary">${ev.summary || ''}</span>
-          </li>`).join('');
-      }
-    })
-    .catch((err) => {
-      document.getElementById('ledger-loading').textContent = 'Failed to load ledger.jsonl: ' + err.message;
-    });
+  ProfitlordOS.subscribe(state => {
+    renderAll(state);
+    const phase = state.scan?.phase;
+    if (phase && phase !== 'idle') setPhase(phase, state.scan?.last_report);
+  });
+
+  await Promise.all([loadState(), loadRemoteLedger()]);
+
+  conWrite('info', '✓ System online. Type HELP for commands.');
+  conWrite('info', '◈ Self-task queue: ' + ProfitlordOS.getTaskQueue().length + ' items generated.');
+
+  setInterval(loadState, 60_000);
+  setInterval(loadRemoteLedger, 45_000);
+  setInterval(renderAll, 15_000);
+}
+
+boot();
 </script>
 </body>
 </html>

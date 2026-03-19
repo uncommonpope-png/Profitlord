@@ -1,0 +1,29 @@
+name = "profitlord-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# ── KV Namespaces ─────────────────────────────────────────────────────────────
+# Run: wrangler kv:namespace create STATE_KV
+# Then replace the ids below with the output values.
+[[kv_namespaces]]
+binding = "STATE_KV"
+id     = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+# ── D1 Database ───────────────────────────────────────────────────────────────
+# Run: wrangler d1 create profitlord-db
+# Then replace database_id below with the output value.
+[[d1_databases]]
+binding       = "DB"
+database_name = "profitlord-db"
+database_id   = "REPLACE_WITH_D1_DATABASE_ID"
+
+# ── Cron Triggers ─────────────────────────────────────────────────────────────
+# Runs the Soul Economy SCAN loop every 5 minutes
+[triggers]
+crons = ["*/5 * * * *"]
+
+# ── Environment variables ────────────────────────────────────────────────────
+[vars]
+ALLOWED_ORIGIN = "https://uncommonpope-png.github.io"

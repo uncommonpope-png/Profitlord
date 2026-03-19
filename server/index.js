@@ -64,6 +64,8 @@ if (REDIS_URL) {
       console.error('[Redis] connect failed:', err.message);
       redisClient = null;
     });
+}
+
 if (!GH_CLIENT_ID || !GH_CLIENT_SECRET) {
   console.warn('[WARN] GH_CLIENT_ID / GH_CLIENT_SECRET not set — GitHub OAuth login will be disabled.');
 }
