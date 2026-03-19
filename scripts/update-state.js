@@ -83,7 +83,7 @@ function loadAgents(agentsPath) {
       }
     }
     // nreal itself marks souls as "active" when the build runs
-    if (soul.id === 'profit' || soul.id === 'deerg') {
+    if (soul.id === 'soulcollector' || soul.id === 'profit' || soul.id === 'deerg') {
       soul.status = 'active';
       soul.last_seen = now;
     }

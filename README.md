@@ -22,9 +22,13 @@ The backend lives in `server/` and runs on Node 20 with no external dependencies
 
 ### Endpoints
 
-| Method | Path | Body | Description |
-|--------|------|------|-------------|
+| Method | Path | Body / Params | Description |
+|--------|------|--------------|-------------|
 | GET | `/health` | — | Health check |
+| GET | `/auth/login` | — | Redirect to GitHub OAuth authorization |
+| GET | `/auth/callback` | `?code=&state=` | Exchange OAuth code for session token; redirects to dashboard |
+| GET | `/auth/me` | — | Return authenticated user info (requires `Authorization: Bearer <token>`) |
+| GET | `/auth/logout` | — | Invalidate the current session (requires `Authorization: Bearer <token>`) |
 | POST | `/execute` | `{command, source, ts}` | Execute a command; writes to GitHub |
 | POST | `/chat/:soul` | `{message, session_id}` | Chat with a soul; writes to GitHub |
 
@@ -43,6 +47,8 @@ GH_TOKEN=<your_token> GH_OWNER=uncommonpope-png GH_REPO=Profitlord node index.js
 | `GH_OWNER` | `uncommonpope-png` |
 | `GH_REPO` | `Profitlord` |
 | `GH_BRANCH` | `main` (default) |
+| `GH_CLIENT_ID` | GitHub OAuth App client ID (required for `/auth/*` endpoints) |
+| `GH_CLIENT_SECRET` | GitHub OAuth App client secret (required for `/auth/*` endpoints) |
 | `PORT` | Port for the service (Render sets this automatically) |
 
 Lord of profit — automated SEO site + living nreal command center.

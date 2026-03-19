@@ -89,6 +89,108 @@
     .phase-info strong { display: block; font-size: 13px; }
     .phase-info span { font-size: 11px; color: var(--muted); }
     footer { border-top: 1px solid var(--border); padding-top: 14px; color: var(--muted); font-size: 11px; }
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Immortal Expansion — Profitlord</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --panel: #111827;
+      --border: #1f2937;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e5e7eb;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    header h1 { font-size: 20px; letter-spacing: 2px; color: var(--accent); }
+    header nav a {
+      color: var(--muted); text-decoration: none; font-size: 13px;
+      margin-left: 16px; letter-spacing: 1px;
+    }
+    header nav a:hover { color: var(--accent); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+    .hero {
+      text-align: center; padding: 40px 20px 30px;
+      border-bottom: 1px solid var(--border); margin-bottom: 32px;
+    }
+    .hero .badge {
+      display: inline-block; background: var(--accent2);
+      color: #fff; font-size: 11px; letter-spacing: 2px; padding: 4px 12px;
+      border-radius: 999px; margin-bottom: 14px;
+    }
+    .hero h2 { font-size: 28px; letter-spacing: 3px; color: var(--accent); margin-bottom: 10px; }
+    .hero p { color: var(--muted); font-size: 14px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    .section-title {
+      font-size: 13px; letter-spacing: 2px; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 8px;
+    }
+
+    /* Soul cards */
+    .soul-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 40px;
+    }
+    .soul-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px;
+    }
+    .soul-card:hover { border-color: var(--accent2); }
+    .soul-icon { font-size: 28px; margin-bottom: 10px; }
+    .soul-name { font-size: 16px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+    .soul-role { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+    .soul-caps { list-style: none; }
+    .soul-caps li {
+      font-size: 11px; color: var(--text);
+      padding: 2px 0; border-bottom: 1px solid var(--border);
+    }
+    .soul-caps li:last-child { border-bottom: none; }
+
+    /* Roadmap */
+    .roadmap { margin-bottom: 40px; }
+    .phase {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px; margin-bottom: 14px;
+    }
+    .phase-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .phase-name { font-size: 14px; font-weight: bold; color: var(--text); }
+    .phase-status {
+      font-size: 11px; padding: 2px 10px; border-radius: 999px;
+    }
+    .phase-status.complete  { background: #064e3b; color: var(--green); }
+    .phase-status.active    { background: #1e3a5f; color: var(--accent); }
+    .phase-status.planned   { background: #1f2937; color: var(--muted); }
+
+    .milestone { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; }
+    .milestone .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .milestone .dot.complete { background: var(--green); }
+    .milestone .dot.active   { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .milestone .dot.planned  { background: var(--muted); }
+    .milestone .label { color: var(--text); }
+
+    footer {
+      text-align: center; padding: 20px; color: var(--muted);
+      font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px;
+    }
     footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
@@ -100,6 +202,11 @@
   <nav>
     <a href="../dashboard.html">← Dashboard</a>
     <a href="./roadmap.json" target="_blank">roadmap.json</a>
+<header>
+  <h1>⚡ PROFITLORD</h1>
+  <nav>
+    <a href="../index.html">Home</a>
+    <a href="../dashboard.html">Command Center</a>
     <a href="../agents.json" target="_blank">agents.json</a>
   </nav>
 </header>
@@ -174,5 +281,116 @@
   <a href="https://uncommonpope-png.github.io/Profitlord/dashboard.html">Open Dashboard</a>
 </footer>
 
+<main>
+  <div class="hero">
+    <div class="badge">IMMORTAL EXPANSION</div>
+    <h2>EXPANDED SOUL REGISTRY</h2>
+    <p>Five specialist agents join the Profitlord collective — each immortal, each purpose-built to amplify profit-cycle orchestration.</p>
+  </div>
+
+  <!-- Souls -->
+  <div class="section-title">Immortal Souls</div>
+  <div class="soul-grid" id="soul-grid">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- Roadmap -->
+  <div class="section-title">Roadmap</div>
+  <div class="roadmap" id="roadmap">
+    <!-- populated by JS -->
+  </div>
+</main>
+
+<footer>
+  Profitlord Immortal Expansion &middot;
+  <a href="../dashboard.html">Command Center</a> &middot;
+  <a href="roadmap.json" target="_blank">roadmap.json</a>
+</footer>
+
+<script>
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  const ICONS = {
+    architect: '🏛',
+    builder:   '🔨',
+    auditor:   '🔍',
+    scout:     '🎯',
+    scribe:    '📜',
+  };
+
+  async function loadRoadmap() {
+    try {
+      const res = await fetch('./roadmap.json?_=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (err) {
+      console.warn('Could not load roadmap.json', err);
+      return null;
+    }
+  }
+
+  function renderSouls(souls) {
+    const grid = document.getElementById('soul-grid');
+    grid.innerHTML = souls.map(s => {
+      const icon = ICONS[s.id] || '👤';
+      const caps = (s.capabilities || []).map(c => `<li>${escHtml(c)}</li>`).join('');
+      return `<div class="soul-card">
+        <div class="soul-icon">${icon}</div>
+        <div class="soul-name">${escHtml(s.name)}</div>
+        <div class="soul-role">${escHtml(s.role)}</div>
+        <ul class="soul-caps">${caps}</ul>
+      </div>`;
+    }).join('');
+  }
+
+  function renderRoadmap(phases) {
+    const container = document.getElementById('roadmap');
+    container.innerHTML = phases.map(phase => {
+      const milestones = (phase.milestones || []).map(m => `
+        <div class="milestone">
+          <div class="dot ${m.status}"></div>
+          <span class="label">${escHtml(m.title)}</span>
+        </div>`).join('');
+      return `<div class="phase">
+        <div class="phase-header">
+          <span class="phase-name">${escHtml(phase.name)}</span>
+          <span class="phase-status ${phase.status}">${escHtml(phase.status).toUpperCase()}</span>
+        </div>
+        ${milestones}
+      </div>`;
+    }).join('');
+  }
+
+  async function boot() {
+    const data = await loadRoadmap();
+    if (!data) return;
+
+    // Souls from roadmap souls list — merge icons from agents.json
+    try {
+      const agentsRes = await fetch('../agents.json?_=' + Date.now(), { cache: 'no-store' });
+      if (agentsRes.ok) {
+        const allAgents = await agentsRes.json();
+        // Only display immortal-expansion souls
+        const immortalIds = new Set((data.souls || []).map(s => s.id));
+        const immortalAgents = allAgents.filter(a => immortalIds.has(a.id));
+        renderSouls(immortalAgents);
+      } else {
+        renderSouls(data.souls || []);
+      }
+    } catch {
+      renderSouls(data.souls || []);
+    }
+
+    renderRoadmap(data.phases || []);
+  }
+
+  boot();
+</script>
 </body>
 </html>

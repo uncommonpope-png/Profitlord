@@ -2,6 +2,10 @@
   "title": "Immortal Expansion Roadmap",
   "description": "Phased plan to expand the Profitlord Command Center with new souls, builder capabilities, and autonomous task execution.",
   "updated_at": "2026-03-19T09:31:43.151Z",
+  "version": "1.0.0",
+  "updated_at": "2026-03-19T09:41:32.000Z",
+  "title": "Immortal Expansion Roadmap",
+  "description": "The Immortal Expansion extends the Profitlord soul registry with five specialist agents: Architect, Builder, Auditor, Scout, and Scribe.",
   "phases": [
     {
       "id": "phase-1",
@@ -28,6 +32,9 @@
             { "id": "t1-2-3", "name": "Implement /chat/:soul endpoint", "status": "complete" }
           ]
         }
+        { "id": "m1", "title": "Core souls online (Profit, Deerg, Betty, Teacher)", "status": "complete" },
+        { "id": "m2", "title": "Command Center dashboard deployed", "status": "complete" },
+        { "id": "m3", "title": "Backend /health, /execute, /chat/:soul routes", "status": "complete" }
       ]
     },
     {
@@ -67,6 +74,15 @@
             { "id": "t2-3-3", "name": "Add GH_TOKEN writeback for ledger and state", "status": "pending" }
           ]
         }
+      "status": "active",
+      "milestones": [
+        { "id": "m4", "title": "Register Architect soul", "status": "complete" },
+        { "id": "m5", "title": "Register Builder soul", "status": "complete" },
+        { "id": "m6", "title": "Register Auditor soul", "status": "complete" },
+        { "id": "m7", "title": "Register Scout soul", "status": "complete" },
+        { "id": "m8", "title": "Register Scribe soul", "status": "complete" },
+        { "id": "m9", "title": "Immortal Expansion landing page", "status": "complete" },
+        { "id": "m10", "title": "Dashboard panel for Immortal Expansion souls", "status": "complete" }
       ]
     },
     {
@@ -94,5 +110,20 @@
         }
       ]
     }
+      "name": "Autonomy",
+      "status": "planned",
+      "milestones": [
+        { "id": "m11", "title": "Inter-soul task routing", "status": "planned" },
+        { "id": "m12", "title": "Persistent memory per soul", "status": "planned" },
+        { "id": "m13", "title": "Automated profit cycle orchestration", "status": "planned" }
+      ]
+    }
+  ],
+  "souls": [
+    { "id": "architect", "name": "Architect", "role": "System Designer", "expansion": "immortal" },
+    { "id": "builder",   "name": "Builder",   "role": "Implementation Engine", "expansion": "immortal" },
+    { "id": "auditor",   "name": "Auditor",   "role": "Quality & Compliance",  "expansion": "immortal" },
+    { "id": "scout",     "name": "Scout",     "role": "Intelligence Gatherer", "expansion": "immortal" },
+    { "id": "scribe",    "name": "Scribe",    "role": "Chronicler & Documenter","expansion": "immortal" }
   ]
 }
