@@ -133,6 +133,15 @@
     }
     .chat-input-row input:focus { outline: none; border-color: var(--accent); }
 
+    /* Delegate task section */
+    .delegate-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .delegate-soul-btn {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); padding: 6px 14px; border-radius: 999px;
+      cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s;
+    }
+    .delegate-soul-btn.active { border-color: var(--accent2); color: var(--accent2); }
+
     /* Ledger */
     .ledger-box {
       background: var(--bg); border: 1px solid var(--border);
@@ -189,6 +198,17 @@
         <textarea id="cmd-input" rows="3" placeholder="Enter command…"></textarea>
         <button class="btn" id="cmd-send" onclick="sendCommand()">▶ EXECUTE</button>
         <div class="response-box" id="cmd-response"></div>
+      </div>
+    </div>
+
+    <!-- Delegate Task (SoulCollector) -->
+    <div class="panel">
+      <h2>Delegate Task <span style="color:var(--muted);font-size:11px">via SoulCollector</span></h2>
+      <div class="cmd-area">
+        <div class="delegate-controls" id="delegate-soul-btns"></div>
+        <textarea id="delegate-input" rows="3" placeholder="Describe the task to delegate…"></textarea>
+        <button class="btn" id="delegate-send" onclick="delegateTask()">⚡ DELEGATE</button>
+        <div class="response-box" id="delegate-response"></div>
       </div>
     </div>
 
@@ -340,6 +360,27 @@
       `<button class="soul-btn${selectedSoul === a.name ? ' active' : ''}" onclick="selectSoul('${a.name}')">${a.name}</button>`
     ).join('');
     if (!selectedSoul && agents.length > 0) selectSoul(agents[0].name, true);
+    renderDelegateSoulButtons();
+  }
+
+  let selectedDelegateSoul = null;
+
+  function renderDelegateSoulButtons() {
+    const c = el('delegate-soul-btns');
+    if (!c) return;
+    // SoulCollector delegates TO other souls (exclude itself)
+    const targets = agents.filter(a => a.id !== 'soulcollector');
+    c.innerHTML = targets.map(a =>
+      `<button class="delegate-soul-btn${selectedDelegateSoul === a.name ? ' active' : ''}" onclick="selectDelegateSoul('${a.name}')">${a.name}</button>`
+    ).join('');
+    if (!selectedDelegateSoul && targets.length > 0) selectDelegateSoul(targets[0].name, true);
+  }
+
+  function selectDelegateSoul(name, silent) {
+    selectedDelegateSoul = name;
+    document.querySelectorAll('.delegate-soul-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === name);
+    });
     renderImmortalSouls();
   }
 
@@ -391,6 +432,48 @@
         </div>`
       ).join('');
     } catch { /* non-fatal */ }
+  }
+
+  // ─── Delegate task (SoulCollector) ─────────────────────────────────────────
+  async function delegateTask() {
+    const input = el('delegate-input');
+    const btn = el('delegate-send');
+    const respBox = el('delegate-response');
+    const task = input.value.trim();
+
+    if (!task) {
+      respBox.textContent = 'Please enter a task to delegate.';
+      respBox.classList.add('visible');
+      return;
+    }
+    if (!selectedDelegateSoul) {
+      respBox.textContent = 'Please select a soul to delegate to.';
+      respBox.classList.add('visible');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '… DELEGATING';
+    respBox.textContent = '';
+    respBox.classList.remove('visible');
+
+    try {
+      const res = await fetch(BACKEND_BASE_URL + '/delegate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task, soul: selectedDelegateSoul, source: 'dashboard' })
+      });
+      const data = await res.json();
+      respBox.textContent = JSON.stringify(data, null, 2);
+      respBox.classList.add('visible');
+      if (res.ok) input.value = '';
+    } catch (err) {
+      respBox.textContent = 'Error: ' + err.message;
+      respBox.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚡ DELEGATE';
+    }
   }
 
   // ─── Execute command ────────────────────────────────────────────────────────
