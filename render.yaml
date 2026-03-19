@@ -1,6 +1,7 @@
 services:
   - type: web
     name: profitlord-server
+    name: plt-server
     env: node
     plan: free
     rootDir: server
@@ -26,3 +27,4 @@ databases:
     name: profitlord-redis
     plan: free
     ipAllowList: []
+        sync: false

@@ -133,6 +133,15 @@
     }
     .chat-input-row input:focus { outline: none; border-color: var(--accent); }
 
+    /* Delegate task section */
+    .delegate-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .delegate-soul-btn {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--muted); padding: 6px 14px; border-radius: 999px;
+      cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s;
+    }
+    .delegate-soul-btn.active { border-color: var(--accent2); color: var(--accent2); }
+
     /* Ledger */
     .ledger-box {
       background: var(--bg); border: 1px solid var(--border);
@@ -176,6 +185,16 @@
       </div>
     </div>
 
+    <!-- Immortal Expansion -->
+    <div class="panel">
+      <h2>⚡ Immortal Expansion</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <a href="./immortal-expansion/index.html" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:12px" target="_blank">📖 Overview</a>
+        <a href="./immortal-expansion/roadmap.json" style="color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:6px 12px;border-radius:4px;font-size:12px" target="_blank">🗺 Roadmap</a>
+      </div>
+      <p style="color:var(--muted);font-size:11px">Expanding the Command Center with new souls, builder capabilities, and autonomous task execution.</p>
+    </div>
+
     <!-- Souls -->
     <div class="panel">
       <h2>Souls</h2>
@@ -192,6 +211,17 @@
       </div>
     </div>
 
+    <!-- Delegate Task (SoulCollector) -->
+    <div class="panel">
+      <h2>Delegate Task <span style="color:var(--muted);font-size:11px">via SoulCollector</span></h2>
+      <div class="cmd-area">
+        <div class="delegate-controls" id="delegate-soul-btns"></div>
+        <textarea id="delegate-input" rows="3" placeholder="Describe the task to delegate…"></textarea>
+        <button class="btn" id="delegate-send" onclick="delegateTask()">⚡ DELEGATE</button>
+        <div class="response-box" id="delegate-response"></div>
+      </div>
+    </div>
+
     <!-- Soul Chat -->
     <div class="panel">
       <h2>Soul Chat</h2>
@@ -204,6 +234,22 @@
     </div>
   </div>
 
+  <!-- Immortal Expansion -->
+  <div class="panel" style="margin-top:20px">
+    <h2>Immortal Expansion <span style="color:var(--muted);font-size:11px">— expanded souls</span></h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;max-width:680px;">
+        Five specialist agents have joined the Profitlord collective: Architect, Builder, Auditor, Scout, and Scribe.
+        Each is purpose-built to amplify the profit-cycle orchestration engine.
+      </p>
+      <a href="./immortal-expansion/index.html"
+         style="background:var(--accent2);color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:12px;letter-spacing:1px;white-space:nowrap;">
+        ▶ VIEW EXPANSION
+      </a>
+    </div>
+    <div class="soul-grid" id="immortal-souls-grid"></div>
+  </div>
+
   <!-- Ledger -->
   <div class="panel" style="margin-top:20px">
     <h2>Event Ledger <span style="color:var(--muted);font-size:11px">(recent)</span></h2>
@@ -214,6 +260,7 @@
 <footer>
   Profitlord Command Center &middot;
   <a href="./index.html">Home</a> &middot;
+  <a href="./immortal-expansion/index.html">Immortal Expansion</a> &middot;
   <a href="./state.json" target="_blank">state.json</a> &middot;
   <a href="./agents.json" target="_blank">agents.json</a>
 </footer>
@@ -323,6 +370,49 @@
       `<button class="soul-btn${selectedSoul === a.name ? ' active' : ''}" onclick="selectSoul('${a.name}')">${a.name}</button>`
     ).join('');
     if (!selectedSoul && agents.length > 0) selectSoul(agents[0].name, true);
+    renderDelegateSoulButtons();
+  }
+
+  let selectedDelegateSoul = null;
+
+  function renderDelegateSoulButtons() {
+    const c = el('delegate-soul-btns');
+    if (!c) return;
+    // SoulCollector delegates TO other souls (exclude itself)
+    const targets = agents.filter(a => a.id !== 'soulcollector');
+    c.innerHTML = targets.map(a =>
+      `<button class="delegate-soul-btn${selectedDelegateSoul === a.name ? ' active' : ''}" onclick="selectDelegateSoul('${a.name}')">${a.name}</button>`
+    ).join('');
+    if (!selectedDelegateSoul && targets.length > 0) selectDelegateSoul(targets[0].name, true);
+  }
+
+  function selectDelegateSoul(name, silent) {
+    selectedDelegateSoul = name;
+    document.querySelectorAll('.delegate-soul-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === name);
+    });
+    renderImmortalSouls();
+  }
+
+  const IMMORTAL_IDS = new Set(['architect', 'builder', 'auditor', 'scout', 'scribe']);
+
+  function renderImmortalSouls() {
+    const grid = el('immortal-souls-grid');
+    if (!grid) return;
+    const immortals = agents.filter(a => IMMORTAL_IDS.has(a.id));
+    if (immortals.length === 0) {
+      grid.innerHTML = '<p style="color:var(--muted);font-size:12px">No immortal souls registered yet.</p>';
+      return;
+    }
+    grid.innerHTML = immortals.map(a => {
+      const sc = (a.status === 'active') ? 'active' : (a.status === 'offline') ? 'offline' : 'idle';
+      return `<div class="soul-card">
+        <div class="soul-name">${escHtml(a.name)}</div>
+        <div class="soul-role">${escHtml(a.role || '')}</div>
+        <span class="soul-status ${sc}">${escHtml(a.status || 'idle')}</span>
+        <div class="soul-last">${ageStr(a.last_seen)}</div>
+      </div>`;
+    }).join('');
   }
 
   function selectSoul(name, silent) {
@@ -352,6 +442,48 @@
         </div>`
       ).join('');
     } catch { /* non-fatal */ }
+  }
+
+  // ─── Delegate task (SoulCollector) ─────────────────────────────────────────
+  async function delegateTask() {
+    const input = el('delegate-input');
+    const btn = el('delegate-send');
+    const respBox = el('delegate-response');
+    const task = input.value.trim();
+
+    if (!task) {
+      respBox.textContent = 'Please enter a task to delegate.';
+      respBox.classList.add('visible');
+      return;
+    }
+    if (!selectedDelegateSoul) {
+      respBox.textContent = 'Please select a soul to delegate to.';
+      respBox.classList.add('visible');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '… DELEGATING';
+    respBox.textContent = '';
+    respBox.classList.remove('visible');
+
+    try {
+      const res = await fetch(BACKEND_BASE_URL + '/delegate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task, soul: selectedDelegateSoul, source: 'dashboard' })
+      });
+      const data = await res.json();
+      respBox.textContent = JSON.stringify(data, null, 2);
+      respBox.classList.add('visible');
+      if (res.ok) input.value = '';
+    } catch (err) {
+      respBox.textContent = 'Error: ' + err.message;
+      respBox.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚡ DELEGATE';
+    }
   }
 
   // ─── Execute command ────────────────────────────────────────────────────────
