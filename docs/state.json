@@ -1,10 +1,9 @@
 {
-  "updated_at": "2026-03-19T09:09:53.542Z",
+  "updated_at": "2026-03-19T09:11:02.025Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
   "pages_total": 62,
-  "souls": {}
   "souls": {
     "Profit": {
       "id": "profit",
@@ -17,7 +16,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:09:53.544Z",
+      "last_seen": "2026-03-19T09:11:02.028Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -31,7 +30,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:09:53.544Z",
+      "last_seen": "2026-03-19T09:11:02.028Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
