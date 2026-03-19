@@ -1,0 +1,600 @@
+/**
+ * PROFITLORD — Alien Command System  (visual layer only)
+ * =======================================================
+ * This file adds the "Alien Command" skin on top of the existing dashboard.
+ * It does NOT change any IDs, classes used by JS logic, or layout behaviour.
+ *
+ * Toggle:  window.PLT_VISUAL_MODE = false  → removes class "plt-enhanced"
+ *          from <body>, which disables every rule below in one step.
+ *
+ * All rules are scoped to body.plt-enhanced so the entire skin is
+ * reversible by removing that single class.
+ */
+
+/* ── ROOT EXTENSIONS ──────────────────────────────────────────────────────
+   New custom properties added WITHOUT overwriting the originals.
+ */
+body.plt-enhanced {
+  --plt-void:    #010306;
+  --plt-core:    #00e5ff;
+  --plt-profit:  #ffd700;
+  --plt-love:    #c084fc;
+  --plt-tax:     #ff1744;
+  --plt-energy:  #00ff41;
+
+  --plt-glow-core:   0 0 6px #00e5ffcc, 0 0 20px #00e5ff55, 0 0 40px #00e5ff22;
+  --plt-glow-profit: 0 0 8px #ffd700cc, 0 0 24px #ffd70055, 0 0 48px #ffd70022;
+  --plt-glow-love:   0 0 8px #c084fccc, 0 0 24px #c084fc55, 0 0 48px #c084fc22;
+  --plt-glow-tax:    0 0 8px #ff1744cc, 0 0 24px #ff174455, 0 0 48px #ff174422;
+  --plt-glow-energy: 0 0 6px #00ff41cc, 0 0 20px #00ff4155;
+
+  --plt-depth-2: 0 4px 16px rgba(0,229,255,0.08), 0 8px 32px rgba(0,0,0,0.8);
+  --plt-depth-3: 0 0 0 1px rgba(0,229,255,0.15), 0 8px 40px rgba(0,0,0,0.9), 0 0 80px rgba(0,229,255,0.04);
+}
+
+/* ── BODY — ANIMATED GRADIENT BACKGROUND ────────────────────────────────── */
+body.plt-enhanced {
+  background:
+    radial-gradient(ellipse 120% 60% at 10% 0%,   rgba(0,229,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 80%  80% at 90% 100%,  rgba(255,0,255,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 60%  40% at 50% 50%,   rgba(0,0,0,0.6) 0%, transparent 100%),
+    #010306;
+}
+
+/* ── GRID OVERLAY ────────────────────────────────────────────────────────── */
+body.plt-enhanced #app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  animation: plt-grid-pulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes plt-grid-pulse {
+  0%   { opacity: 0.6; }
+  100% { opacity: 1.0; }
+}
+
+/* ── HEADER ENHANCEMENT ──────────────────────────────────────────────────── */
+body.plt-enhanced header {
+  background: linear-gradient(
+    90deg,
+    rgba(1,3,6,0.97) 0%,
+    rgba(7,18,32,0.98) 35%,
+    rgba(10,24,48,0.98) 65%,
+    rgba(1,3,6,0.97) 100%
+  );
+  border-bottom: 1px solid rgba(0,229,255,0.5);
+  box-shadow:
+    0 0 30px rgba(0,229,255,0.2),
+    0 4px 20px rgba(0,0,0,0.8),
+    inset 0 -1px 0 rgba(0,229,255,0.6),
+    inset 0 1px 0 rgba(0,229,255,0.1);
+}
+
+body.plt-enhanced .hdr-logo {
+  text-shadow: var(--plt-glow-core);
+  letter-spacing: 6px;
+}
+
+body.plt-enhanced .hdr-sub {
+  text-shadow: var(--plt-glow-love);
+  letter-spacing: 4px;
+}
+
+/* ── ECONOMY BAR ENHANCEMENT ─────────────────────────────────────────────── */
+body.plt-enhanced .eco-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(1,3,6,0.96) 0%,
+    rgba(4,12,20,0.97) 50%,
+    rgba(1,3,6,0.96) 100%
+  );
+  border-bottom: 1px solid rgba(0,229,255,0.2);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.6);
+}
+
+body.plt-enhanced .eco-stat:hover {
+  background: rgba(0,229,255,0.06);
+  box-shadow: inset 0 0 20px rgba(0,229,255,0.04);
+}
+
+body.plt-enhanced .eco-stat.nsv {
+  position: relative;
+}
+
+body.plt-enhanced .eco-stat.nsv::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-left: 2px solid rgba(255,215,0,0.6);
+  border-right: 2px solid rgba(255,215,0,0.6);
+  pointer-events: none;
+  animation: plt-nsv-pulse 2s ease-in-out infinite;
+}
+
+@keyframes plt-nsv-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1.0; }
+}
+
+body.plt-enhanced .eco-stat.nsv .eco-val {
+  text-shadow: var(--plt-glow-profit);
+  animation: plt-nsv-counter 3s ease-in-out infinite alternate;
+}
+
+@keyframes plt-nsv-counter {
+  0%   { text-shadow: var(--plt-glow-profit); }
+  100% { text-shadow: 0 0 16px #ffd700ff, 0 0 40px #ffd70088, 0 0 80px #ffd70033; }
+}
+
+body.plt-enhanced .eco-val {
+  text-shadow: var(--plt-glow-core);
+}
+
+/* ── PLT MODULE VISUAL: PROFIT / LOVE / TAX ──────────────────────────────── */
+
+/* Profit → gold + blue energy ring */
+body.plt-enhanced .plt-profit-node {
+  color: var(--plt-profit) !important;
+  text-shadow: var(--plt-glow-profit) !important;
+  position: relative;
+}
+body.plt-enhanced .plt-profit-node::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,215,0,0.4);
+  box-shadow: 0 0 12px rgba(255,215,0,0.2), inset 0 0 12px rgba(0,229,255,0.04);
+  animation: plt-profit-ring 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes plt-profit-ring {
+  0%, 100% { border-color: rgba(255,215,0,0.3); box-shadow: 0 0 8px rgba(255,215,0,0.15); }
+  50%       { border-color: rgba(255,215,0,0.7); box-shadow: 0 0 20px rgba(255,215,0,0.35), inset 0 0 20px rgba(0,229,255,0.06); }
+}
+
+/* Love → violet + resonance glow */
+body.plt-enhanced .plt-love-node {
+  color: var(--plt-love) !important;
+  text-shadow: var(--plt-glow-love) !important;
+  position: relative;
+}
+body.plt-enhanced .plt-love-node::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 3px;
+  border: 1px solid rgba(192,132,252,0.4);
+  animation: plt-love-ring 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes plt-love-ring {
+  0%   { box-shadow: 0 0 8px rgba(192,132,252,0.2); border-color: rgba(192,132,252,0.3); }
+  33%  { box-shadow: 0 0 20px rgba(192,132,252,0.45); border-color: rgba(192,132,252,0.7); }
+  66%  { box-shadow: 0 0 14px rgba(255,0,255,0.3); border-color: rgba(255,0,255,0.5); }
+  100% { box-shadow: 0 0 8px rgba(192,132,252,0.2); border-color: rgba(192,132,252,0.3); }
+}
+
+/* Tax → red + pressure pulse */
+body.plt-enhanced .plt-tax-node {
+  color: var(--plt-tax) !important;
+  text-shadow: var(--plt-glow-tax) !important;
+  position: relative;
+}
+body.plt-enhanced .plt-tax-node::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,23,68,0.4);
+  animation: plt-tax-pulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes plt-tax-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,23,68,0.2); border-color: rgba(255,23,68,0.3); }
+  50%       { box-shadow: 0 0 18px rgba(255,23,68,0.5); border-color: rgba(255,23,68,0.8); }
+}
+
+/* ── PANEL ENHANCEMENT ───────────────────────────────────────────────────── */
+body.plt-enhanced .panel {
+  background: linear-gradient(
+    135deg,
+    rgba(10,26,42,0.9) 0%,
+    rgba(4,12,20,0.95) 100%
+  );
+  border-color: rgba(13,40,64,0.8);
+  box-shadow: var(--plt-depth-2);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+body.plt-enhanced .panel:hover {
+  border-color: rgba(0,229,255,0.2);
+  box-shadow:
+    0 0 0 1px rgba(0,229,255,0.1),
+    0 8px 40px rgba(0,0,0,0.9),
+    0 0 60px rgba(0,229,255,0.04);
+}
+
+/* Stronger corner brackets */
+body.plt-enhanced .panel::before {
+  width: 16px; height: 16px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+body.plt-enhanced .panel::after {
+  width: 16px; height: 16px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+/* Animated top edge highlight — injected by visual-upgrade.js */
+body.plt-enhanced .panel .plt-edge-top {
+  position: absolute;
+  top: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,229,255,0.5) 30%,
+    rgba(0,229,255,0.8) 50%,
+    rgba(0,229,255,0.5) 70%,
+    transparent 100%
+  );
+  animation: plt-edge-scan 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes plt-edge-scan {
+  0%   { opacity: 0.4; transform: scaleX(0.8); }
+  50%  { opacity: 1.0; transform: scaleX(1.0); }
+  100% { opacity: 0.4; transform: scaleX(0.8); }
+}
+
+body.plt-enhanced .panel.accent-m .plt-edge-top {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,0,255,0.5) 30%,
+    rgba(255,0,255,0.8) 50%,
+    rgba(255,0,255,0.5) 70%,
+    transparent 100%
+  );
+}
+
+body.plt-enhanced .panel.accent-gold .plt-edge-top {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,215,0,0.5) 30%,
+    rgba(255,215,0,0.8) 50%,
+    rgba(255,215,0,0.5) 70%,
+    transparent 100%
+  );
+}
+
+body.plt-enhanced .panel.accent-g .plt-edge-top {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,255,65,0.5) 30%,
+    rgba(0,255,65,0.8) 50%,
+    rgba(0,255,65,0.5) 70%,
+    transparent 100%
+  );
+}
+
+/* ── PANEL HEADING ───────────────────────────────────────────────────────── */
+body.plt-enhanced .panel h2 {
+  letter-spacing: 4px;
+  text-shadow: var(--plt-glow-core);
+  padding-bottom: 10px;
+  position: relative;
+}
+body.plt-enhanced .panel h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0,229,255,0.6), transparent);
+}
+body.plt-enhanced .panel.accent-m h2 {
+  text-shadow: var(--plt-glow-love);
+}
+body.plt-enhanced .panel.accent-m h2::after {
+  background: linear-gradient(90deg, rgba(255,0,255,0.6), transparent);
+}
+body.plt-enhanced .panel.accent-gold h2 {
+  text-shadow: var(--plt-glow-profit);
+}
+body.plt-enhanced .panel.accent-gold h2::after {
+  background: linear-gradient(90deg, rgba(255,215,0,0.6), transparent);
+}
+body.plt-enhanced .panel.accent-g h2 {
+  text-shadow: var(--plt-glow-energy);
+}
+body.plt-enhanced .panel.accent-g h2::after {
+  background: linear-gradient(90deg, rgba(0,255,65,0.6), transparent);
+}
+
+/* ── BOT CARDS ───────────────────────────────────────────────────────────── */
+body.plt-enhanced .bot-card {
+  background: rgba(0,0,0,0.5);
+  transition: all 0.25s;
+}
+body.plt-enhanced .bot-card:hover {
+  background: rgba(0,229,255,0.05);
+  border-color: rgba(0,229,255,0.3);
+  box-shadow: 0 0 20px rgba(0,229,255,0.08), inset 0 0 20px rgba(0,229,255,0.03);
+  transform: translateY(-1px);
+}
+body.plt-enhanced .bot-card.active {
+  box-shadow: 0 0 12px rgba(0,255,65,0.1), inset 0 0 0 0.5px rgba(0,255,65,0.15);
+}
+body.plt-enhanced .bot-nsv {
+  text-shadow: var(--plt-glow-core);
+}
+
+/* ── LEADERBOARD ─────────────────────────────────────────────────────────── */
+body.plt-enhanced .lb-row {
+  background: rgba(0,0,0,0.4);
+  transition: all 0.2s;
+}
+body.plt-enhanced .lb-row:hover {
+  background: rgba(0,229,255,0.04);
+  box-shadow: 0 0 20px rgba(0,229,255,0.06);
+  transform: translateX(2px);
+}
+body.plt-enhanced .lb-row.top1 {
+  background: rgba(255,215,0,0.04);
+  box-shadow: 0 0 24px rgba(255,215,0,0.08), inset 0 0 0 0.5px rgba(255,215,0,0.1);
+}
+body.plt-enhanced .lb-nsv {
+  text-shadow: var(--plt-glow-profit);
+}
+
+/* ── TASK ITEMS ──────────────────────────────────────────────────────────── */
+body.plt-enhanced .task-item {
+  background: rgba(0,0,0,0.4);
+  transition: all 0.2s;
+}
+body.plt-enhanced .task-item:hover {
+  background: rgba(255,0,255,0.04);
+  border-color: rgba(255,0,255,0.3);
+  box-shadow: 0 0 16px rgba(255,0,255,0.06);
+}
+
+/* ── INPUTS & TEXTAREAS ──────────────────────────────────────────────────── */
+body.plt-enhanced .hud-textarea,
+body.plt-enhanced .hud-input {
+  background: rgba(0,0,0,0.6);
+  border-color: rgba(13,40,64,0.8);
+}
+body.plt-enhanced .hud-textarea:focus,
+body.plt-enhanced .hud-input:focus {
+  border-color: rgba(0,229,255,0.5);
+  box-shadow:
+    0 0 0 1px rgba(0,229,255,0.15),
+    inset 0 0 16px rgba(0,229,255,0.04),
+    0 0 20px rgba(0,229,255,0.06);
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────────── */
+body.plt-enhanced .btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+body.plt-enhanced .btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 100%
+  );
+  transition: left 0.4s;
+  pointer-events: none;
+}
+body.plt-enhanced .btn:hover::after {
+  left: 150%;
+}
+body.plt-enhanced .btn:hover {
+  filter: brightness(1.4);
+  box-shadow: 0 0 16px currentColor, 0 2px 8px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+
+/* ── SCAN TICKER ─────────────────────────────────────────────────────────── */
+body.plt-enhanced .scan-ticker {
+  background: rgba(1,3,6,0.95);
+  border-bottom: 1px solid rgba(13,40,64,0.8);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+}
+body.plt-enhanced .t-phase.active {
+  box-shadow: 0 0 12px rgba(0,229,255,0.4), inset 0 0 8px rgba(0,229,255,0.08);
+}
+body.plt-enhanced .t-phase.done {
+  box-shadow: 0 0 8px rgba(0,255,65,0.2);
+}
+
+/* ── RADAR ───────────────────────────────────────────────────────────────── */
+body.plt-enhanced .radar {
+  box-shadow: 0 0 20px rgba(0,229,255,0.15), inset 0 0 20px rgba(0,229,255,0.05);
+  border-color: rgba(0,229,255,0.3);
+}
+body.plt-enhanced .radar::before,
+body.plt-enhanced .radar::after {
+  border-color: rgba(0,229,255,0.15);
+}
+
+/* ── HEALTH BAR ──────────────────────────────────────────────────────────── */
+body.plt-enhanced .health-fill {
+  background: linear-gradient(90deg, var(--plt-core), var(--plt-energy));
+  box-shadow: 0 0 10px var(--plt-energy), 0 0 20px rgba(0,229,255,0.3);
+}
+
+/* ── LEDGER FEED ─────────────────────────────────────────────────────────── */
+body.plt-enhanced .ledger-feed {
+  background: rgba(0,0,0,0.6);
+}
+body.plt-enhanced .ledger-line {
+  border-color: rgba(13,40,64,0.5);
+  transition: background 0.15s;
+}
+body.plt-enhanced .ledger-line:hover {
+  background: rgba(0,229,255,0.03);
+}
+
+/* ── SCROLLBARS ──────────────────────────────────────────────────────────── */
+body.plt-enhanced ::-webkit-scrollbar-thumb {
+  background: rgba(0,229,255,0.2);
+}
+body.plt-enhanced ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,229,255,0.4);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+body.plt-enhanced footer {
+  border-top-color: rgba(0,229,255,0.15);
+  background: rgba(1,3,6,0.8);
+}
+
+/* ── SIGNAL BANNER ───────────────────────────────────────────────────────── */
+body.plt-enhanced .signal-banner.visible {
+  box-shadow: 0 0 40px rgba(255,23,68,0.3), inset 0 0 40px rgba(255,23,68,0.1);
+}
+
+/* ── PLT UTILITY CLASSES (used by visual-upgrade.js) ─────────────────────── */
+body.plt-enhanced .plt-hud { position: relative; }
+
+body.plt-enhanced .plt-glass {
+  background: rgba(7,18,32,0.8) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body.plt-enhanced .plt-glow {
+  box-shadow: var(--plt-glow-core) !important;
+}
+
+body.plt-enhanced .plt-depth {
+  box-shadow: var(--plt-depth-3) !important;
+}
+
+body.plt-enhanced .plt-energy {
+  animation: plt-energy-pulse 2s ease-in-out infinite !important;
+}
+@keyframes plt-energy-pulse {
+  0%, 100% { filter: brightness(1.0); }
+  50%       { filter: brightness(1.25) saturate(1.3); }
+}
+
+body.plt-enhanced .plt-scan {
+  position: relative;
+  overflow: hidden;
+}
+body.plt-enhanced .plt-scan::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0,229,255,0.6) 30%,
+    rgba(0,229,255,0.9) 50%,
+    rgba(0,229,255,0.6) 70%,
+    transparent 100%
+  );
+  animation: plt-scan-line 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes plt-scan-line {
+  0%   { top: -2px; }
+  100% { top: 100%; }
+}
+
+body.plt-enhanced .plt-node {
+  border-radius: 3px;
+  padding: 2px 6px;
+  background: rgba(0,229,255,0.06);
+  border: 1px solid rgba(0,229,255,0.15);
+}
+
+/* ── PARTICLE LAYER (CSS-only, zero JS overhead) ─────────────────────────── */
+body.plt-enhanced #app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 15% 25%,  rgba(0,229,255,0.35) 0%, transparent 100%),
+    radial-gradient(2px 2px at 30% 70%,  rgba(255,0,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 15%,  rgba(0,229,255,0.3)  0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 50%,  rgba(255,215,0,0.2)  0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 80%,  rgba(0,255,65,0.3)   0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 88%,  rgba(0,229,255,0.25) 0%, transparent 100%),
+    radial-gradient(2px 2px at 92% 30%,  rgba(255,0,255,0.2)  0%, transparent 100%),
+    radial-gradient(1px 1px at 5%  60%,  rgba(0,229,255,0.2)  0%, transparent 100%),
+    radial-gradient(2px 2px at 78% 12%,  rgba(0,229,255,0.3)  0%, transparent 100%);
+  animation: plt-particles 20s linear infinite alternate;
+  opacity: 0.7;
+}
+@keyframes plt-particles {
+  0%   { transform: translateY(0px);   opacity: 0.7; }
+  100% { transform: translateY(-20px); opacity: 0.5; }
+}
+
+/* ── CINEMATIC VIGNETTE ──────────────────────────────────────────────────── */
+body.plt-enhanced #app > .plt-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    transparent 40%,
+    rgba(1,3,6,0.3) 70%,
+    rgba(1,3,6,0.7) 100%
+  );
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  body.plt-enhanced #app::before,
+  body.plt-enhanced #app::after {
+    opacity: 0.4;
+  }
+  body.plt-enhanced .panel:hover,
+  body.plt-enhanced .bot-card:hover,
+  body.plt-enhanced .lb-row:hover {
+    transform: none;
+  }
+}
+
+/* ── REDUCED MOTION ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body.plt-enhanced * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
