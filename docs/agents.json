@@ -7,6 +7,10 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Profit"
+    "capabilities": ["orchestrate", "route-commands", "report-health", "generate-state"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
   },
   {
     "id": "deerg",
@@ -16,6 +20,10 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Deerg"
+    "capabilities": ["build-pages", "update-library", "scan-ecosystem", "index-content"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
   },
   {
     "id": "betty",
@@ -25,6 +33,10 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Betty"
+    "capabilities": ["track-credits", "revenue-alerts", "financial-summary", "cashflow-check"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
   },
   {
     "id": "teacher",
@@ -34,5 +46,9 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Teacher"
+    "capabilities": ["extract-lessons", "find-margins", "action-items", "knowledge-base"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
   }
 ]

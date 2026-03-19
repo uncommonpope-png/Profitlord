@@ -29,6 +29,23 @@ jobs:
           SITE_NAME: Profitlord
           SITE_DESCRIPTION: "Profitlord — profit tracking, business scoring, and the PLT mindset."
 
+      - name: Update state.json and ledger.jsonl
+        run: node scripts/update-state.js
+        env:
+          SITE_URL: https://uncommonpope-png.github.io/Profitlord
+          OUTPUT_DIR: docs
+
+      - name: Consume command queue (if any pending)
+        run: node scripts/consume-queue.js
+        env:
+          OUTPUT_DIR: docs
+
+      - name: Validate build output
+        run: node scripts/validate.js
+        env:
+          SITE_URL: https://uncommonpope-png.github.io/Profitlord
+          OUTPUT_DIR: docs
+
       - name: Commit generated /docs (if changed)
         run: |
           git config user.name "nreal-bot"
