@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>nreal console — Profitlord</title>
+  <meta name="description" content="Profitlord nreal system console: live state, ledger events, and souls registry." />
+  <link rel="canonical" href="https://uncommonpope-png.github.io/Profitlord/nreal.html" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --panel: #111118;
+      --border: #1e1e30;
+      --accent: #00e5ff;
+      --green: #00ff88;
+      --yellow: #ffcc00;
+      --red: #ff4466;
+      --muted: #666680;
+      --text: #ccd6f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 16px;
+    }
+    h1 { color: var(--accent); margin: 0 0 4px; font-size: 22px; letter-spacing: 2px; }
+    .subtitle { color: var(--muted); font-size: 12px; margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .panel h2 {
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: 1px;
+      margin: 0 0 12px;
+      text-transform: uppercase;
+    }
+    .health-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .health-bar {
+      flex: 1;
+      height: 8px;
+      background: #222;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .health-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--green);
+      transition: width .4s;
+    }
+    .kv { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; }
+    .kv .k { color: var(--muted); }
+    .kv .v { color: var(--text); }
+    .soul {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .soul:last-child { border-bottom: none; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
+    }
+    .dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot.stale  { background: var(--yellow); }
+    .dot.offline { background: var(--red); }
+    .soul-name { color: var(--accent); font-weight: bold; min-width: 70px; }
+    .soul-caps { color: var(--muted); font-size: 11px; }
+    .ledger-list { list-style: none; margin: 0; padding: 0; }
+    .ledger-list li {
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .ledger-list li:last-child { border-bottom: none; }
+    .event-ts { color: var(--muted); }
+    .event-type {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #1a1a2e;
+      color: var(--accent);
+      font-size: 10px;
+      margin: 0 4px;
+    }
+    .event-summary { color: var(--text); }
+    .nav { font-size: 12px; margin-bottom: 16px; }
+    .nav a { color: var(--accent); margin-right: 14px; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    .status-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 6px;
+    }
+    .badge-ok    { background: #002a1a; color: var(--green); }
+    .badge-warn  { background: #2a2200; color: var(--yellow); }
+    .badge-error { background: #2a0010; color: var(--red); }
+    #error-msg { color: var(--red); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<h1>⚡ nreal console</h1>
+<p class="subtitle">Profitlord system monitor — live state, ledger, souls</p>
+
+<nav class="nav">
+  <a href="index.html">Home</a>
+  <a href="sitemap.xml">Sitemap</a>
+  <a href="robots.txt">Robots</a>
+  <a href="agents.json">Agents</a>
+  <a href="state.json">State JSON</a>
+  <a href="ledger.jsonl">Ledger JSONL</a>
+</nav>
+
+<div id="error-msg"></div>
+
+<div class="grid">
+
+  <!-- State panel -->
+  <div class="panel" id="state-panel">
+    <h2>System State</h2>
+    <div id="state-loading" style="color:var(--muted);font-size:12px;">Loading state.json…</div>
+    <div id="state-content" style="display:none">
+      <div class="health-bar-wrap">
+        <span style="font-size:12px;color:var(--muted)">Health</span>
+        <div class="health-bar"><div class="health-bar-fill" id="health-fill" style="width:0%"></div></div>
+        <span id="health-val" style="font-size:12px;color:var(--green)">—</span>
+        <span id="health-badge" class="status-badge"></span>
+      </div>
+      <div class="kv"><span class="k">Updated</span><span class="v" id="s-updated">—</span></div>
+      <div class="kv"><span class="k">Current Task</span><span class="v" id="s-task">—</span></div>
+      <div class="kv"><span class="k">Pages Total</span><span class="v" id="s-pages">—</span></div>
+      <div class="kv"><span class="k">Site URL</span><span class="v" id="s-url">—</span></div>
+    </div>
+  </div>
+
+  <!-- Souls panel -->
+  <div class="panel" id="souls-panel">
+    <h2>Souls Registry</h2>
+    <div id="souls-loading" style="color:var(--muted);font-size:12px;">Loading…</div>
+    <div id="souls-list"></div>
+  </div>
+
+  <!-- Ledger panel (full width) -->
+  <div class="panel" style="grid-column: 1 / -1;">
+    <h2>Recent Ledger Events</h2>
+    <div id="ledger-loading" style="color:var(--muted);font-size:12px;">Loading ledger.jsonl…</div>
+    <ul class="ledger-list" id="ledger-list" style="display:none"></ul>
+  </div>
+
+</div>
+
+<script>
+  const BASE = (function () {
+    // Use same origin so relative paths work on GitHub Pages
+    return '';
+  })();
+  const LEDGER_LINES = 20;
+
+  function relTime(iso) {
+    const diff = Date.now() - new Date(iso).getTime();
+    const s = Math.floor(diff / 1000);
+    if (s < 60)   return `${s}s ago`;
+    if (s < 3600) return `${Math.floor(s/60)}m ago`;
+    if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+    return `${Math.floor(s/86400)}d ago`;
+  }
+
+  function healthClass(h) {
+    if (h >= 80) return 'badge-ok';
+    if (h >= 40) return 'badge-warn';
+    return 'badge-error';
+  }
+
+  // ── Load state.json ──────────────────────────────────────────────────────
+  fetch('state.json?t=' + Date.now())
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((state) => {
+      document.getElementById('state-loading').style.display = 'none';
+      document.getElementById('state-content').style.display = 'block';
+
+      const health = typeof state.health === 'number' ? state.health : 100;
+      document.getElementById('health-fill').style.width = health + '%';
+      document.getElementById('health-fill').style.background =
+        health >= 80 ? 'var(--green)' : health >= 40 ? 'var(--yellow)' : 'var(--red)';
+      document.getElementById('health-val').textContent = health + '%';
+      const badge = document.getElementById('health-badge');
+      badge.className = 'status-badge ' + healthClass(health);
+      badge.textContent = health >= 80 ? 'OK' : health >= 40 ? 'WARN' : 'ERROR';
+
+      document.getElementById('s-updated').textContent =
+        state.updated_at ? relTime(state.updated_at) + ' (' + state.updated_at + ')' : '—';
+      document.getElementById('s-task').textContent = state.current_task || '—';
+      document.getElementById('s-pages').textContent = state.pages_total || '—';
+      document.getElementById('s-url').textContent = state.site_url || '—';
+
+      // Render souls
+      const soulsEl = document.getElementById('souls-list');
+      document.getElementById('souls-loading').style.display = 'none';
+      const souls = Array.isArray(state.souls) ? state.souls : [];
+      if (souls.length === 0) {
+        soulsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No souls registered.</div>';
+      } else {
+        soulsEl.innerHTML = souls.map((s) => `
+          <div class="soul">
+            <div class="dot ${s.status || 'offline'}"></div>
+            <span class="soul-name">${s.name || s.id}</span>
+            <span class="soul-caps">${(s.capabilities || []).join(', ')}</span>
+            <span style="margin-left:auto;color:var(--muted);font-size:10px">${s.last_seen ? relTime(s.last_seen) : 'never'}</span>
+          </div>`).join('');
+      }
+    })
+    .catch((err) => {
+      document.getElementById('state-loading').textContent = 'Failed to load state.json: ' + err.message;
+      document.getElementById('souls-loading').textContent = 'State unavailable.';
+    });
+
+  // ── Load ledger.jsonl ────────────────────────────────────────────────────
+  fetch('ledger.jsonl?t=' + Date.now())
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then((text) => {
+      const lines = text.trim().split('\n').filter(Boolean).reverse().slice(0, LEDGER_LINES);
+      const events = lines.map((l) => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
+
+      document.getElementById('ledger-loading').style.display = 'none';
+      const list = document.getElementById('ledger-list');
+      list.style.display = 'block';
+
+      if (events.length === 0) {
+        list.innerHTML = '<li style="color:var(--muted)">No ledger events yet.</li>';
+      } else {
+        list.innerHTML = events.map((ev) => `
+          <li>
+            <span class="event-ts">${ev.ts ? relTime(ev.ts) : ''}</span>
+            <span class="event-type">${ev.type || 'unknown'}</span>
+            <span class="event-summary">${ev.summary || ''}</span>
+          </li>`).join('');
+      }
+    })
+    .catch((err) => {
+      document.getElementById('ledger-loading').textContent = 'Failed to load ledger.jsonl: ' + err.message;
+    });
+</script>
+</body>
+</html>
