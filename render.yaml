@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: profitlord-server
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: echo "no build step"
+    startCommand: node index.js
+    envVars:
+      - key: GH_OWNER
+        value: uncommonpope-png
+      - key: GH_REPO
+        value: Profitlord
+      - key: GH_BRANCH
+        value: main
+      - key: GH_TOKEN
+        sync: false
