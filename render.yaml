@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: plt-server
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: GH_OWNER
+        value: uncommonpope-png
+      - key: GH_REPO
+        value: Profitlord
+      - key: GH_BRANCH
+        value: main
+      - key: GH_TOKEN
+        sync: false
