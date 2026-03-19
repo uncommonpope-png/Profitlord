@@ -1,15 +1,10 @@
 services:
   - type: web
-    name: plt-server
-    env: node
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
     name: profitlord-server
     env: node
     plan: free
     rootDir: server
-    buildCommand: echo "no build step"
+    buildCommand: npm install
     startCommand: node index.js
     envVars:
       - key: GH_OWNER
@@ -20,3 +15,14 @@ services:
         value: main
       - key: GH_TOKEN
         sync: false
+      - key: REDIS_URL
+        fromService:
+          name: profitlord-redis
+          type: redis
+          property: connectionString
+
+databases:
+  - type: redis
+    name: profitlord-redis
+    plan: free
+    ipAllowList: []
