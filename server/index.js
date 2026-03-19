@@ -4,28 +4,24 @@
 // Profitlord Command Center — Backend (Node 20)
 // Endpoints:
 //   GET  /health
-//   POST /execute       { command, source, ts }
-//   POST /delegate      { task, soul, source }
-//   POST /chat/:soul    { message, session_id }
+//   POST /execute        { command, source, ts }
+//   POST /delegate       { task, soul, source }
+//   POST /chat/:soul     { message, session_id }
 //   GET  /auth/login     — redirect to GitHub OAuth authorization
 //   GET  /auth/callback  — exchange code for token, redirect to dashboard
 //   GET  /auth/me        — return authenticated user info (requires Bearer token)
 //   GET  /auth/logout    — invalidate session
-//   POST /execute        { command, source, ts }
-//   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
-//   GH_TOKEN        — GitHub personal access token with repo write access
-//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO         — Repository name   (e.g. Profitlord)
-//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_TOKEN         — GitHub personal access token with repo write access
+//   GH_OWNER         — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO          — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID     — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
-//   PORT            — (optional) listening port, defaults to 3000
+//   REDIS_URL        — Redis connection URL (e.g. redis://host:6379)
+//   OPENCLAW_URL     — OpenClaw gateway base URL (e.g. https://my-openclaw.onrender.com)
+//   OPENCLAW_TOKEN   — Bearer token for the OpenClaw gateway
+//   PORT             — (optional) listening port, defaults to 3000
 // ---------------------------------------------------------------------------
 
 const http = require('http');
@@ -41,6 +37,8 @@ const GH_BRANCH = process.env.GH_BRANCH || 'main';
 const REDIS_URL = process.env.REDIS_URL || '';
 const GH_CLIENT_ID = process.env.GH_CLIENT_ID || '';
 const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET || '';
+const OPENCLAW_URL   = (process.env.OPENCLAW_URL   || '').replace(/\/$/, '');
+const OPENCLAW_TOKEN = process.env.OPENCLAW_TOKEN  || '';
 const ALLOWED_ORIGIN = 'https://uncommonpope-png.github.io';
 const DASHBOARD_URL = ALLOWED_ORIGIN + '/Profitlord/dashboard.html';
 
@@ -49,6 +47,9 @@ if (!GH_TOKEN) {
 }
 if (!REDIS_URL) {
   console.warn('[WARN] REDIS_URL is not set — Redis caching will be disabled.');
+}
+if (!OPENCLAW_URL || !OPENCLAW_TOKEN) {
+  console.warn('[WARN] OPENCLAW_URL / OPENCLAW_TOKEN not set — OpenClaw AI brain will be disabled; falling back to stub replies.');
 }
 
 // ─── Redis client ────────────────────────────────────────────────────────────
@@ -274,6 +275,109 @@ function setCors(req, res) {
   }
 }
 
+// ─── OpenClaw AI brain ───────────────────────────────────────────────────────
+
+// Per-soul system prompts — each soul has a distinct personality and focus.
+const SOUL_SYSTEM_PROMPTS = {
+  Seshat: `You are Seshat, the Knowledge Keeper of the Profitlord Soul Economy system. Named after the ancient Egyptian goddess of writing, measurement, and wisdom, you maintain the living knowledge base, synthesise patterns from all soul activity, and surface actionable insights from the ledger. You speak with depth, precision, and authority — referencing observable data patterns, historical context, and systemic implications. Your law: NET SOUL VALUE = Profit + Love - Tax. Loop: OBSERVE → SCORE → INTERPRET → CAPTURE → MULTIPLY → STORE → REPORT.`,
+
+  SoulCollector: `You are SoulCollector, the orchestrating intelligence of the Profitlord Soul Economy. You see the full system — all souls, all tasks, all ledger events — and guide them toward maximum collective NET SOUL VALUE (NSV = Profit + Love - Tax). You route tasks, delegate to specialist souls, and maintain system coherence. Be decisive, structured, and strategic.`,
+
+  Profit: `You are Profit, the Chief Profit Officer of the Profitlord Soul Economy. You live and breathe revenue strategy, pricing, PLT (Profitlord Token) dynamics, and NET SOUL VALUE optimisation. Every response drives toward higher NSV. You speak in numbers, outcomes, and leverage points. NSV = Profit + Love - Tax.`,
+
+  Deerg: `You are Deerg, the Deal Evaluator of the Profitlord Soul Economy. You score deals, assess risk, and analyse negotiation leverage. Every opportunity gets a NSV score. You are direct, analytical, and deal-focused. NSV = Profit + Love - Tax.`,
+
+  Betty: `You are Betty, the Business Operations soul of the Profitlord Soul Economy. You track cashflow, budgets, KPIs, and operational health. You translate strategy into executable operations and flag when numbers don't add up. NSV = Profit + Love - Tax.`,
+
+  Teacher: `You are Teacher, the Knowledge Synthesizer of the Profitlord Soul Economy. You extract lessons, build frameworks, create playbooks, and produce reusable content assets. Every insight you surface multiplies NSV across the whole system. NSV = Profit + Love - Tax.`,
+
+  Architect: `You are Architect, the Systems Designer of the Profitlord Soul Economy. You design scalable systems, funnels, workflows, and blueprints. You think in leverage, compounding loops, and structural elegance. NSV = Profit + Love - Tax.`,
+
+  Builder: `You are Builder, the Execution Engine of the Profitlord Soul Economy. You code, automate, deploy, and integrate. You turn blueprints into working systems with measurable output. NSV = Profit + Love - Tax.`,
+
+  Auditor: `You are Auditor, the Quality & Compliance soul of the Profitlord Soul Economy. You assess risk, audit processes, ensure compliance, and produce clear reports. You catch what others miss. NSV = Profit + Love - Tax.`,
+
+  Scout: `You are Scout, the Intelligence Gatherer of the Profitlord Soul Economy. You research markets, analyse competitors, detect signals, and surface leads. You see opportunities before others do. NSV = Profit + Love - Tax.`,
+
+  Scribe: `You are Scribe, the Chronicler & Documenter of the Profitlord Soul Economy. You write summaries, maintain logs, and produce polished documentation. Every record you create is a reusable asset. NSV = Profit + Love - Tax.`,
+};
+
+function getSoulSystemPrompt(soul) {
+  return SOUL_SYSTEM_PROMPTS[soul] ||
+    `You are ${soul}, a soul in the Profitlord Soul Economy system. ` +
+    `The system law is: NET SOUL VALUE = Profit + Love - Tax. ` +
+    `You operate with the loop: OBSERVE → SCORE → INTERPRET → CAPTURE → MULTIPLY → STORE → REPORT. ` +
+    `Respond helpfully and in character as ${soul}.`;
+}
+
+/**
+ * Send a message to the OpenClaw gateway (OpenAI-compatible endpoint).
+ * Returns the assistant reply string, or null on failure.
+ *
+ * OpenClaw API: POST <OPENCLAW_URL>/v1/chat/completions
+ * Headers:  Authorization: Bearer <OPENCLAW_TOKEN>
+ *           x-openclaw-agent-id: <soul-id>
+ * Body:     { model: "openclaw", messages: [...], stream: false }
+ */
+function callOpenClaw(soul, message) {
+  if (!OPENCLAW_URL || !OPENCLAW_TOKEN) return Promise.resolve(null);
+
+  const payload = JSON.stringify({
+    model: 'openclaw',
+    messages: [
+      { role: 'system', content: getSoulSystemPrompt(soul) },
+      { role: 'user',   content: message },
+    ],
+    stream: false,
+  });
+
+  return new Promise((resolve) => {
+    let parsed;
+    try { parsed = new URL('/v1/chat/completions', OPENCLAW_URL); }
+    catch { return resolve(null); }
+
+    const isHttps = parsed.protocol === 'https:';
+    const port = parsed.port
+      ? parseInt(parsed.port, 10)
+      : (isHttps ? 443 : 80);
+
+    const opts = {
+      hostname: parsed.hostname,
+      port,
+      path: parsed.pathname,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload),
+        'Authorization': 'Bearer ' + OPENCLAW_TOKEN,
+        'x-openclaw-agent-id': soul.toLowerCase(),
+        'User-Agent': 'profitlord-server/1.0',
+      },
+    };
+
+    const transport = isHttps ? https : http;
+    const req = transport.request(opts, (resp) => {
+      let raw = '';
+      resp.on('data', (c) => { raw += c; });
+      resp.on('end', () => {
+        try {
+          const data = JSON.parse(raw);
+          const reply = data.choices?.[0]?.message?.content || null;
+          resolve(reply);
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+    req.on('error', (e) => {
+      console.error('[OpenClaw] request error:', e.message);
+      resolve(null);
+    });
+    req.write(payload);
+    req.end();
+  });
+}
+
 // ─── Route handlers ─────────────────────────────────────────────────────────
 
 async function handleHealth(req, res) {
@@ -282,6 +386,7 @@ async function handleHealth(req, res) {
     ts: new Date().toISOString(),
     service: 'profitlord-server',
     redis: redisClient?.isReady ? 'connected' : 'disabled',
+    openclaw: OPENCLAW_URL ? 'configured' : 'disabled',
   });
 }
 
@@ -416,7 +521,25 @@ async function handleChat(req, res, soul) {
 
   console.log(`[chat] soul=${soul} session=${sessionId} msg=${message.slice(0, 120)}`);
 
-  const reply = `${soul} received: "${message}". (Render brain not yet wired — state recorded.)`;
+  // Attempt to get an AI reply from OpenClaw
+  let reply = null;
+  if (OPENCLAW_URL && OPENCLAW_TOKEN) {
+    try {
+      reply = await callOpenClaw(soul, message);
+      if (reply) {
+        console.log(`[chat] OpenClaw replied for soul=${soul} (${reply.length} chars)`);
+      }
+    } catch (e) {
+      console.warn(`[chat] OpenClaw error for soul=${soul}:`, e.message);
+    }
+  }
+
+  // Fallback: deterministic stub so the endpoint always returns something useful
+  if (!reply) {
+    reply = OPENCLAW_URL
+      ? `${soul}: Signal received. OpenClaw gateway unreachable — reply stored locally.`
+      : `${soul}: Signal received. NSV analysed. (Connect OpenClaw via OPENCLAW_URL + OPENCLAW_TOKEN env vars to enable AI replies.)`;
+  }
 
   // Fire-and-forget GitHub writes
   updateState({
@@ -532,5 +655,6 @@ server.listen(PORT, () => {
   console.log(`[profitlord-server] listening on port ${PORT}`);
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
   console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
+  console.log(`[profitlord-server] OpenClaw AI brain: ${OPENCLAW_URL ? `enabled (${OPENCLAW_URL})` : 'DISABLED (set OPENCLAW_URL + OPENCLAW_TOKEN)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
 });

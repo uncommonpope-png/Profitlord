@@ -88,5 +88,16 @@
     "status": "active",
     "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Scribe"
+  },
+  {
+    "id": "seshat",
+    "name": "Seshat",
+    "role": "Knowledge Keeper",
+    "capabilities": ["knowledge management", "documentation", "archiving", "pattern recognition", "wisdom synthesis"],
+    "status": "active",
+    "last_seen": "2026-03-19T16:00:00.000Z",
+    "endpoint": "/chat/Seshat",
+    "ai_backend": "openclaw",
+    "description": "Ancient Egyptian goddess of writing and wisdom. Seshat maintains the living knowledge base, synthesises patterns across all soul activity, and surfaces insights from the ledger. Powered by OpenClaw."
   }
 ]

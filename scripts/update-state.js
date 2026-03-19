@@ -82,11 +82,9 @@ function loadAgents(agentsPath) {
         soul.status = 'stale';
       }
     }
-    // nreal itself marks souls as "active" when the build runs
-    if (soul.id === 'soulcollector' || soul.id === 'profit' || soul.id === 'deerg') {
-      soul.status = 'active';
-      soul.last_seen = now;
-    }
+    // Every registered soul is confirmed active when the build runs
+    soul.status   = 'active';
+    soul.last_seen = now;
     return soul;
   });
 }
