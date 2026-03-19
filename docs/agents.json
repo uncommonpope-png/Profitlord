@@ -1,0 +1,34 @@
+[
+  {
+    "id": "profit",
+    "name": "Profit",
+    "capabilities": ["orchestrate", "route-commands", "report-health", "generate-state"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
+  },
+  {
+    "id": "deerg",
+    "name": "Deerg",
+    "capabilities": ["build-pages", "update-library", "scan-ecosystem", "index-content"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
+  },
+  {
+    "id": "betty",
+    "name": "Betty",
+    "capabilities": ["track-credits", "revenue-alerts", "financial-summary", "cashflow-check"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
+  },
+  {
+    "id": "teacher",
+    "name": "Teacher",
+    "capabilities": ["extract-lessons", "find-margins", "action-items", "knowledge-base"],
+    "status": "active",
+    "last_seen": null,
+    "endpoint": null
+  }
+]
