@@ -33,6 +33,15 @@ function writeFile(filePath, content) {
   console.log(`  Written: ${filePath}`);
 }
 
+/** Escape special HTML characters to prevent broken markup when injecting values into attributes. */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // ---------------------------------------------------------------------------
 // 1. Generate robots.txt
 // ---------------------------------------------------------------------------
@@ -54,39 +63,52 @@ function generateRobotsTxt(outputDir, siteUrl) {
 //    Scans *.html files in outputDir and builds a <urlset> for each page.
 // ---------------------------------------------------------------------------
 
+/**
+ * Convert a file path relative to the output root into a URL path.
+ * e.g. "about/index.html" -> "/about/"  |  "index.html" -> "/"
+ */
+function toUrlPath(relativeFilePath) {
+  const normalized = relativeFilePath.replace(/\\/g, '/');
+  const withoutIndex = normalized.replace(/index\.html$/, '');
+  return '/' + withoutIndex;
+}
+
+/**
+ * Recursively collect all *.html file paths (relative to `base`) under `dir`.
+ */
 function collectHtmlFiles(dir, base) {
-  const urls = [];
-  if (!fs.existsSync(dir)) return urls;
+  const files = [];
+  if (!fs.existsSync(dir)) return files;
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    const rel = path.relative(base, full);
-
     if (entry.isDirectory()) {
-      urls.push(...collectHtmlFiles(full, base));
+      files.push(...collectHtmlFiles(full, base));
     } else if (entry.isFile() && entry.name.endsWith('.html')) {
-      const urlPath = '/' + rel.replace(/\\/g, '/').replace(/index\.html$/, '');
-      urls.push(urlPath);
+      files.push(path.relative(base, full));
     }
   }
-  return urls;
+  return files;
 }
 
 function generateSitemap(outputDir, siteUrl) {
-  const pages = collectHtmlFiles(outputDir, outputDir);
+  const relFiles = collectHtmlFiles(outputDir, outputDir);
 
   // Always include the root if no pages were found
-  if (pages.length === 0) {
-    pages.push('/');
-  }
-
   const now = new Date().toISOString().split('T')[0];
 
-  const urlEntries = pages
-    .map(
-      (p) => `  <url>\n    <loc>${siteUrl}${p}</loc>\n    <lastmod>${now}</lastmod>\n  </url>`
-    )
-    .join('\n');
+  let urlEntries;
+  if (relFiles.length > 0) {
+    urlEntries = relFiles
+      .map((rel) => {
+        const urlPath = toUrlPath(rel);
+        const mtime = fs.statSync(path.join(outputDir, rel)).mtime.toISOString().split('T')[0];
+        return `  <url>\n    <loc>${siteUrl}${urlPath}</loc>\n    <lastmod>${mtime}</lastmod>\n  </url>`;
+      })
+      .join('\n');
+  } else {
+    urlEntries = `  <url>\n    <loc>${siteUrl}/</loc>\n    <lastmod>${now}</lastmod>\n  </url>`;
+  }
 
   const content = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -106,20 +128,15 @@ function generateSitemap(outputDir, siteUrl) {
 function injectMetaTags(outputDir, siteUrl, siteName, siteDescription) {
   if (!fs.existsSync(outputDir)) return;
 
-  const htmlFiles = collectHtmlFiles(outputDir, outputDir).map((rel) =>
-    path.join(outputDir, rel.endsWith('/') ? rel + 'index.html' : rel)
-  );
+  const relFiles = collectHtmlFiles(outputDir, outputDir);
 
-  // Also grab any html files that collectHtmlFiles may have resolved to paths
-  // that don't exist on disk (edge case for root '/').
-  const existingFiles = htmlFiles.filter((f) => fs.existsSync(f));
-
-  if (existingFiles.length === 0) {
+  if (relFiles.length === 0) {
     console.log('  No HTML files found to inject meta tags into.');
     return;
   }
 
-  for (const file of existingFiles) {
+  for (const rel of relFiles) {
+    const file = path.join(outputDir, rel);
     let html = fs.readFileSync(file, 'utf8');
 
     // Skip if canonical tag already present
@@ -128,15 +145,14 @@ function injectMetaTags(outputDir, siteUrl, siteName, siteDescription) {
       continue;
     }
 
-    const relPath = '/' + path.relative(outputDir, file).replace(/\\/g, '/').replace(/index\.html$/, '');
-    const canonicalUrl = `${siteUrl}${relPath}`;
+    const canonicalUrl = `${siteUrl}${toUrlPath(rel)}`;
 
     const metaTags = [
-      `  <meta name="description" content="${siteDescription}">`,
-      `  <meta property="og:title" content="${siteName}">`,
-      `  <meta property="og:description" content="${siteDescription}">`,
-      `  <meta property="og:url" content="${canonicalUrl}">`,
-      `  <link rel="canonical" href="${canonicalUrl}">`,
+      `  <meta name="description" content="${escapeHtml(siteDescription)}">`,
+      `  <meta property="og:title" content="${escapeHtml(siteName)}">`,
+      `  <meta property="og:description" content="${escapeHtml(siteDescription)}">`,
+      `  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">`,
+      `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">`,
     ].join('\n');
 
     if (html.includes('</head>')) {
@@ -160,7 +176,13 @@ function main() {
   console.log('=== Profitlord SEO Deployment ===');
   console.log(`Site URL  : ${siteUrl}`);
   console.log(`Output dir: ${outputDir}`);
-  console.log('');
+
+  if (siteUrl === 'https://example.com') {
+    console.warn('\nWARNING: SITE_URL is not set. Using placeholder "https://example.com".');
+    console.warn('         Set the SITE_URL environment variable before deploying to production.\n');
+  } else {
+    console.log('');
+  }
 
   ensureDir(outputDir);
 
