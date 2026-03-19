@@ -1,10 +1,5 @@
 services:
   - type: web
-    name: plt-server
-    env: node
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
     name: profitlord-server
     env: node
     plan: free
@@ -19,4 +14,6 @@ services:
       - key: GH_BRANCH
         value: main
       - key: GH_TOKEN
+        sync: false
+      - key: REDIS_URL
         sync: false
