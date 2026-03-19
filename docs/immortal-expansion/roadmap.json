@@ -1,4 +1,7 @@
 {
+  "title": "Immortal Expansion Roadmap",
+  "description": "Phased plan to expand the Profitlord Command Center with new souls, builder capabilities, and autonomous task execution.",
+  "updated_at": "2026-03-19T09:31:43.151Z",
   "version": "1.0.0",
   "updated_at": "2026-03-19T09:41:32.000Z",
   "title": "Immortal Expansion Roadmap",
@@ -9,6 +12,26 @@
       "name": "Foundation",
       "status": "complete",
       "milestones": [
+        {
+          "id": "m1-1",
+          "name": "Launch Command Center dashboard",
+          "status": "complete",
+          "tasks": [
+            { "id": "t1-1-1", "name": "Create docs/dashboard.html", "status": "complete" },
+            { "id": "t1-1-2", "name": "Register initial souls in docs/agents.json", "status": "complete" },
+            { "id": "t1-1-3", "name": "Initialize docs/state.json tracking", "status": "complete" }
+          ]
+        },
+        {
+          "id": "m1-2",
+          "name": "Deploy plt-server backend",
+          "status": "complete",
+          "tasks": [
+            { "id": "t1-2-1", "name": "Implement /health endpoint", "status": "complete" },
+            { "id": "t1-2-2", "name": "Implement /execute endpoint", "status": "complete" },
+            { "id": "t1-2-3", "name": "Implement /chat/:soul endpoint", "status": "complete" }
+          ]
+        }
         { "id": "m1", "title": "Core souls online (Profit, Deerg, Betty, Teacher)", "status": "complete" },
         { "id": "m2", "title": "Command Center dashboard deployed", "status": "complete" },
         { "id": "m3", "title": "Backend /health, /execute, /chat/:soul routes", "status": "complete" }
@@ -17,6 +40,40 @@
     {
       "id": "phase-2",
       "name": "Immortal Expansion",
+      "status": "in-progress",
+      "milestones": [
+        {
+          "id": "m2-1",
+          "name": "Expand soul registry",
+          "status": "complete",
+          "tasks": [
+            { "id": "t2-1-1", "name": "Add Architect soul", "status": "complete" },
+            { "id": "t2-1-2", "name": "Add Builder soul", "status": "complete" },
+            { "id": "t2-1-3", "name": "Add Auditor soul", "status": "complete" },
+            { "id": "t2-1-4", "name": "Add Scout soul", "status": "complete" },
+            { "id": "t2-1-5", "name": "Add Scribe soul", "status": "complete" }
+          ]
+        },
+        {
+          "id": "m2-2",
+          "name": "Immortal Expansion site section",
+          "status": "complete",
+          "tasks": [
+            { "id": "t2-2-1", "name": "Create immortal-expansion/index.html overview", "status": "complete" },
+            { "id": "t2-2-2", "name": "Create immortal-expansion/roadmap.json", "status": "complete" },
+            { "id": "t2-2-3", "name": "Link Immortal Expansion from dashboard", "status": "complete" }
+          ]
+        },
+        {
+          "id": "m2-3",
+          "name": "Builder backend capabilities",
+          "status": "pending",
+          "tasks": [
+            { "id": "t2-3-1", "name": "Add GitHub builder endpoint to plt-server", "status": "pending" },
+            { "id": "t2-3-2", "name": "Implement per-soul personalities for new souls", "status": "pending" },
+            { "id": "t2-3-3", "name": "Add GH_TOKEN writeback for ledger and state", "status": "pending" }
+          ]
+        }
       "status": "active",
       "milestones": [
         { "id": "m4", "title": "Register Architect soul", "status": "complete" },
@@ -30,6 +87,29 @@
     },
     {
       "id": "phase-3",
+      "name": "Autonomous Operations",
+      "status": "planned",
+      "milestones": [
+        {
+          "id": "m3-1",
+          "name": "AI-powered soul responses",
+          "status": "planned",
+          "tasks": [
+            { "id": "t3-1-1", "name": "Integrate LLM backend for chat", "status": "planned" },
+            { "id": "t3-1-2", "name": "Per-soul system prompts and personalities", "status": "planned" }
+          ]
+        },
+        {
+          "id": "m3-2",
+          "name": "Scheduled automation",
+          "status": "planned",
+          "tasks": [
+            { "id": "t3-2-1", "name": "GitHub Actions nightly build triggers", "status": "planned" },
+            { "id": "t3-2-2", "name": "Auto-generate reports and ledger summaries", "status": "planned" }
+          ]
+        }
+      ]
+    }
       "name": "Autonomy",
       "status": "planned",
       "milestones": [
