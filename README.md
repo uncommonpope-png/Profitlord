@@ -69,21 +69,68 @@ The `nreal (Profitlord Master Build)` GitHub Actions workflow runs on every push
 |------|---------|
 | `docs/state.json` | Current system state: health (0–100), `updated_at`, `current_task`, souls |
 | `docs/ledger.jsonl` | Append-only event log (JSONL) — one event per line |
-| `docs/agents.json` | Souls registry (Profit, Deerg, Betty, Teacher) |
+| `docs/agents.json` | Souls registry (11 souls including Seshat) |
 | `docs/queue.jsonl` | Pending command queue (append-only JSONL) |
 | `docs/queue-processed.jsonl` | Consumed commands archive |
 | `docs/nreal.html` | nreal console UI (live state + ledger, served by GitHub Pages) |
 
 ## Souls Registry
 
-Four souls are defined in `docs/agents.json`:
+Eleven souls are defined in `docs/agents.json`:
 
-- **Profit** — orchestrator, command router, state reporter
-- **Deerg** — ecosystem builder (pages, library, content indexing)
-- **Betty** — credit/revenue tracker and financial alerts
-- **Teacher** — lesson extractor, margin finder, knowledge base
+| Soul | Role | AI Backend |
+|------|------|------------|
+| **SoulCollector** | Soul Orchestrator | OpenClaw |
+| **Profit** | Chief Profit Officer | OpenClaw |
+| **Deerg** | Deal Evaluator | OpenClaw |
+| **Betty** | Business Operations | OpenClaw |
+| **Teacher** | Knowledge Synthesizer | OpenClaw |
+| **Architect** | Systems Designer | OpenClaw |
+| **Builder** | Execution Engine | OpenClaw |
+| **Auditor** | Quality & Compliance | OpenClaw |
+| **Scout** | Intelligence Gatherer | OpenClaw |
+| **Scribe** | Chronicler & Documenter | OpenClaw |
+| **Seshat** | Knowledge Keeper | OpenClaw |
 
 Each soul has: `id`, `name`, `capabilities`, `status`, `last_seen`, `endpoint`.
+
+> **Seshat** is the Egyptian goddess of writing and wisdom. She maintains the living knowledge base, synthesises patterns from all soul activity, and surfaces actionable insights from the ledger. She is the primary soul connected to OpenClaw.
+
+## OpenClaw AI Brain (Cloud)
+
+All soul chat endpoints (`POST /chat/:soul`) are backed by **OpenClaw** — an open-source, self-hosted LLM gateway with an OpenAI-compatible REST API. This lets Seshat (and every other soul) run real AI conversations in the cloud.
+
+### How it works
+
+```
+Dashboard → POST /chat/Seshat → Render server → OpenClaw /v1/chat/completions → LLM reply
+```
+
+- Each soul gets a unique **system prompt** defining its personality and focus area.
+- The request carries `x-openclaw-agent-id: seshat` so OpenClaw can route to the right agent config.
+- If OpenClaw is unreachable or not configured, the server falls back to a descriptive stub reply — no errors surface to the user.
+
+### Deploy your own OpenClaw instance
+
+OpenClaw runs on any Node.js host. The free tier on Render works:
+
+```bash
+npm install -g openclaw
+openclaw onboard --install-daemon
+```
+
+Or deploy via the [OpenClaw GitHub repo](https://github.com/openclaw/openclaw) / Docker image to Render, Railway, Fly.io, etc.
+
+### Connect to Profitlord
+
+Set two environment variables on your **Render `plt-server` service**:
+
+| Variable | Value |
+|----------|-------|
+| `OPENCLAW_URL` | Your OpenClaw gateway URL, e.g. `https://my-openclaw.onrender.com` |
+| `OPENCLAW_TOKEN` | The bearer token / password set in your OpenClaw instance |
+
+The server will log `OpenClaw AI brain: enabled (https://...)` on startup when configured correctly.
 
 ## Enqueue a Command Locally
 
@@ -98,12 +145,29 @@ The next workflow run will pick up and process the queued command.
 
 ## Environment Variables
 
+### Build / static site
+
 | Variable | Default | Usage |
 |----------|---------|-------|
 | `SITE_URL` | `https://uncommonpope-png.github.io/Profitlord` | Canonical site root |
 | `OUTPUT_DIR` | `docs` | Output directory for generated files |
 | `SITE_NAME` | `Profitlord` | Site name used in HTML |
 | `SITE_DESCRIPTION` | (see deploy-seo.js) | Meta description |
+
+### Render server (`server/index.js`)
+
+| Variable | Required | Usage |
+|----------|----------|-------|
+| `GH_TOKEN` | Yes | GitHub PAT with repo write access |
+| `GH_OWNER` | Yes | Repository owner |
+| `GH_REPO` | Yes | Repository name |
+| `GH_BRANCH` | No | Branch to commit state to (default: `main`) |
+| `GH_CLIENT_ID` | No | GitHub OAuth App client ID |
+| `GH_CLIENT_SECRET` | No | GitHub OAuth App client secret |
+| `REDIS_URL` | No | Redis connection URL for caching |
+| `OPENCLAW_URL` | No | OpenClaw gateway base URL (enables AI brain) |
+| `OPENCLAW_TOKEN` | No | Bearer token for OpenClaw gateway |
+| `PORT` | No | Listening port (default: 3000) |
 
 ## Live Links
 
