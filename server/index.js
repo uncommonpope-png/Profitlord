@@ -412,6 +412,18 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && path === '/health') {
       return handleHealth(req, res);
     }
+    if (req.method === 'GET' && path === '/auth/login') {
+      return handleAuthLogin(req, res);
+    }
+    if (req.method === 'GET' && path === '/auth/callback') {
+      return handleAuthCallback(req, res);
+    }
+    if (req.method === 'GET' && path === '/auth/me') {
+      return handleAuthMe(req, res);
+    }
+    if (req.method === 'GET' && path === '/auth/logout') {
+      return handleAuthLogout(req, res);
+    }
     if (req.method === 'POST' && path === '/execute') {
       return handleExecute(req, res);
     }
