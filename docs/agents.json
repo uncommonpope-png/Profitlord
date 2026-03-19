@@ -34,5 +34,50 @@
     "status": "idle",
     "last_seen": "2026-03-19T08:00:00.000Z",
     "endpoint": "/chat/Teacher"
+  },
+  {
+    "id": "architect",
+    "name": "Architect",
+    "role": "Systems Designer",
+    "capabilities": ["system design", "infrastructure planning", "architecture review", "scalability"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Architect"
+  },
+  {
+    "id": "builder",
+    "name": "Builder",
+    "role": "Execution Engine",
+    "capabilities": ["code generation", "repo operations", "CI/CD", "deployment"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Builder"
+  },
+  {
+    "id": "auditor",
+    "name": "Auditor",
+    "role": "Quality & Compliance",
+    "capabilities": ["code review", "security audit", "compliance checks", "quality assurance"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Auditor"
+  },
+  {
+    "id": "scout",
+    "name": "Scout",
+    "role": "Intelligence Gatherer",
+    "capabilities": ["market research", "opportunity detection", "competitive analysis", "trend tracking"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Scout"
+  },
+  {
+    "id": "scribe",
+    "name": "Scribe",
+    "role": "Documentation Specialist",
+    "capabilities": ["documentation", "content writing", "ledger maintenance", "reporting"],
+    "status": "idle",
+    "last_seen": "2026-03-19T08:00:00.000Z",
+    "endpoint": "/chat/Scribe"
   }
 ]

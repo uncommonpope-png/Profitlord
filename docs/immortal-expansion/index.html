@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immortal Expansion — Profitlord Command Center</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1f2937;
+      --text: #e2e8f0;
+      --muted: #6b7280;
+      --accent: #7c3aed;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+    header h1 { font-size: 22px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
+    header p { color: var(--muted); margin-top: 6px; }
+    nav { margin-top: 12px; }
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 16px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    nav a:hover { border-color: var(--accent); }
+    section { margin-bottom: 32px; }
+    h2 { font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .card h3 { font-size: 13px; margin-bottom: 4px; }
+    .card p { color: var(--muted); font-size: 12px; }
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .badge.complete { background: #064e3b; color: var(--green); }
+    .badge.in-progress { background: #451a03; color: var(--yellow); }
+    .badge.planned { background: #1f2937; color: var(--muted); }
+    .soul-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .soul-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .soul-card .name { font-weight: bold; color: var(--text); margin-bottom: 2px; }
+    .soul-card .role { font-size: 11px; color: var(--accent); margin-bottom: 6px; }
+    .soul-card .caps { font-size: 11px; color: var(--muted); }
+    .phase-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .phase-row:last-child { border-bottom: none; }
+    .phase-num { width: 28px; height: 28px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
+    .phase-num.complete { background: #064e3b; color: var(--green); }
+    .phase-num.in-progress { background: #451a03; color: var(--yellow); }
+    .phase-info { flex: 1; }
+    .phase-info strong { display: block; font-size: 13px; }
+    .phase-info span { font-size: 11px; color: var(--muted); }
+    footer { border-top: 1px solid var(--border); padding-top: 14px; color: var(--muted); font-size: 11px; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Immortal Expansion</h1>
+  <p>Expanding the Profitlord Command Center with new souls, autonomous builders, and persistent intelligence.</p>
+  <nav>
+    <a href="../dashboard.html">← Dashboard</a>
+    <a href="./roadmap.json" target="_blank">roadmap.json</a>
+    <a href="../agents.json" target="_blank">agents.json</a>
+  </nav>
+</header>
+
+<section>
+  <h2>What is Immortal Expansion?</h2>
+  <div class="card">
+    <h3>The Concept</h3>
+    <p>Immortal Expansion is the growth phase of the Profitlord ecosystem — adding specialized souls, builder capabilities, and autonomous execution loops so the Command Center can act on tasks, commit to GitHub, and evolve continuously without manual intervention.</p>
+  </div>
+  <div class="card">
+    <h3>Key Principles</h3>
+    <p>Each soul is a specialized operator. Together they form a self-improving system: Scout finds opportunities, Architect designs solutions, Builder executes them, Auditor reviews quality, and Scribe documents everything.</p>
+  </div>
+</section>
+
+<section>
+  <h2>New Souls</h2>
+  <div class="soul-grid" id="souls-grid">
+    <div class="soul-card"><div class="name">Architect</div><div class="role">Systems Designer</div><div class="caps">system design · infrastructure · architecture · scalability</div></div>
+    <div class="soul-card"><div class="name">Builder</div><div class="role">Execution Engine</div><div class="caps">code generation · repo ops · CI/CD · deployment</div></div>
+    <div class="soul-card"><div class="name">Auditor</div><div class="role">Quality &amp; Compliance</div><div class="caps">code review · security · compliance · QA</div></div>
+    <div class="soul-card"><div class="name">Scout</div><div class="role">Intelligence Gatherer</div><div class="caps">market research · opportunity detection · competitive analysis</div></div>
+    <div class="soul-card"><div class="name">Scribe</div><div class="role">Documentation Specialist</div><div class="caps">documentation · content writing · ledger · reporting</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Roadmap Phases</h2>
+  <div class="card" style="padding: 6px 16px;" id="phases-list">
+    <div class="phase-row">
+      <div class="phase-num complete">1</div>
+      <div class="phase-info">
+        <strong>Foundation</strong>
+        <span>Dashboard live, initial souls registered, plt-server deployed.</span>
+      </div>
+      <span class="badge complete">Complete</span>
+    </div>
+    <div class="phase-row">
+      <div class="phase-num in-progress">2</div>
+      <div class="phase-info">
+        <strong>Immortal Expansion</strong>
+        <span>Expand soul registry, add Immortal Expansion site section, connect builder backend.</span>
+      </div>
+      <span class="badge in-progress">In Progress</span>
+    </div>
+    <div class="phase-row">
+      <div class="phase-num">3</div>
+      <div class="phase-info">
+        <strong>Autonomous Operations</strong>
+        <span>AI-powered soul responses, scheduled automation, self-updating ledger.</span>
+      </div>
+      <span class="badge planned">Planned</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Resources</h2>
+  <div class="card">
+    <p>
+      Full machine-readable roadmap: <a href="./roadmap.json" target="_blank" style="color:var(--accent)">roadmap.json</a><br/>
+      Soul registry: <a href="../agents.json" target="_blank" style="color:var(--accent)">agents.json</a><br/>
+      Live state: <a href="../state.json" target="_blank" style="color:var(--accent)">state.json</a><br/>
+      Command Center: <a href="../dashboard.html" style="color:var(--accent)">dashboard.html</a>
+    </p>
+  </div>
+</section>
+
+<footer>
+  Profitlord Command Center &mdash; Immortal Expansion &mdash;
+  <a href="https://uncommonpope-png.github.io/Profitlord/dashboard.html">Open Dashboard</a>
+</footer>
+
+</body>
+</html>

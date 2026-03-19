@@ -60,6 +60,31 @@
       "status": "stale",
       "last_seen": "2026-03-19T08:00:00.000Z",
       "endpoint": "/chat/Teacher"
+    },
+    "Architect": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": null
+    },
+    "Builder": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": null
+    },
+    "Auditor": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": null
+    },
+    "Scout": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": null
+    },
+    "Scribe": {
+      "status": "idle",
+      "last_seen": "2026-03-19T08:00:00.000Z",
+      "last_message": null
     }
   }
 }
