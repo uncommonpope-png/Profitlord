@@ -4,8 +4,8 @@
     "name": "SoulCollector",
     "role": "Soul Orchestrator",
     "capabilities": ["soul collection", "task delegation", "orchestration", "agent management"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/SoulCollector"
   },
   {
@@ -13,8 +13,8 @@
     "name": "Profit",
     "role": "Chief Profit Officer",
     "capabilities": ["strategy", "revenue", "pricing", "PLT analysis"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Profit"
   },
   {
@@ -22,8 +22,8 @@
     "name": "Deerg",
     "role": "Deal Evaluator",
     "capabilities": ["deal scoring", "risk analysis", "negotiation", "pipeline"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Deerg"
   },
   {
@@ -31,8 +31,8 @@
     "name": "Betty",
     "role": "Business Operations",
     "capabilities": ["operations", "cashflow", "budgeting", "KPI tracking"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Betty"
   },
   {
@@ -40,71 +40,53 @@
     "name": "Teacher",
     "role": "Knowledge Synthesizer",
     "capabilities": ["education", "frameworks", "playbooks", "content"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Teacher"
   },
   {
     "id": "architect",
     "name": "Architect",
     "role": "Systems Designer",
-    "capabilities": ["system design", "infrastructure planning", "architecture review", "scalability"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
-    "role": "System Designer",
     "capabilities": ["system design", "architecture", "scalability", "blueprints"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Architect"
   },
   {
     "id": "builder",
     "name": "Builder",
     "role": "Execution Engine",
-    "capabilities": ["code generation", "repo operations", "CI/CD", "deployment"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
-    "role": "Implementation Engine",
     "capabilities": ["coding", "automation", "deployment", "integrations"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Builder"
   },
   {
     "id": "auditor",
     "name": "Auditor",
     "role": "Quality & Compliance",
-    "capabilities": ["code review", "security audit", "compliance checks", "quality assurance"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
     "capabilities": ["auditing", "compliance", "risk assessment", "reporting"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Auditor"
   },
   {
     "id": "scout",
     "name": "Scout",
     "role": "Intelligence Gatherer",
-    "capabilities": ["market research", "opportunity detection", "competitive analysis", "trend tracking"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
     "capabilities": ["market research", "competitive analysis", "signals", "leads"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Scout"
   },
   {
     "id": "scribe",
     "name": "Scribe",
-    "role": "Documentation Specialist",
-    "capabilities": ["documentation", "content writing", "ledger maintenance", "reporting"],
-    "status": "idle",
-    "last_seen": "2026-03-19T08:00:00.000Z",
     "role": "Chronicler & Documenter",
     "capabilities": ["documentation", "reporting", "logs", "summaries"],
-    "status": "idle",
-    "last_seen": "2026-03-19T09:00:00.000Z",
+    "status": "active",
+    "last_seen": "2026-03-19T11:00:00.000Z",
     "endpoint": "/chat/Scribe"
   }
 ]

@@ -1,0 +1,18 @@
+{
+  "name": "profitlord-worker",
+  "version": "2.0.0",
+  "description": "Profitlord Soul Economy — Cloudflare Worker API",
+  "main": "src/index.js",
+  "private": true,
+  "scripts": {
+    "dev":    "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init":   "wrangler d1 execute profitlord-db --file=schema.sql",
+    "db:seed":   "wrangler d1 execute profitlord-db --file=seed.sql",
+    "db:init:remote": "wrangler d1 execute profitlord-db --remote --file=schema.sql",
+    "db:seed:remote": "wrangler d1 execute profitlord-db --remote --file=seed.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
