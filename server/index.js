@@ -5,6 +5,7 @@
 // Endpoints:
 //   GET  /health
 //   POST /execute       { command, source, ts }
+//   POST /delegate      { task, soul, source }
 //   POST /chat/:soul    { message, session_id }
 //
 // Required environment variables:
@@ -222,7 +223,53 @@ async function handleChat(req, res, soul) {
   send(res, 200, { ok: true, soul, reply, session_id: sessionId });
 }
 
-// ─── Server ─────────────────────────────────────────────────────────────────
+const SOUL_COLLECTOR_NAME = 'SoulCollector';
+const LOG_TRUNCATE        = 120;
+const MSG_TRUNCATE        = 200;
+const TASK_SUMMARY_LEN    = 80;
+
+async function handleDelegate(req, res) {
+  let body;
+  try { body = await readBody(req); } catch (e) { return send(res, 400, { error: e.message }); }
+
+  const task   = String(body.task || '').trim();
+  const soul   = String(body.soul || '').trim();
+  const source = String(body.source || 'unknown').slice(0, 64);
+
+  if (!task) return send(res, 400, { error: 'task is required' });
+  if (!soul) return send(res, 400, { error: 'soul is required' });
+
+  console.log(`[delegate] ${SOUL_COLLECTOR_NAME} -> soul=${soul} source=${source} task=${task.slice(0, LOG_TRUNCATE)}`);
+
+  const now = new Date().toISOString();
+
+  // Fire-and-forget GitHub writes
+  updateState({
+    souls: {
+      [SOUL_COLLECTOR_NAME]: { status: 'active', last_seen: now, last_message: `Delegated to ${soul}: ${task.slice(0, LOG_TRUNCATE)}` },
+      [soul]: { status: 'active', last_seen: now, last_message: task.slice(0, MSG_TRUNCATE) },
+    },
+    health: 100,
+    current_task: `${SOUL_COLLECTOR_NAME} → ${soul}: ${task.slice(0, TASK_SUMMARY_LEN)}`,
+  }).catch(() => {});
+  appendLedger({
+    type: 'delegate',
+    event: task,
+    source: SOUL_COLLECTOR_NAME,
+    delegated_to: soul,
+    original_source: source,
+  }).catch(() => {});
+
+  send(res, 200, {
+    ok: true,
+    collector: SOUL_COLLECTOR_NAME,
+    soul,
+    task,
+    message: `Task delegated to ${soul}.`,
+  });
+}
+
+
 
 const server = http.createServer(async (req, res) => {
   setCors(req, res);
@@ -243,6 +290,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === 'POST' && path === '/execute') {
       return handleExecute(req, res);
+    }
+    if (req.method === 'POST' && path === '/delegate') {
+      return handleDelegate(req, res);
     }
     const chatMatch = path.match(/^\/chat\/([^/]+)$/);
     if (req.method === 'POST' && chatMatch) {

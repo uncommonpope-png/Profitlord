@@ -1,10 +1,24 @@
 {
-  "updated_at": "2026-03-19T09:11:35.663Z",
+  "updated_at": "2026-03-19T09:42:28.588Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
   "pages_total": 62,
   "souls": {
+    "SoulCollector": {
+      "id": "soulcollector",
+      "name": "SoulCollector",
+      "role": "Soul Orchestrator",
+      "capabilities": [
+        "soul collection",
+        "task delegation",
+        "orchestration",
+        "agent management"
+      ],
+      "status": "active",
+      "last_seen": "2026-03-19T09:42:28.590Z",
+      "endpoint": "/chat/SoulCollector"
+    },
     "Profit": {
       "id": "profit",
       "name": "Profit",
@@ -16,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:11:35.665Z",
+      "last_seen": "2026-03-19T09:42:28.590Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -30,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-19T09:11:35.665Z",
+      "last_seen": "2026-03-19T09:42:28.590Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -61,5 +75,7 @@
       "last_seen": "2026-03-19T08:00:00.000Z",
       "endpoint": "/chat/Teacher"
     }
-  }
+  },
+  "last_queue_consumed": "2026-03-19T09:43:09.297Z",
+  "queue_consumed_count": 1
 }
