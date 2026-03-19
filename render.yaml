@@ -5,6 +5,12 @@ services:
     rootDir: server
     buildCommand: npm install
     startCommand: npm start
+    name: profitlord-server
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: echo "no build step"
+    startCommand: node index.js
     envVars:
       - key: GH_OWNER
         value: uncommonpope-png

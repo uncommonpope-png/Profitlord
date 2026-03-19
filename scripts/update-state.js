@@ -104,7 +104,14 @@ function main() {
   const htmlFiles = countFiles(outputDir, '.html');
   const health    = process.env.HEALTH ? parseInt(process.env.HEALTH, 10) : 100;
 
-  const souls = loadAgents(agentsPath);
+  const soulsArr = loadAgents(agentsPath);
+
+  // Convert agents array to object keyed by soul name so the dashboard's
+  // Object.entries(state.souls) rendering works correctly.
+  const souls = {};
+  for (const agent of soulsArr) {
+    souls[agent.name] = { ...agent };
+  }
 
   // Merge with existing state so we don't overwrite unrelated fields
   const existing = readJson(statePath, {});
@@ -129,7 +136,7 @@ function main() {
     details: {
       pages_scanned: htmlFiles,
       health:        health,
-      souls_active:  souls.filter((s) => s.status === 'active').length,
+      souls_active:  Object.values(souls).filter((s) => s.status === 'active').length,
     },
   };
 
@@ -139,7 +146,7 @@ function main() {
   console.log('✅ State + ledger updated.');
   console.log(`   Health     : ${health}`);
   console.log(`   Pages      : ${htmlFiles}`);
-  console.log(`   Souls      : ${souls.length}`);
+  console.log(`   Souls      : ${Object.keys(souls).length}`);
   console.log(`   State file : ${statePath}`);
   console.log(`   Ledger file: ${ledgerPath}`);
 }

@@ -101,6 +101,7 @@ The next workflow run will pick up and process the queued command.
 
 ## Live Links
 
+- **GitHub Repository**: <https://github.com/uncommonpope-png/Profitlord>
 - **Site**: <https://uncommonpope-png.github.io/Profitlord/>
 - **nreal console**: <https://uncommonpope-png.github.io/Profitlord/nreal.html>
 - **State JSON**: <https://uncommonpope-png.github.io/Profitlord/state.json>
