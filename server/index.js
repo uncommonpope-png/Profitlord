@@ -11,27 +11,33 @@
 //   GET  /auth/callback  — exchange code for token, redirect to dashboard
 //   GET  /auth/me        — return authenticated user info (requires Bearer token)
 //   GET  /auth/logout    — invalidate session
-//   POST /execute        { command, source, ts }
-//   POST /chat/:soul     { message, session_id }
 //
 // Required environment variables:
-//   GH_TOKEN   — GitHub personal access token with repo write access
-//   GH_OWNER   — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO    — Repository name   (e.g. Profitlord)
-//   REDIS_URL  — Redis connection URL (e.g. redis://host:6379)
-//   PORT       — (optional) listening port, defaults to 3000
-//   GH_TOKEN        — GitHub personal access token with repo write access
-//   GH_OWNER        — Repository owner  (e.g. uncommonpope-png)
-//   GH_REPO         — Repository name   (e.g. Profitlord)
-//   GH_CLIENT_ID    — GitHub OAuth App client ID
+//   GH_TOKEN         — GitHub personal access token with repo write access
+//   GH_OWNER         — Repository owner  (e.g. uncommonpope-png)
+//   GH_REPO          — Repository name   (e.g. Profitlord)
+//   GH_CLIENT_ID     — GitHub OAuth App client ID
 //   GH_CLIENT_SECRET — GitHub OAuth App client secret
-//   PORT            — (optional) listening port, defaults to 3000
+//   REDIS_URL        — Redis connection URL (e.g. redis://host:6379)
+//   PORT             — (optional) listening port, defaults to 3000
+// Optional:
+//   OPENAI_API_KEY        — enables live model responses (gpt-4o default)
+//   TELEGRAM_BOT_TOKEN    — enables Telegram notifications
+//   TELEGRAM_CHAT_ID      — Telegram target chat id
+//   HEARTBEAT_INTERVAL_MS — heartbeat period in ms (default 300000)
 // ---------------------------------------------------------------------------
 
 const http = require('http');
 const https = require('https');
 const { createClient } = require('redis');
 const crypto = require('crypto');
+
+// ─── Agent modules ───────────────────────────────────────────────────────────
+const profitAgent  = require('./agents/profit');
+const nrealAgent   = require('./agents/nreal');
+const seshatAgent  = require('./agents/seshat');
+const messaging    = require('./messaging');
+const { isLive: modelIsLive } = require('./model');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const GH_TOKEN = process.env.GH_TOKEN || '';
@@ -277,11 +283,14 @@ function setCors(req, res) {
 // ─── Route handlers ─────────────────────────────────────────────────────────
 
 async function handleHealth(req, res) {
+  const { isConfigured: telegramConfigured } = require('./telegram');
   send(res, 200, {
     status: 'ok',
     ts: new Date().toISOString(),
     service: 'profitlord-server',
     redis: redisClient?.isReady ? 'connected' : 'disabled',
+    model: modelIsLive() ? 'live' : 'placeholder',
+    telegram: telegramConfigured() ? 'configured' : 'disabled',
   });
 }
 
@@ -409,14 +418,30 @@ async function handleChat(req, res, soul) {
   let body;
   try { body = await readBody(req); } catch (e) { return send(res, 400, { error: e.message }); }
 
-  const message = String(body.message || '').trim();
+  const message   = String(body.message || '').trim();
   const sessionId = String(body.session_id || '').slice(0, 64);
 
   if (!message) return send(res, 400, { error: 'message is required' });
 
   console.log(`[chat] soul=${soul} session=${sessionId} msg=${message.slice(0, 120)}`);
 
-  const reply = `${soul} received: "${message}". (Render brain not yet wired — state recorded.)`;
+  // Dispatch to the matching agent module; fall back to generic reply
+  let reply;
+  const soulLower = soul.toLowerCase();
+  try {
+    if (soulLower === 'profit') {
+      reply = await profitAgent.chat(message, sessionId);
+    } else if (soulLower === 'nreal') {
+      reply = await nrealAgent.chat(message, sessionId);
+    } else if (soulLower === 'seshat') {
+      reply = await seshatAgent.chat(message, sessionId);
+    } else {
+      reply = `${soul} received: "${message}". (Agent module not specialised — state recorded.)`;
+    }
+  } catch (e) {
+    console.error(`[chat] agent error soul=${soul}:`, e.message);
+    reply = `${soul}: error processing message — ${e.message}`;
+  }
 
   // Fire-and-forget GitHub writes
   updateState({
@@ -533,4 +558,8 @@ server.listen(PORT, () => {
   console.log(`[profitlord-server] GitHub writeback: ${GH_TOKEN ? 'enabled' : 'DISABLED (no GH_TOKEN)'}`);
   console.log(`[profitlord-server] Redis cache: ${REDIS_URL ? 'enabled' : 'DISABLED (no REDIS_URL)'}`);
   console.log(`[profitlord-server] CORS allowed origin: ${ALLOWED_ORIGIN}`);
+  console.log(`[profitlord-server] Model: ${modelIsLive() ? 'live (OpenAI)' : 'placeholder (no OPENAI_API_KEY)'}`);
+
+  // Start proactive messaging heartbeat (no-ops if Telegram is not configured)
+  messaging.startHeartbeat();
 });
