@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-20T06:07:43.191Z",
+  "updated_at": "2026-03-21T05:32:27.160Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
@@ -16,7 +16,7 @@
         "agent management"
       ],
       "status": "active",
-      "last_seen": "2026-03-20T06:07:43.192Z",
+      "last_seen": "2026-03-21T05:32:27.162Z",
       "endpoint": "/chat/SoulCollector"
     },
     "Profit": {
@@ -30,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-20T06:07:43.192Z",
+      "last_seen": "2026-03-21T05:32:27.162Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -44,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-20T06:07:43.192Z",
+      "last_seen": "2026-03-21T05:32:27.162Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -57,7 +57,7 @@
         "budgeting",
         "KPI tracking"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Betty"
     },
@@ -71,7 +71,7 @@
         "playbooks",
         "content"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Teacher"
     },
@@ -85,7 +85,7 @@
         "scalability",
         "blueprints"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Architect"
     },
@@ -99,7 +99,7 @@
         "deployment",
         "integrations"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Builder"
     },
@@ -113,7 +113,7 @@
         "risk assessment",
         "reporting"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Auditor"
     },
@@ -127,7 +127,7 @@
         "signals",
         "leads"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Scout"
     },
@@ -141,7 +141,7 @@
         "logs",
         "summaries"
       ],
-      "status": "stale",
+      "status": "offline",
       "last_seen": "2026-03-19T11:00:00.000Z",
       "endpoint": "/chat/Scribe"
     }
