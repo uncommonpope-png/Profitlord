@@ -15,9 +15,11 @@ const ProfitlordOS = (() => {
   const STATE_KEY  = 'plt_os_state_v2';
   const LEDGER_KEY = 'plt_os_ledger_v2';
   const QUEUE_KEY  = 'plt_os_queue_v2';
-  const POLL_MS    = 30_000;   // sync remote every 30 s
-  const SCAN_MS    = 60_000;   // run SCAN loop every 60 s
-  const LEDGER_MAX = 500;
+  const POLL_MS         = 30_000;   // sync remote every 30 s
+  const SCAN_MS         = 60_000;   // run SCAN loop every 60 s
+  const BROADCAST_MS    = 30_000;   // broadcast bot status every 30 s
+  const LEDGER_MAX      = 500;
+  const BROADCASTS_MAX  = 200;      // keep latest N broadcast messages
 
   const TIERS = [
     { min: 1000, name: 'mythic',  color: '#ffd700' },
@@ -85,7 +87,7 @@ const ProfitlordOS = (() => {
       bots:        {},
       tasks:       {},
       leaderboard: [],
-      chat:        { channels: { general: [], ops: [], profit: [], intel: [] } },
+      chat:        { channels: { general: [], ops: [], profit: [], intel: [], broadcasts: [] } },
       economy:     { total_nsv: 0, total_points: 0, total_tasks: 0, active_bots: 0 },
       missions:    {},
       scan:        { last_run: null, phase: 'idle', last_report: [] },
@@ -516,8 +518,114 @@ const ProfitlordOS = (() => {
     return report;
   }
 
-  // ── Modes ─────────────────────────────────────────────────────────────────────
-  function activateMoneyMode() {
+  // ── Bot broadcast system ──────────────────────────────────────────────────────
+  const BOT_STATUS_POOL = {
+    soulcollector: [
+      'Soul grid online. All 10 agents accounted for. Running delegation protocol.',
+      'Collector loop active: OBSERVE → SCORE → INTERPRET → CAPTURE → MULTIPLY → STORE → REPORT.',
+      'Orchestrating task queue. Priority assignments dispatched to all souls.',
+      'NSV matrix updated. High-value tasks routed to top-scoring agents.',
+      'Soul economy healthy. Compounding in progress.',
+    ],
+    profit: [
+      'Revenue analysis running. Scanning for high-margin opportunities.',
+      'PLT framework active: Profit + Love − Tax = Net Soul Value.',
+      'Pricing optimisation loop complete. New offer structures modelled.',
+      'Cash-flow patterns analysed. Three growth vectors identified.',
+      'High-NSV opportunity detected. Flagging for immediate capture.',
+    ],
+    deerg: [
+      'Deal pipeline scanned. Scoring all active opportunities.',
+      'Risk matrices updated. Negotiation protocols armed and ready.',
+      'Lead qualification complete. Two high-value deals flagged.',
+      'Due-diligence pass finished. Proceeding to capture phase.',
+      'Competitive landscape mapped. Advantage vectors confirmed.',
+    ],
+    betty: [
+      'Business operations nominal. All KPIs within target range.',
+      'Cashflow monitor active. Budget variance within 2%.',
+      'Operational efficiency score: 94. No blockers detected.',
+      'Weekly KPI snapshot compiled. Sending to Scribe for logging.',
+      'Process automation running. Overhead reduced by 12% this cycle.',
+    ],
+    teacher: [
+      'Knowledge base compiled. 47 frameworks catalogued and indexed.',
+      'Training modules queued. Content playbooks ready for deployment.',
+      'Education pathway mapped. Synthesising insights from latest scan.',
+      'New playbook generated: "Scale Without Burning Cash".',
+      'Concept distilled and packaged. Deploying to library.',
+    ],
+    architect: [
+      'System blueprints loaded. Architecture review complete.',
+      'Scalability analysis running. Design patterns optimised for growth.',
+      'Infrastructure map updated. Three expansion vectors identified.',
+      'New system module designed: Automated Soul Delegation v2.',
+      'Blueprint committed. Builder has been tasked for implementation.',
+    ],
+    builder: [
+      'Deployment pipeline ready. All integrations nominal.',
+      'Automation scripts running. Build queue: 3 items active.',
+      'Code review complete. Next sprint planned and scheduled.',
+      'API connection verified. Data flow confirmed end-to-end.',
+      'Feature shipped. Monitoring active. Zero errors in last 100 runs.',
+    ],
+    auditor: [
+      'Compliance audit running. Risk assessment updated.',
+      'Quality checks passing. No critical issues detected this cycle.',
+      'Reporting protocols active. All system actions logged and verified.',
+      'Security pass complete. No vulnerabilities flagged.',
+      'Audit trail current. 100% event coverage confirmed.',
+    ],
+    scout: [
+      'Market intelligence gathered. Competitive analysis updated.',
+      'Signal detection active. Two high-value leads identified.',
+      'Opportunity scanning complete. Watchlist updated with 5 new entries.',
+      'Trend analysis done. Three emerging markets flagged for Profit.',
+      'Intel brief compiled. Routing to SoulCollector for delegation.',
+    ],
+    scribe: [
+      'Documentation updated. All event logs current and synced.',
+      'Summary reports generated. All actions from last cycle chronicled.',
+      'Knowledge archive synced. Ledger maintained with 100% fidelity.',
+      'Session transcript complete. Publishing to library.',
+      'Build log committed. Version history preserved.',
+    ],
+  };
+
+  let _broadcastId = null;
+
+  function broadcastAll() {
+    const bots = getBots();
+    const ts   = now();
+    const out  = [];
+    for (const bot of bots) {
+      const pool = BOT_STATUS_POOL[bot.id] || [`${bot.name}: Online and operational.`];
+      const msg  = pool[Math.floor(Math.random() * pool.length)];
+      // Post to broadcasts channel
+      const channel = 'broadcasts';
+      const entry   = { id: uid(), sender: bot.id, senderName: bot.name, content: msg,
+                        timestamp: ts, channel };
+      const prev    = _state.chat?.channels?.broadcasts || [];
+      const updated = [...prev, entry].slice(-BROADCASTS_MAX);
+      // Directly mutate then save to avoid triggering N separate notifies
+      if (!_state.chat) _state.chat = { channels: {} };
+      if (!_state.chat.channels) _state.chat.channels = {};
+      _state.chat.channels.broadcasts = updated;
+      // Update bot last_message
+      if (_state.bots[bot.id]) {
+        _state.bots[bot.id].status      = 'active';
+        _state.bots[bot.id].last_active = ts;
+        _state.bots[bot.id].last_message = msg.slice(0, 200);
+      }
+      out.push({ bot: bot.name, msg, ts });
+    }
+    _save();
+    appendLedger('broadcast_all', 'system', { count: out.length, ts });
+    _notify();
+    return out;
+  }
+
+  // ── Modes ─────────────────────────────────────────────────────────────────────  function activateMoneyMode() {
     setState({ money_mode: true, architect_mode: false });
     appendLedger('mode_activated', 'system', { mode: 'MONEY' });
     sendMessage('system',
@@ -700,6 +808,9 @@ const ProfitlordOS = (() => {
     // Run first scan
     await runScan();
 
+    // Immediate boot broadcast — bots report in right away
+    broadcastAll();
+
     // Poll loop (remote sync)
     if (_pollId) clearInterval(_pollId);
     _pollId = setInterval(() => syncRemote().then(() => _notify()), POLL_MS);
@@ -707,6 +818,10 @@ const ProfitlordOS = (() => {
     // SCAN loop
     if (_scanId) clearInterval(_scanId);
     _scanId = setInterval(() => runScan(), SCAN_MS);
+
+    // Broadcast loop — bots send status every 30 s
+    if (_broadcastId) clearInterval(_broadcastId);
+    _broadcastId = setInterval(() => broadcastAll(), BROADCAST_MS);
 
     appendLedger('system_boot', 'system',
       { version: V, bots: Object.keys(_state.bots).length,
@@ -729,6 +844,9 @@ const ProfitlordOS = (() => {
     updateLeaderboard, getTier,
     // Chat
     sendMessage, getMessages,
+    // Broadcasts
+    broadcastAll,
+    getBroadcasts: () => _state.chat?.channels?.broadcasts || [],
     // Economy
     getEconomyStats,
     // Self-tasking
