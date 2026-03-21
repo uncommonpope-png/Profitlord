@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-21T05:32:27.160Z",
+  "updated_at": "2026-03-21T14:46:13.936Z",
   "health": 100,
   "current_task": "idle",
   "site_url": "https://uncommonpope-png.github.io/Profitlord",
@@ -16,7 +16,7 @@
         "agent management"
       ],
       "status": "active",
-      "last_seen": "2026-03-21T05:32:27.162Z",
+      "last_seen": "2026-03-21T14:46:13.938Z",
       "endpoint": "/chat/SoulCollector"
     },
     "Profit": {
@@ -30,7 +30,7 @@
         "PLT analysis"
       ],
       "status": "active",
-      "last_seen": "2026-03-21T05:32:27.162Z",
+      "last_seen": "2026-03-21T14:46:13.938Z",
       "endpoint": "/chat/Profit"
     },
     "Deerg": {
@@ -44,7 +44,7 @@
         "pipeline"
       ],
       "status": "active",
-      "last_seen": "2026-03-21T05:32:27.162Z",
+      "last_seen": "2026-03-21T14:46:13.938Z",
       "endpoint": "/chat/Deerg"
     },
     "Betty": {
@@ -58,7 +58,7 @@
         "KPI tracking"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Betty"
     },
     "Teacher": {
@@ -72,7 +72,7 @@
         "content"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Teacher"
     },
     "Architect": {
@@ -86,7 +86,7 @@
         "blueprints"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Architect"
     },
     "Builder": {
@@ -100,7 +100,7 @@
         "integrations"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Builder"
     },
     "Auditor": {
@@ -114,7 +114,7 @@
         "reporting"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Auditor"
     },
     "Scout": {
@@ -128,7 +128,7 @@
         "leads"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Scout"
     },
     "Scribe": {
@@ -142,7 +142,7 @@
         "summaries"
       ],
       "status": "offline",
-      "last_seen": "2026-03-19T11:00:00.000Z",
+      "last_seen": "2026-03-19T17:20:27.260Z",
       "endpoint": "/chat/Scribe"
     }
   }
